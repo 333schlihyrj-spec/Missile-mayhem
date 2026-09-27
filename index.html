@@ -1,1668 +1,1822 @@
-// MISSILE MAYHEM 3D
-// FIXED GAME.JS
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-let scene;
-let camera;
-let renderer;
+<title>Missile Mayhem</title>
 
-let player;
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
 
-let missiles = [];
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #050b14;
+    font-family: Arial, sans-serif;
+}
 
-let running = false;
-let alive = true;
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-let score = 0;
-let lives = 3;
-let wave = 1;
+#game {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
 
-let playerY = 0;
-let velocityY = 0;
-
-let ducking = false;
-
-let spawnTimer = 0;
-let waveMissiles = 0;
-let waveComplete = false;
-let waveDelay = 0;
-
-let cameraShake = 0;
-let lastTime = performance.now();
-
-
-// ==========================================
-// START THE 3D GAME
-// ==========================================
-
-function setupGame() {
-
-    scene = new THREE.Scene();
-
-    scene.background =
-        new THREE.Color(0x020611);
-
-    scene.fog =
-        new THREE.Fog(
-            0x020611,
-            30,
-            180
-        );
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
 
 
-    // CAMERA
+/* HUD */
 
-    camera =
-        new THREE.PerspectiveCamera(
-            70,
-            window.innerWidth /
-            window.innerHeight,
-            0.1,
-            500
-        );
+#hud {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
 
-    camera.position.set(
+    display: flex;
+    justify-content: space-between;
+
+    z-index: 5;
+
+    color: white;
+    font-weight: bold;
+    font-size: 17px;
+
+    pointer-events: none;
+}
+
+.box {
+    padding: 8px 12px;
+    border-radius: 10px;
+
+    background: rgba(0,0,0,.55);
+
+    border: 1px solid rgba(255,255,255,.2);
+
+    text-shadow: 0 2px 3px black;
+}
+
+
+/* MENU */
+
+#menuScreen {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0,0,0,.68);
+
+    z-index: 20;
+}
+
+#menu {
+    width: min(90%, 440px);
+
+    padding: 30px;
+
+    text-align: center;
+
+    color: white;
+
+    background: #081421;
+
+    border: 2px solid #38d9ff;
+
+    border-radius: 20px;
+
+    box-shadow: 0 0 30px rgba(56,217,255,.3);
+}
+
+#menu h1 {
+    margin: 0 0 10px;
+
+    font-size: clamp(34px, 8vw, 58px);
+
+    color: #38d9ff;
+
+    text-shadow:
+        0 0 10px #38d9ff,
+        0 0 25px rgba(56,217,255,.5);
+}
+
+#menu p {
+    line-height: 1.5;
+}
+
+#start {
+    margin-top: 15px;
+
+    padding: 14px 32px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: #38d9ff;
+
+    color: #06101a;
+
+    font-size: 19px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+#start:active {
+    transform: scale(.95);
+}
+
+
+/* MOBILE CONTROLS */
+
+#controls {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 12px;
+
+    display: flex;
+    justify-content: center;
+
+    gap: 20px;
+
+    z-index: 10;
+}
+
+.control {
+    width: 115px;
+    height: 78px;
+
+    border-radius: 18px;
+
+    border: 2px solid rgba(255,255,255,.35);
+
+    background: rgba(0,0,0,.6);
+
+    color: white;
+
+    font-size: 36px;
+    font-weight: bold;
+
+    touch-action: none;
+    user-select: none;
+}
+
+.control small {
+    display: block;
+    font-size: 12px;
+}
+
+.control:active {
+    background: rgba(56,217,255,.55);
+    transform: scale(.94);
+}
+
+
+/* Hide mobile controls on desktop */
+
+@media (min-width: 800px) {
+    #controls {
+        display: none;
+    }
+}
+
+@media (max-width: 500px) {
+
+    #hud {
+        font-size: 13px;
+        top: 7px;
+        left: 7px;
+        right: 7px;
+    }
+
+    .box {
+        padding: 6px 8px;
+    }
+
+    .control {
+        width: 105px;
+        height: 70px;
+    }
+}
+</style>
+</head>
+
+
+<body>
+
+<div id="game">
+
+    <canvas id="canvas"></canvas>
+
+
+    <!-- HUD -->
+
+    <div id="hud">
+
+        <div class="box">
+            SCORE:
+            <span id="score">0</span>
+        </div>
+
+        <div class="box">
+            LIVES:
+            <span id="lives">❤️❤️❤️</span>
+        </div>
+
+        <div class="box">
+            LEVEL:
+            <span id="level">1</span>
+        </div>
+
+    </div>
+
+
+    <!-- MENU -->
+
+    <div id="menuScreen">
+
+        <div id="menu">
+
+            <h1 id="title">
+                MISSILE MAYHEM
+            </h1>
+
+            <p id="message">
+                Jump and duck to survive!
+            </p>
+
+            <p>
+                🚀 Low missile = <b>JUMP</b><br>
+                🚀 High missile = <b>DUCK</b>
+            </p>
+
+            <p>
+                Computer: ↑ Jump &nbsp; ↓ Duck<br>
+                Mobile: Use the buttons
+            </p>
+
+            <button id="start">
+                START GAME
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- MOBILE BUTTONS -->
+
+    <div id="controls">
+
+        <button
+            id="jump"
+            class="control">
+
+            ↑
+            <small>JUMP</small>
+
+        </button>
+
+
+        <button
+            id="duck"
+            class="control">
+
+            ↓
+            <small>DUCK</small>
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   MISSILE MAYHEM
+   SIMPLE 2D VERSION
+   ========================================================= */
+
+const canvas =
+    document.getElementById("canvas");
+
+const ctx =
+    canvas.getContext("2d");
+
+
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
+
+const scoreElement =
+    document.getElementById("score");
+
+const livesElement =
+    document.getElementById("lives");
+
+const levelElement =
+    document.getElementById("level");
+
+const menuScreen =
+    document.getElementById("menuScreen");
+
+const titleElement =
+    document.getElementById("title");
+
+const messageElement =
+    document.getElementById("message");
+
+const startButton =
+    document.getElementById("start");
+
+const jumpButton =
+    document.getElementById("jump");
+
+const duckButton =
+    document.getElementById("duck");
+
+
+/* =========================================================
+   CANVAS SIZE
+   ========================================================= */
+
+let W = 0;
+let H = 0;
+let ground = 0;
+
+
+function resize() {
+
+    W = window.innerWidth;
+    H = window.innerHeight;
+
+    const dpr =
+        Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width =
+        W * dpr;
+
+    canvas.height =
+        H * dpr;
+
+    canvas.style.width =
+        W + "px";
+
+    canvas.style.height =
+        H + "px";
+
+    ctx.setTransform(
+        dpr,
         0,
-        5,
-        13
-    );
-
-
-    // RENDERER
-
-    renderer =
-        new THREE.WebGLRenderer({
-            antialias: true
-        });
-
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
-
-    renderer.setPixelRatio(
-        Math.min(
-            window.devicePixelRatio,
-            2
-        )
-    );
-
-    renderer.shadowMap.enabled = true;
-
-
-    document
-        .getElementById("game")
-        .appendChild(renderer.domElement);
-
-
-    // LIGHTS
-
-    const ambient =
-        new THREE.AmbientLight(
-            0x8899bb,
-            1.5
-        );
-
-    scene.add(ambient);
-
-
-    const light =
-        new THREE.DirectionalLight(
-            0xffffff,
-            2
-        );
-
-    light.position.set(
-        -10,
-        20,
-        10
-    );
-
-    light.castShadow = true;
-
-    scene.add(light);
-
-
-    const redLight =
-        new THREE.PointLight(
-            0xff3322,
-            5,
-            40
-        );
-
-    redLight.position.set(
         0,
-        5,
+        dpr,
+        0,
         0
     );
 
-    scene.add(redLight);
+    ground =
+        H * 0.78;
 
-
-    // STARS
-
-    createStars();
-
-
-    // MOON
-
-    const moon =
-        new THREE.Mesh(
-
-            new THREE.SphereGeometry(
-                7,
-                32,
-                32
-            ),
-
-            new THREE.MeshBasicMaterial({
-                color: 0xfff1bd
-            })
-
-        );
-
-    moon.position.set(
-        35,
-        35,
-        -100
-    );
-
-    scene.add(moon);
-
-
-    // GROUND
-
-    const ground =
-        new THREE.Mesh(
-
-            new THREE.PlaneGeometry(
-                180,
-                500
-            ),
-
-            new THREE.MeshStandardMaterial({
-                color: 0x17202e
-            })
-
-        );
-
-    ground.rotation.x =
-        -Math.PI / 2;
-
-    ground.position.y =
-        -2;
-
-    ground.position.z =
-        -100;
-
-    ground.receiveShadow = true;
-
-    scene.add(ground);
-
-
-    // ROAD LINES
-
-    for (
-        let z = 0;
-        z > -300;
-        z -= 10
-    ) {
-
-        const line =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    0.25,
-                    0.05,
-                    4
-                ),
-
-                new THREE.MeshBasicMaterial({
-                    color: 0x3c4d68
-                })
-
-            );
-
-        line.position.set(
-            0,
-            -1.94,
-            z
-        );
-
-        scene.add(line);
-
+    if (!running) {
+        player.y =
+            ground - player.h;
     }
+}
+
+window.addEventListener("resize", resize);
 
 
-    // PLAYER
+/* =========================================================
+   GAME VARIABLES
+   ========================================================= */
 
-    createPlayer();
+let running = false;
 
+let score = 0;
 
-    // RESIZE
+let lives = 3;
 
-    window.addEventListener(
-        "resize",
-        resizeGame
-    );
+let level = 1;
 
+let lastTime = 0;
 
-    // START GAME BUTTON
+let spawnTimer = 0;
 
-    const startButton =
-        document.getElementById(
-            "startButton"
-        );
+let screenShake = 0;
 
-    if (startButton) {
+let redFlash = 0;
 
-        startButton.addEventListener(
-            "click",
-            startGame
-        );
+let missiles = [];
 
-    }
+let particles = [];
 
 
-    // RESTART BUTTON
+/* =========================================================
+   PLAYER
+   ========================================================= */
 
-    const restartButton =
-        document.getElementById(
-            "restartButton"
-        );
+const player = {
 
-    if (restartButton) {
+    x: 100,
 
-        restartButton.addEventListener(
-            "click",
-            startGame
-        );
+    y: 0,
 
-    }
+    w: 44,
 
+    h: 72,
 
-    // KEYBOARD
+    velocity: 0,
 
-    document.addEventListener(
-        "keydown",
-        keyboardDown
-    );
+    jumpPower: 760,
 
-    document.addEventListener(
-        "keyup",
-        keyboardUp
-    );
+    gravity: 1900,
+
+    jumping: false,
+
+    ducking: false,
+
+    invincible: 0
+};
 
 
-    // MOBILE BUTTONS
+/* =========================================================
+   RESET PLAYER
+   ========================================================= */
 
-    setupMobileControls();
+function resetPlayer() {
 
+    player.x =
+        Math.min(110, W * .18);
 
-    // DRAW FIRST FRAME
+    player.y =
+        ground - player.h;
 
-    renderer.render(
-        scene,
-        camera
-    );
+    player.velocity = 0;
 
+    player.jumping = false;
 
-    // START ANIMATION LOOP
+    player.ducking = false;
 
-    requestAnimationFrame(
-        gameLoop
-    );
-
+    player.invincible = 0;
 }
 
 
-// ==========================================
-// STARS
-// ==========================================
-
-function createStars() {
-
-    const geometry =
-        new THREE.BufferGeometry();
-
-    const positions = [];
-
-    for (
-        let i = 0;
-        i < 800;
-        i++
-    ) {
-
-        positions.push(
-            (Math.random() - 0.5) * 250,
-            Math.random() * 100,
-            (Math.random() - 0.5) * 250
-        );
-
-    }
-
-    geometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(
-            positions,
-            3
-        )
-    );
-
-
-    const material =
-        new THREE.PointsMaterial({
-            color: 0xffffff,
-            size: 0.35
-        });
-
-
-    const stars =
-        new THREE.Points(
-            geometry,
-            material
-        );
-
-
-    stars.name =
-        "stars";
-
-
-    scene.add(stars);
-
-}
-
-
-// ==========================================
-// MISSILE
-// ==========================================
-
-function createMissile() {
-
-    const missile =
-        new THREE.Group();
-
-
-    const material =
-        new THREE.MeshStandardMaterial({
-            color: 0xff3028,
-            metalness: 0.6,
-            roughness: 0.3
-        });
-
-
-    // BODY
-
-    const body =
-        new THREE.Mesh(
-
-            new THREE.CylinderGeometry(
-                0.55,
-                0.55,
-                3,
-                16
-            ),
-
-            material
-
-        );
-
-    body.rotation.z =
-        Math.PI / 2;
-
-    missile.add(body);
-
-
-    // NOSE
-
-    const nose =
-        new THREE.Mesh(
-
-            new THREE.ConeGeometry(
-                0.55,
-                1.2,
-                16
-            ),
-
-            material
-
-        );
-
-    nose.rotation.z =
-        -Math.PI / 2;
-
-    nose.position.x =
-        2;
-
-    missile.add(nose);
-
-
-    // FINS
-
-    for (
-        const side of [-1, 1]
-    ) {
-
-        const fin =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    0.8,
-                    0.12,
-                    0.8
-                ),
-
-                new THREE.MeshStandardMaterial({
-                    color: 0x8e1118
-                })
-
-            );
-
-        fin.position.x =
-            -1;
-
-        fin.position.z =
-            side * 0.5;
-
-        missile.add(fin);
-
-    }
-
-
-    // FLAME
-
-    const flame =
-        new THREE.Mesh(
-
-            new THREE.ConeGeometry(
-                0.4,
-                1.5,
-                12
-            ),
-
-            new THREE.MeshBasicMaterial({
-                color: 0xffaa22
-            })
-
-        );
-
-    flame.rotation.z =
-        Math.PI / 2;
-
-    flame.position.x =
-        -2.2;
-
-    missile.add(flame);
-
-
-    // GLOW
-
-    const glow =
-        new THREE.PointLight(
-            0xff4422,
-            5,
-            10
-        );
-
-    glow.position.x =
-        -2;
-
-    missile.add(glow);
-
-
-    return missile;
-
-}
-
-
-// ==========================================
-// PLAYER
-// ==========================================
-
-function createPlayer() {
-
-    player =
-        new THREE.Group();
-
-
-    player.position.set(
-        0,
-        0,
-        5
-    );
-
-
-    scene.add(player);
-
-
-    // HEAD
-
-    const head =
-        new THREE.Mesh(
-
-            new THREE.SphereGeometry(
-                0.55,
-                20,
-                20
-            ),
-
-            new THREE.MeshStandardMaterial({
-                color: 0x5eeaff,
-                emissive: 0x164d5a
-            })
-
-        );
-
-    head.position.y =
-        2.5;
-
-    player.add(head);
-
-
-    // BODY
-
-    const body =
-        new THREE.Mesh(
-
-            new THREE.BoxGeometry(
-                0.8,
-                1.3,
-                0.6
-            ),
-
-            new THREE.MeshStandardMaterial({
-                color: 0x26aabd
-            })
-
-        );
-
-    body.position.y =
-        1.5;
-
-    player.add(body);
-
-
-    // LEGS
-
-    for (
-        const side of [-1, 1]
-    ) {
-
-        const leg =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    0.25,
-                    0.9,
-                    0.25
-                ),
-
-                new THREE.MeshStandardMaterial({
-                    color: 0x197e94
-                })
-
-            );
-
-        leg.position.set(
-            side * 0.25,
-            0.6,
-            0
-        );
-
-        player.add(leg);
-
-    }
-
-
-    // ARMS
-
-    for (
-        const side of [-1, 1]
-    ) {
-
-        const arm =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    0.22,
-                    1,
-                    0.22
-                ),
-
-                new THREE.MeshStandardMaterial({
-                    color: 0x5eeaff
-                })
-
-            );
-
-        arm.position.set(
-            side * 0.58,
-            1.5,
-            0
-        );
-
-        player.add(arm);
-
-    }
-
-
-    // PLAYER MISSILE
-
-    const missile =
-        createMissile();
-
-    missile.scale.set(
-        0.8,
-        0.8,
-        0.8
-    );
-
-    missile.position.y =
-        0.1;
-
-    player.add(missile);
-
-}
-
-
-// ==========================================
-// START GAME
-// ==========================================
+/* =========================================================
+   START
+   ========================================================= */
 
 function startGame() {
 
-    console.log(
-        "MISSILE MAYHEM STARTED!"
-    );
-
-
-    // Hide start screen
-
-    const startScreen =
-        document.getElementById(
-            "startScreen"
-        );
-
-    if (startScreen) {
-
-        startScreen.style.display =
-            "none";
-
-    }
-
-
-    // Hide game over
-
-    const gameOver =
-        document.getElementById(
-            "gameOver"
-        );
-
-    if (gameOver) {
-
-        gameOver.style.display =
-            "none";
-
-    }
-
-
-    // Delete old missiles
-
-    for (
-        const missile of missiles
-    ) {
-
-        scene.remove(
-            missile.mesh
-        );
-
-    }
-
-    missiles = [];
-
-
-    // Reset everything
+    running = true;
 
     score = 0;
 
     lives = 3;
 
-    wave = 1;
-
-    playerY = 0;
-
-    velocityY = 0;
-
-    ducking = false;
+    level = 1;
 
     spawnTimer = 0;
 
-    waveMissiles = 0;
+    screenShake = 0;
 
-    waveComplete = false;
+    redFlash = 0;
 
-    waveDelay = 0;
+    missiles = [];
 
-    cameraShake = 0;
+    particles = [];
 
-    alive = true;
+    resetPlayer();
 
-    running = true;
+    updateHUD();
 
-
-    // Update HUD
-
-    document.getElementById(
-        "score"
-    ).textContent = "0";
-
-
-    document.getElementById(
-        "lives"
-    ).textContent = "3";
-
-
-    document.getElementById(
-        "wave"
-    ).textContent = "1";
-
-
-    player.position.y = 0;
-
-    player.scale.y = 1;
-
+    menuScreen.style.display =
+        "none";
 
     lastTime =
         performance.now();
 
-
-    showWave(
-        "WAVE 1",
-        "GET READY!"
-    );
-
+    requestAnimationFrame(loop);
 }
 
 
-// ==========================================
-// WAVE SETTINGS
-// ==========================================
+/* =========================================================
+   GAME OVER
+   ========================================================= */
 
-function getSettings() {
+function gameOver() {
 
-    return {
+    running = false;
 
-        amount:
-            5 + (wave - 1) * 2,
+    player.ducking = false;
 
-        speed:
-            18 + (wave - 1) * 2.5,
+    titleElement.textContent =
+        "GAME OVER";
 
-        spawn:
-            Math.max(
-                0.32,
-                0.9 - (wave - 1) * 0.04
-            )
+    messageElement.innerHTML =
+        "Final score: <b>" +
+        score +
+        "</b>";
 
-    };
+    startButton.textContent =
+        "PLAY AGAIN";
 
+    menuScreen.style.display =
+        "flex";
 }
 
 
-// ==========================================
-// SPAWN MISSILE
-// ==========================================
+/* =========================================================
+   HUD
+   ========================================================= */
 
-function spawnMissile() {
+function updateHUD() {
 
-    const settings =
-        getSettings();
+    scoreElement.textContent =
+        score;
+
+    levelElement.textContent =
+        level;
+
+    let hearts = "";
+
+    for (
+        let i = 0;
+        i < lives;
+        i++
+    ) {
+        hearts += "❤️";
+    }
+
+    if (lives <= 0) {
+        hearts = "💀";
+    }
+
+    livesElement.textContent =
+        hearts;
+}
 
 
-    const missile =
-        createMissile();
+/* =========================================================
+   JUMP
+   ========================================================= */
+
+function jump() {
+
+    if (!running) {
+        return;
+    }
+
+    /*
+       IMPORTANT:
+       The player can jump whenever
+       they are not already in the air.
+    */
+
+    if (!player.jumping) {
+
+        player.ducking = false;
+
+        player.jumping = true;
+
+        player.velocity =
+            -player.jumpPower;
+    }
+}
 
 
-    const lane =
-        Math.floor(
-            Math.random() * 3
-        ) - 1;
+/* =========================================================
+   DUCK
+   ========================================================= */
+
+function startDuck() {
+
+    if (!running) {
+        return;
+    }
+
+    /*
+       Ducking is for standing
+       underneath high missiles.
+    */
+
+    if (!player.jumping) {
+
+        player.ducking = true;
+    }
+}
 
 
-    // HIGH = DUCK
-    // LOW = JUMP
+function stopDuck() {
+
+    player.ducking = false;
+}
+
+
+/* =========================================================
+   KEYBOARD
+   ========================================================= */
+
+window.addEventListener(
+    "keydown",
+    function(e) {
+
+        if (
+            e.code === "ArrowUp" ||
+            e.code === "Space"
+        ) {
+
+            e.preventDefault();
+
+            if (!e.repeat) {
+                jump();
+            }
+        }
+
+
+        if (
+            e.code === "ArrowDown"
+        ) {
+
+            e.preventDefault();
+
+            startDuck();
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "keyup",
+    function(e) {
+
+        if (
+            e.code === "ArrowDown"
+        ) {
+
+            stopDuck();
+        }
+
+    }
+);
+
+
+/* =========================================================
+   MOBILE JUMP
+   ========================================================= */
+
+jumpButton.addEventListener(
+    "pointerdown",
+    function(e) {
+
+        e.preventDefault();
+
+        jump();
+
+    }
+);
+
+
+/* =========================================================
+   MOBILE DUCK
+   ========================================================= */
+
+duckButton.addEventListener(
+    "pointerdown",
+    function(e) {
+
+        e.preventDefault();
+
+        startDuck();
+
+    }
+);
+
+
+duckButton.addEventListener(
+    "pointerup",
+    function(e) {
+
+        e.preventDefault();
+
+        stopDuck();
+
+    }
+);
+
+
+duckButton.addEventListener(
+    "pointercancel",
+    stopDuck
+);
+
+
+duckButton.addEventListener(
+    "pointerleave",
+    stopDuck
+);
+
+
+/* =========================================================
+   MISSILE CREATION
+   ========================================================= */
+
+function createMissile() {
+
+    /*
+       50% chance of each type.
+    */
 
     const high =
-        Math.random() < 0.35;
-
-
-    missile.position.set(
-
-        lane * 3,
-
-        high
-            ? 3.1
-            : 0,
-
-        -110
-
-    );
-
-
-    missile.rotation.y =
-        Math.PI;
-
-
-    scene.add(
-        missile
-    );
+        Math.random() < .5;
 
 
     missiles.push({
 
-        mesh: missile,
+        x:
+            W + 80,
+
+        y:
+            high
+                ? ground - 72
+                : ground - 45,
+
+        w:
+            70,
+
+        h:
+            24,
 
         speed:
-            settings.speed *
-            (
-                0.85 +
-                Math.random() * 0.3
-            ),
+            430 + level * 35,
 
-        high: high,
+        high:
+            high,
 
-        checked: false
-
+        hit:
+            false
     });
-
-
-    waveMissiles++;
-
 }
 
 
-// ==========================================
-// JUMP
-// ==========================================
+/* =========================================================
+   PLAYER HITBOX
+   ========================================================= */
 
-function jump() {
+function playerBox() {
 
-    if (
-        !running ||
-        !alive
-    ) return;
+    if (player.ducking) {
 
+        return {
 
-    if (
-        playerY <= 0.05
-    ) {
+            left:
+                player.x + 6,
 
-        velocityY =
-            12;
+            right:
+                player.x + player.w - 6,
 
-        ducking =
-            false;
+            top:
+                ground - 38,
 
-    }
+            bottom:
+                ground
 
-}
-
-
-// ==========================================
-// DUCK
-// ==========================================
-
-function duckStart() {
-
-    if (
-        !running ||
-        !alive
-    ) return;
-
-
-    ducking = true;
-
-}
-
-
-function duckStop() {
-
-    ducking = false;
-
-}
-
-
-// ==========================================
-// PLAYER UPDATE
-// ==========================================
-
-function updatePlayer(delta) {
-
-    velocityY -=
-        30 * delta;
-
-
-    playerY +=
-        velocityY * delta;
-
-
-    if (
-        playerY <= 0
-    ) {
-
-        playerY = 0;
-
-        velocityY = 0;
+        };
 
     }
 
 
-    player.position.y =
-        playerY;
+    return {
 
+        left:
+            player.x + 6,
 
-    const targetScale =
-        ducking
-            ? 0.55
-            : 1;
+        right:
+            player.x + player.w - 6,
 
+        top:
+            player.y,
 
-    player.scale.y +=
-        (
-            targetScale -
-            player.scale.y
-        ) *
-        Math.min(
-            delta * 15,
-            1
-        );
+        bottom:
+            player.y + player.h
 
+    };
 }
 
 
-// ==========================================
-// COLLISION
-// ==========================================
+/* =========================================================
+   COLLISION
+   ========================================================= */
 
-function missileHitsPlayer(missile) {
+function collision(missile) {
 
-    const dx =
-        Math.abs(
-            missile.mesh.position.x
-            -
-            player.position.x
-        );
+    const p =
+        playerBox();
 
 
-    const dz =
-        Math.abs(
-            missile.mesh.position.z
-            -
-            player.position.z
-        );
+    return (
 
+        p.left <
+        missile.x +
+        missile.w &&
 
-    if (
-        dx > 2.2 ||
-        dz > 2.5
-    ) {
+        p.right >
+        missile.x &&
 
-        return false;
+        p.top <
+        missile.y +
+        missile.h &&
 
-    }
+        p.bottom >
+        missile.y
 
-
-    // LOW MISSILE
-
-    if (
-        !missile.high
-    ) {
-
-        return playerY < 1.3;
-
-    }
-
-
-    // HIGH MISSILE
-
-    if (
-        missile.high
-    ) {
-
-        return !ducking;
-
-    }
-
-
-    return false;
-
+    );
 }
 
 
-// ==========================================
-// EXPLOSION
-// ==========================================
+/* =========================================================
+   EXPLOSION
+========================================================= */
 
-function explosion(position) {
+function explosion(x, y) {
 
-    const geometry =
-        new THREE.SphereGeometry(
-            1,
-            16,
-            16
-        );
+    for (
+        let i = 0;
+        i < 45;
+        i++
+    ) {
 
+        const angle =
+            Math.random() *
+            Math.PI *
+            2;
 
-    const material =
-        new THREE.MeshBasicMaterial({
-            color: 0xff7722,
-            transparent: true,
-            opacity: 1
+        const speed =
+            80 +
+            Math.random() *
+            420;
+
+        particles.push({
+
+            x: x,
+
+            y: y,
+
+            vx:
+                Math.cos(angle) *
+                speed,
+
+            vy:
+                Math.sin(angle) *
+                speed,
+
+            size:
+                2 +
+                Math.random() * 7,
+
+            life:
+                .5 +
+                Math.random() *
+                .7
+
         });
-
-
-    const blast =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
-
-
-    blast.position.copy(
-        position
-    );
-
-
-    scene.add(
-        blast
-    );
-
-
-    let size = 1;
-
-
-    function animateExplosion() {
-
-        size += 0.18;
-
-        material.opacity -= 0.07;
-
-        blast.scale.setScalar(
-            size
-        );
-
-
-        if (
-            material.opacity <= 0
-        ) {
-
-            scene.remove(
-                blast
-            );
-
-            geometry.dispose();
-
-            material.dispose();
-
-            return;
-
-        }
-
-
-        requestAnimationFrame(
-            animateExplosion
-        );
-
     }
-
-
-    animateExplosion();
-
 }
 
 
-// ==========================================
-// PLAYER HIT
-// ==========================================
+/* =========================================================
+   HIT PLAYER
+   ========================================================= */
 
-function playerHit() {
+function hitPlayer(missile) {
+
+    if (player.invincible > 0) {
+        return;
+    }
+
+    player.invincible =
+        1.2;
 
     lives--;
 
-
-    document.getElementById(
-        "lives"
-    ).textContent =
-        lives;
-
+    missile.hit = true;
 
     explosion(
-        player.position.clone()
+
+        player.x +
+        player.w / 2,
+
+        player.y +
+        player.h / 2
+
     );
 
+    screenShake = 20;
 
-    cameraShake =
-        0.5;
+    redFlash = .4;
 
+    updateHUD();
 
-    if (
-        lives <= 0
-    ) {
+    if (lives <= 0) {
 
-        endGame();
-
+        setTimeout(
+            gameOver,
+            450
+        );
     }
-
 }
 
 
-// ==========================================
-// UPDATE MISSILES
-// ==========================================
+/* =========================================================
+   UPDATE PLAYER
+   ========================================================= */
 
-function updateMissiles(delta) {
+function updatePlayer(dt) {
+
+    /*
+       If jumping, apply gravity.
+    */
+
+    if (player.jumping) {
+
+        player.velocity +=
+            player.gravity * dt;
+
+        player.y +=
+            player.velocity * dt;
+
+
+        /*
+           Player reaches ground.
+        */
+
+        if (
+            player.y >=
+            ground - player.h
+        ) {
+
+            player.y =
+                ground - player.h;
+
+            player.velocity = 0;
+
+            player.jumping = false;
+        }
+    }
+
+
+    if (player.invincible > 0) {
+
+        player.invincible -= dt;
+
+    }
+}
+
+
+/* =========================================================
+   UPDATE MISSILES
+   ========================================================= */
+
+function updateMissiles(dt) {
 
     for (
-        let i = missiles.length - 1;
+        let i =
+            missiles.length - 1;
+
         i >= 0;
+
         i--
     ) {
 
-        const missile =
+        const m =
             missiles[i];
 
 
-        missile.mesh.position.z +=
-            missile.speed * delta;
+        m.x -=
+            m.speed * dt;
 
 
-        // Check collision
+        /*
+           Check collision.
+        */
 
         if (
-            !missile.checked &&
-            missile.mesh.position.z > 2
+            !m.hit &&
+            collision(m)
         ) {
 
-            missile.checked = true;
-
-
-            if (
-                missileHitsPlayer(
-                    missile
-                )
-            ) {
-
-                playerHit();
-
-            }
-            else {
-
-                score++;
-
-
-                document.getElementById(
-                    "score"
-                ).textContent =
-                    score;
-
-            }
-
+            hitPlayer(m);
         }
 
 
-        // Remove missile
+        /*
+           Missile leaves screen.
+        */
 
         if (
-            missile.mesh.position.z > 20
+            m.x + m.w <
+            -50
         ) {
 
-            scene.remove(
-                missile.mesh
-            );
+            if (!m.hit) {
+
+                score++;
+
+                level =
+                    Math.floor(
+                        score / 10
+                    ) + 1;
+
+                updateHUD();
+            }
 
             missiles.splice(
                 i,
                 1
             );
-
         }
-
     }
-
 }
 
 
-// ==========================================
-// SPAWN / WAVES
-// ==========================================
+/* =========================================================
+   UPDATE PARTICLES
+   ========================================================= */
 
-function updateWave(delta) {
+function updateParticles(dt) {
 
-    if (
-        waveComplete
+    for (
+        let i =
+            particles.length - 1;
+
+        i >= 0;
+
+        i--
     ) {
 
-        waveDelay -=
-            delta;
+        const p =
+            particles[i];
+
+
+        p.x +=
+            p.vx * dt;
+
+        p.y +=
+            p.vy * dt;
+
+        p.vy +=
+            650 * dt;
+
+        p.vx *=
+            .985;
+
+        p.life -=
+            dt;
 
 
         if (
-            waveDelay <= 0
+            p.life <= 0
         ) {
 
-            wave++;
-
-            document.getElementById(
-                "wave"
-            ).textContent =
-                wave;
-
-
-            waveMissiles = 0;
-
-            waveComplete = false;
-
-            showWave(
-                "WAVE " + wave,
-                "GET READY!"
+            particles.splice(
+                i,
+                1
             );
-
         }
+    }
+}
 
+
+/* =========================================================
+   DRAW BACKGROUND
+   ========================================================= */
+
+function drawBackground() {
+
+    const gradient =
+        ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            H
+        );
+
+
+    gradient.addColorStop(
+        0,
+        "#050b18"
+    );
+
+    gradient.addColorStop(
+        .55,
+        "#12395b"
+    );
+
+    gradient.addColorStop(
+        1,
+        "#28454a"
+    );
+
+
+    ctx.fillStyle =
+        gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /*
+       Stars
+    */
+
+    ctx.fillStyle =
+        "white";
+
+    for (
+        let i = 0;
+        i < 90;
+        i++
+    ) {
+
+        const x =
+            (i * 173) % W;
+
+        const y =
+            (i * 71) %
+            (H * .55);
+
+        ctx.fillRect(
+            x,
+            y,
+            2,
+            2
+        );
+    }
+
+
+    /*
+       Moon
+    */
+
+    ctx.fillStyle =
+        "#e8f3ff";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        W - 100,
+        95,
+        45,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+}
+
+
+/* =========================================================
+   DRAW GROUND
+   ========================================================= */
+
+function drawGround() {
+
+    ctx.fillStyle =
+        "#15292e";
+
+    ctx.fillRect(
+        0,
+        ground,
+        W,
+        H - ground
+    );
+
+
+    /*
+       Neon ground line
+    */
+
+    ctx.fillStyle =
+        "#38d9ff";
+
+    ctx.fillRect(
+        0,
+        ground,
+        W,
+        4
+    );
+
+
+    /*
+       Moving road marks
+    */
+
+    const offset =
+        (
+            performance.now() / 5
+        ) % 100;
+
+
+    ctx.fillStyle =
+        "rgba(255,255,255,.15)";
+
+
+    for (
+        let x = -100 + offset;
+        x < W;
+        x += 100
+    ) {
+
+        ctx.fillRect(
+            x,
+            ground + 48,
+            50,
+            4
+        );
+    }
+}
+
+
+/* =========================================================
+   DRAW PLAYER
+   ========================================================= */
+
+function drawPlayer() {
+
+    /*
+       THIS IS THE IMPORTANT JUMP FIX.
+
+       When jumping, player.y is used.
+
+       When ducking, the player becomes
+       shorter but stays on the ground.
+    */
+
+    const h =
+        player.ducking
+            ? 40
+            : player.h;
+
+
+    const y =
+        player.ducking
+            ? ground - h
+            : player.y;
+
+
+    /*
+       Hit flash
+    */
+
+    if (
+        player.invincible > 0 &&
+        Math.floor(
+            player.invincible * 12
+        ) % 2 === 0
+    ) {
 
         return;
-
     }
 
 
-    const settings =
-        getSettings();
+    /*
+       Shadow
+    */
+
+    ctx.fillStyle =
+        "rgba(0,0,0,.35)";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        player.x + 22,
+        ground + 5,
+        28,
+        7,
+        0,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
 
 
-    spawnTimer +=
-        delta;
+    /*
+       Body
+    */
 
+    ctx.fillStyle =
+        "#38d9ff";
 
-    if (
-        waveMissiles <
-        settings.amount &&
-        spawnTimer >=
-        settings.spawn
-    ) {
-
-        spawnMissile();
-
-        spawnTimer = 0;
-
-    }
-
-
-    if (
-        waveMissiles >=
-        settings.amount &&
-        missiles.length === 0
-    ) {
-
-        waveComplete = true;
-
-        waveDelay = 2;
-
-    }
-
-}
-
-
-// ==========================================
-// WAVE MESSAGE
-// ==========================================
-
-function showWave(
-    title,
-    subtitle
-) {
-
-    const message =
-        document.getElementById(
-            "waveMessage"
-        );
-
-
-    document.getElementById(
-        "waveNumber"
-    ).textContent =
-        title;
-
-
-    document.getElementById(
-        "waveText"
-    ).textContent =
-        subtitle;
-
-
-    message.classList.add(
-        "show"
+    ctx.fillRect(
+        player.x + 8,
+        y + 18,
+        28,
+        h - 18
     );
 
 
-    setTimeout(
-        function() {
+    /*
+       Head
+    */
 
-            message.classList.remove(
-                "show"
+    ctx.fillStyle =
+        "#f1c27d";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        player.x + 22,
+        y + 12,
+        12,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    /*
+       Helmet
+    */
+
+    ctx.fillStyle =
+        "#dce8f2";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        player.x + 22,
+        y + 9,
+        13,
+        Math.PI,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    /*
+       Visor
+    */
+
+    ctx.fillStyle =
+        "#14283d";
+
+    ctx.fillRect(
+        player.x + 22,
+        y + 8,
+        10,
+        6
+    );
+
+
+    /*
+       Legs
+    */
+
+    if (!player.ducking) {
+
+        ctx.fillStyle =
+            "#197aa7";
+
+        ctx.fillRect(
+            player.x + 8,
+            y + h - 17,
+            9,
+            17
+        );
+
+        ctx.fillRect(
+            player.x + 27,
+            y + h - 17,
+            9,
+            17
+        );
+    }
+}
+
+
+/* =========================================================
+   DRAW MISSILE
+   ========================================================= */
+
+function drawMissile(m) {
+
+    if (m.hit) {
+        return;
+    }
+
+
+    /*
+       Flame
+    */
+
+    ctx.fillStyle =
+        "#ff9d00";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        m.x + m.w,
+        m.y + m.h / 2
+    );
+
+    ctx.lineTo(
+        m.x + m.w + 28,
+        m.y + 3
+    );
+
+    ctx.lineTo(
+        m.x + m.w + 28,
+        m.y + m.h - 3
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    /*
+       Inner flame
+    */
+
+    ctx.fillStyle =
+        "#fff000";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        m.x + m.w,
+        m.y + m.h / 2
+    );
+
+    ctx.lineTo(
+        m.x + m.w + 17,
+        m.y + 8
+    );
+
+    ctx.lineTo(
+        m.x + m.w + 17,
+        m.y + m.h - 8
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    /*
+       Missile body
+    */
+
+    ctx.fillStyle =
+        "#e7edf2";
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        m.x,
+        m.y,
+        m.w,
+        m.h,
+        10
+    );
+
+    ctx.fill();
+
+
+    /*
+       Nose
+    */
+
+    ctx.fillStyle =
+        "#e83b4f";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        m.x,
+        m.y
+    );
+
+    ctx.lineTo(
+        m.x - 16,
+        m.y + m.h / 2
+    );
+
+    ctx.lineTo(
+        m.x,
+        m.y + m.h
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    /*
+       Window
+    */
+
+    ctx.fillStyle =
+        "#182636";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        m.x + 22,
+        m.y + 12,
+        5,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    /*
+       Stripe
+    */
+
+    ctx.fillStyle =
+        "#e83b4f";
+
+    ctx.fillRect(
+        m.x + 43,
+        m.y,
+        7,
+        m.h
+    );
+}
+
+
+/* =========================================================
+   DRAW PARTICLES
+   ========================================================= */
+
+function drawParticles() {
+
+    for (
+        const p of particles
+    ) {
+
+        ctx.globalAlpha =
+            Math.max(
+                0,
+                p.life
             );
 
-        },
-        1500
-    );
+        ctx.fillStyle =
+            p.life > .5
+                ? "#ffd000"
+                : "#ff4b20";
 
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            p.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+
+    ctx.globalAlpha = 1;
 }
 
 
-// ==========================================
-// GAME OVER
-// ==========================================
+/* =========================================================
+   DRAW
+   ========================================================= */
 
-function endGame() {
+function draw() {
 
-    running = false;
-
-    alive = false;
-
-    ducking = false;
+    ctx.save();
 
 
-    document.getElementById(
-        "finalScore"
-    ).textContent =
-        "Score: " + score;
+    /*
+       Screen shake
+    */
+
+    if (
+        screenShake > 0
+    ) {
+
+        ctx.translate(
+            (Math.random() - .5) *
+            screenShake,
+
+            (Math.random() - .5) *
+            screenShake
+        );
+    }
 
 
-    document.getElementById(
-        "finalWave"
-    ).textContent =
-        "Wave: " + wave;
+    drawBackground();
+
+    drawGround();
 
 
-    document.getElementById(
-        "gameOver"
-    ).style.display =
-        "flex";
+    for (
+        const m of missiles
+    ) {
 
+        drawMissile(m);
+    }
+
+
+    drawPlayer();
+
+    drawParticles();
+
+
+    ctx.restore();
+
+
+    /*
+       Red hit flash
+    */
+
+    if (
+        redFlash > 0
+    ) {
+
+        ctx.fillStyle =
+            "rgba(255,0,0," +
+            redFlash +
+            ")";
+
+        ctx.fillRect(
+            0,
+            0,
+            W,
+            H
+        );
+
+        redFlash -=
+            .025;
+    }
+
+
+    /*
+       Shake decay
+    */
+
+    if (
+        screenShake > 0
+    ) {
+
+        screenShake *= .9;
+
+        if (
+            screenShake < .5
+        ) {
+
+            screenShake = 0;
+        }
+    }
 }
 
 
-// ==========================================
-// KEYBOARD
-// ==========================================
+/* =========================================================
+   GAME LOOP
+   ========================================================= */
 
-function keyboardDown(event) {
+function loop(time) {
 
-    if (
-        event.code ===
-        "ArrowUp"
-    ) {
+    if (!running) {
 
-        event.preventDefault();
+        draw();
 
-        jump();
-
+        return;
     }
 
 
-    if (
-        event.code ===
-        "ArrowDown"
-    ) {
-
-        event.preventDefault();
-
-        duckStart();
-
-    }
-
-}
-
-
-function keyboardUp(event) {
-
-    if (
-        event.code ===
-        "ArrowDown"
-    ) {
-
-        event.preventDefault();
-
-        duckStop();
-
-    }
-
-}
-
-
-// ==========================================
-// MOBILE CONTROLS
-// ==========================================
-
-function setupMobileControls() {
-
-    const jumpButton =
-        document.getElementById(
-            "jumpButton"
-        );
-
-
-    const duckButton =
-        document.getElementById(
-            "duckButton"
-        );
-
-
-    if (
-        jumpButton
-    ) {
-
-        jumpButton.addEventListener(
-            "pointerdown",
-            function(event) {
-
-                event.preventDefault();
-
-                jump();
-
-            }
-        );
-
-    }
-
-
-    if (
-        duckButton
-    ) {
-
-        duckButton.addEventListener(
-            "pointerdown",
-            function(event) {
-
-                event.preventDefault();
-
-                duckButton.setPointerCapture(
-                    event.pointerId
-                );
-
-                duckStart();
-
-            }
-        );
-
-
-        duckButton.addEventListener(
-            "pointerup",
-            function(event) {
-
-                event.preventDefault();
-
-                duckStop();
-
-            }
-        );
-
-
-        duckButton.addEventListener(
-            "pointercancel",
-            duckStop
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// CAMERA
-// ==========================================
-
-function updateCamera(delta) {
-
-    if (
-        cameraShake > 0
-    ) {
-
-        cameraShake -=
-            delta;
-
-
-        camera.position.x =
-            (
-                Math.random() - 0.5
-            ) *
-            cameraShake;
-
-
-        camera.position.y =
-            5 +
-            (
-                Math.random() - 0.5
-            ) *
-            cameraShake;
-
-    }
-    else {
-
-        camera.position.x *=
-            0.9;
-
-
-        camera.position.y +=
-            (
-                5 -
-                camera.position.y
-            ) * 0.1;
-
-    }
-
-}
-
-
-// ==========================================
-// GAME LOOP
-// ==========================================
-
-function gameLoop(time) {
-
-    requestAnimationFrame(
-        gameLoop
-    );
-
-
-    const delta =
-        Math.min(
-            (time - lastTime) /
-            1000,
-            0.05
-        );
+    let dt =
+        (time - lastTime) /
+        1000;
 
 
     lastTime =
         time;
 
 
-    if (
-        running
-    ) {
+    /*
+       Don't let lag make the player
+       teleport through the game.
+    */
 
-        updatePlayer(delta);
-
-        updateMissiles(delta);
-
-        updateWave(delta);
-
-        updateCamera(delta);
-
-    }
+    dt =
+        Math.min(
+            dt,
+            .033
+        );
 
 
-    // Animate stars
+    /*
+       Missile spawning
+    */
 
-    const stars =
-        scene.getObjectByName(
-            "stars"
+    spawnTimer +=
+        dt;
+
+
+    const spawnDelay =
+        Math.max(
+            .48,
+            1.25 -
+            level * .06
         );
 
 
     if (
-        stars
+        spawnTimer >=
+        spawnDelay
     ) {
 
-        stars.rotation.y +=
-            delta * 0.01;
+        spawnTimer = 0;
 
+        createMissile();
     }
 
 
-    renderer.render(
-        scene,
-        camera
-    );
+    updatePlayer(dt);
 
+    updateMissiles(dt);
+
+    updateParticles(dt);
+
+    draw();
+
+
+    requestAnimationFrame(
+        loop
+    );
 }
 
 
-// ==========================================
-// RESIZE
-// ==========================================
+/* =========================================================
+   START BUTTON
+   ========================================================= */
 
-function resizeGame() {
-
-    if (
-        !camera ||
-        !renderer
-    ) return;
-
-
-    camera.aspect =
-        window.innerWidth /
-        window.innerHeight;
-
-
-    camera.updateProjectionMatrix();
-
-
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
-
-}
-
-
-// ==========================================
-// START EVERYTHING
-// ==========================================
-
-window.addEventListener(
-    "load",
+startButton.addEventListener(
+    "click",
     function() {
 
-        setupGame();
+        titleElement.textContent =
+            "MISSILE MAYHEM";
+
+        messageElement.textContent =
+            "Jump and duck to survive!";
+
+        startGame();
 
     }
 );
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+resize();
+
+resetPlayer();
+
+draw();
+
+</script>
+
+</body>
+</html>
