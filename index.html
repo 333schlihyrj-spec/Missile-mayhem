@@ -4,1367 +4,1931 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-      content="width=device-width,
-      initial-scale=1.0,
-      maximum-scale=1.0,
-      user-scalable=no">
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
 
-<title>Missile Mayhem</title>
+<title>Missile Mayhem 3D</title>
 
 <style>
+
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: #060912;
-  color: white;
-  font-family: Arial, sans-serif;
-  overflow: hidden;
+    margin: 0;
+    overflow: hidden;
+    background: #02040a;
+    font-family: Arial, sans-serif;
 }
 
-/* GAME CONTAINER */
-
-.game-container {
-  width: 100%;
-  height: 100vh;
-  max-width: 1100px;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
+canvas {
+    display: block;
 }
 
-/* HEADER */
+/* HUD */
 
-.header {
-  height: 65px;
-  background: #101728;
-  border: 2px solid #293650;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 16px;
+#hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    z-index: 10;
+    pointer-events: none;
 }
 
 .logo {
-  color: #61e9ff;
-  font-size: 21px;
-  font-weight: bold;
-  text-shadow: 0 0 12px #61e9ff66;
+    color: #5eeaff;
+    font-size: 22px;
+    font-weight: bold;
+    text-shadow: 0 0 15px #00aaff;
 }
 
 .stats {
-  display: flex;
-  gap: 15px;
-  font-size: 14px;
+    display: flex;
+    gap: 15px;
 }
 
 .stats span {
-  color: #ffd166;
-  font-weight: bold;
+    color: #ffd43b;
+    font-weight: bold;
 }
 
-/* GAME */
-
-#game {
-  position: relative;
-  flex: 1;
-  overflow: hidden;
-
-  background:
-    radial-gradient(circle at 15% 20%, white 0 1px, transparent 2px),
-    radial-gradient(circle at 45% 35%, white 0 1px, transparent 2px),
-    radial-gradient(circle at 75% 15%, white 0 1px, transparent 2px),
-    radial-gradient(circle at 90% 50%, white 0 1px, transparent 2px),
-    linear-gradient(#0b1124, #172039);
-
-  background-size:
-    180px 150px,
-    220px 170px,
-    260px 190px,
-    300px 200px,
-    auto;
-}
-
-/* MOON */
-
-.moon {
-  position: absolute;
-  top: 40px;
-  right: 12%;
-
-  width: 75px;
-  height: 75px;
-
-  border-radius: 50%;
-
-  background: #fff3bd;
-
-  box-shadow:
-    0 0 35px #fff3bd66;
-}
-
-/* GROUND */
-
-.ground {
-  position: absolute;
-
-  left: 0;
-  bottom: 0;
-
-  width: 100%;
-  height: 70px;
-
-  background: #252d3c;
-
-  border-top: 4px solid #637189;
-}
-
-/* =================================================
-   PLAYER RIDING MISSILE
-================================================= */
-
-#player {
-  position: absolute;
-
-  left: 90px;
-  bottom: 70px;
-
-  width: 70px;
-  height: 100px;
-
-  z-index: 10;
-}
-
-/* PLAYER BODY */
-
-.player-head {
-  position: absolute;
-
-  left: 22px;
-  top: 0;
-
-  width: 27px;
-  height: 27px;
-
-  border-radius: 50%;
-
-  background: #5eeaff;
-
-  box-shadow:
-    0 0 15px #5eeaff88;
-}
-
-.player-body {
-  position: absolute;
-
-  left: 20px;
-  top: 25px;
-
-  width: 31px;
-  height: 43px;
-
-  border-radius: 9px;
-
-  background: #27aac3;
-}
-
-.player-arm {
-  position: absolute;
-
-  top: 31px;
-
-  width: 9px;
-  height: 30px;
-
-  border-radius: 8px;
-
-  background: #5eeaff;
-}
-
-.player-arm.left {
-  left: 12px;
-  transform: rotate(18deg);
-}
-
-.player-arm.right {
-  right: 12px;
-  transform: rotate(-18deg);
-}
-
-/* PLAYER LEGS */
-
-.player-leg {
-  position: absolute;
-
-  top: 64px;
-
-  width: 10px;
-  height: 25px;
-
-  background: #197e94;
-
-  border-radius: 8px;
-}
-
-.player-leg.left {
-  left: 24px;
-}
-
-.player-leg.right {
-  right: 24px;
-}
-
-/* =================================================
-   MISSILE THE PLAYER IS RIDING
-================================================= */
-
-.player-missile {
-  position: absolute;
-
-  left: -5px;
-  bottom: -5px;
-
-  width: 80px;
-  height: 25px;
-
-  transform: rotate(-5deg);
-}
-
-/* Missile body */
-
-.player-missile-body {
-  position: absolute;
-
-  left: 8px;
-  top: 4px;
-
-  width: 58px;
-  height: 17px;
-
-  border-radius: 12px;
-
-  background:
-    linear-gradient(
-      90deg,
-      #bd2025,
-      #ff5145
-    );
-
-  box-shadow:
-    0 0 14px #ff413966;
-}
-
-/* Missile nose */
-
-.player-missile-nose {
-  position: absolute;
-
-  right: 0;
-  top: 4px;
-
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-left: 18px solid #ff4b40;
-}
-
-/* Flame */
-
-.player-flame {
-  position: absolute;
-
-  left: -5px;
-  top: 8px;
-
-  width: 22px;
-  height: 10px;
-
-  border-radius: 50%;
-
-  background: #ffd166;
-
-  box-shadow:
-    0 0 18px #ff6b2c;
-
-  animation: flame 0.08s infinite alternate;
-}
-
-@keyframes flame {
-  from {
-    transform: scaleX(.7);
-  }
-
-  to {
-    transform: scaleX(1.2);
-  }
-}
-
-/* =================================================
-   OTHER MISSILES
-================================================= */
-
-.missile {
-  position: absolute;
-
-  width: 85px;
-  height: 25px;
-
-  pointer-events: none;
-
-  z-index: 8;
-}
-
-.missile-body {
-  position: absolute;
-
-  left: 10px;
-  top: 4px;
-
-  width: 62px;
-  height: 17px;
-
-  border-radius: 10px;
-
-  background:
-    linear-gradient(
-      90deg,
-      #e12621,
-      #ff6648
-    );
-
-  box-shadow:
-    0 0 15px #ff3b3066;
-}
-
-.missile-nose {
-  position: absolute;
-
-  right: 0;
-  top: 4px;
-
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-left: 18px solid #ff4035;
-}
-
-.missile-fin {
-  position: absolute;
-
-  left: 24px;
-  bottom: 0;
-
-  width: 15px;
-  height: 8px;
-
-  background: #a7191e;
-
-  transform: skewX(-25deg);
-}
-
-.flame {
-  position: absolute;
-
-  left: 0;
-  top: 8px;
-
-  width: 20px;
-  height: 10px;
-
-  border-radius: 50%;
-
-  background: #ffd166;
-
-  box-shadow:
-    0 0 15px #ff762d;
-
-  animation: flame .08s infinite alternate;
-}
-
-/* =================================================
-   EXPLOSION
-================================================= */
-
-.explosion {
-  position: absolute;
-
-  width: 70px;
-  height: 70px;
-
-  border-radius: 50%;
-
-  background:
-    radial-gradient(
-      circle,
-      white 0 8%,
-      #ffd166 10% 30%,
-      #ff633f 35% 55%,
-      transparent 70%
-    );
-
-  animation: explode .4s forwards;
-
-  pointer-events: none;
-
-  z-index: 40;
-}
-
-@keyframes explode {
-  from {
-    transform: scale(.2);
-    opacity: 1;
-  }
-
-  to {
-    transform: scale(1.6);
+/* WAVE */
+
+#waveMessage {
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    z-index: 20;
     opacity: 0;
-  }
+    pointer-events: none;
+    transition: .4s;
 }
 
-/* =================================================
-   MENU
-================================================= */
-
-#overlay {
-  position: absolute;
-
-  inset: 0;
-
-  background: #03060fd9;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  z-index: 50;
+#waveMessage.show {
+    opacity: 1;
 }
 
-.menu {
-  width: min(430px, 90%);
-
-  padding: 30px 20px;
-
-  text-align: center;
-
-  background: #101827;
-
-  border: 2px solid #34425e;
-
-  border-radius: 18px;
-
-  box-shadow:
-    0 20px 60px #00000088;
+#waveNumber {
+    font-size: 70px;
+    font-weight: bold;
+    color: #5eeaff;
+    text-shadow:
+        0 0 15px #00aaff,
+        0 0 40px #0088ff;
 }
 
-.menu h1 {
-  font-size: 39px;
-
-  color: #61e9ff;
-
-  text-shadow:
-    0 0 15px #61e9ff66;
-
-  margin-bottom: 12px;
+#waveText {
+    font-size: 20px;
 }
 
-.menu p {
-  color: #b9c4da;
+/* START / GAME OVER */
 
-  line-height: 1.6;
-
-  margin-bottom: 20px;
+.screen {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
 }
 
-.start-button {
-  padding: 14px 35px;
-
-  border: none;
-  border-radius: 12px;
-
-  background: #61e9ff;
-
-  color: #071018;
-
-  font-size: 18px;
-  font-weight: bold;
+.box {
+    width: min(500px,90%);
+    padding: 30px;
+    text-align: center;
+    border: 2px solid #405070;
+    border-radius: 20px;
+    background: #0b1324;
+    color: white;
 }
 
-/* =================================================
-   MOBILE CONTROLS
-================================================= */
-
-.controls {
-  height: 115px;
-
-  background: #0d1423;
-
-  border: 2px solid #293650;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 25px;
+.box h1 {
+    margin: 0;
+    color: #5eeaff;
+    font-size: clamp(38px,9vw,65px);
+    text-shadow:
+        0 0 15px #00aaff,
+        0 0 40px #0066ff;
 }
 
-.control-button {
-  width: 125px;
-  height: 85px;
-
-  border: 2px solid #3c4c6d;
-
-  border-radius: 18px;
-
-  background: #182238;
-
-  color: white;
-
-  font-size: 38px;
-  font-weight: bold;
-
-  display: flex;
-  flex-direction: column;
-
-  justify-content: center;
-  align-items: center;
-
-  box-shadow:
-    0 6px 0 #080d18;
-
-  touch-action: none;
+.box h2 {
+    color: #ff4438;
 }
 
-.control-button small {
-  font-size: 13px;
-  color: #9ca9c2;
+.box p {
+    line-height: 1.6;
+    color: #b8c5da;
 }
 
-.control-button:active {
-  transform: translateY(5px);
-  box-shadow: 0 1px 0 #080d18;
+button {
+    border: 0;
+    cursor: pointer;
 }
 
-/* DESKTOP */
+.startButton {
+    padding: 15px 35px;
+    border-radius: 12px;
+    background: #5eeaff;
+    color: #001018;
+    font-size: 20px;
+    font-weight: bold;
+}
 
-@media (min-width: 700px) {
+/* MOBILE BUTTONS */
 
-  .controls {
-    height: 75px;
-  }
+#controls {
+    position: fixed;
+    bottom: 15px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    z-index: 30;
+}
 
-  .control-button {
-    width: 140px;
-    height: 55px;
+.control {
+    width: 120px;
+    height: 90px;
+    border-radius: 20px;
+    border: 2px solid #526887;
+    background: rgba(20,35,60,.9);
+    color: white;
+    box-shadow: 0 6px 0 #05080d;
+    touch-action: none;
+}
 
-    flex-direction: row;
+.control:active {
+    transform: translateY(6px);
+    box-shadow: 0 1px 0 #05080d;
+}
 
-    gap: 8px;
+.arrow {
+    display: block;
+    font-size: 38px;
+    line-height: 35px;
+}
 
-    font-size: 27px;
-  }
+.label {
+    font-size: 12px;
+    color: #aebbd0;
+}
+
+#gameOver {
+    display: none;
+}
+
+@media(max-width:500px) {
+
+    .logo {
+        font-size: 15px;
+    }
+
+    .stats {
+        font-size: 11px;
+        gap: 7px;
+    }
+
+    .control {
+        width: 110px;
+        height: 80px;
+    }
 
 }
 
-/* SMALL PHONES */
-
-@media (max-width: 380px) {
-
-  .logo {
-    font-size: 16px;
-  }
-
-  .stats {
-    gap: 6px;
-    font-size: 11px;
-  }
-
-  .controls {
-    height: 100px;
-    gap: 12px;
-  }
-
-  .control-button {
-    width: 105px;
-    height: 75px;
-  }
-
-}
 </style>
 </head>
 
 <body>
 
-<div class="game-container">
+<!-- 3D GAME -->
 
-  <!-- HEADER -->
+<div id="game"></div>
 
-  <div class="header">
+
+<!-- HUD -->
+
+<div id="hud">
 
     <div class="logo">
-      🚀 MISSILE MAYHEM
+        🚀 MISSILE MAYHEM
     </div>
 
     <div class="stats">
-      Score: <span id="score">0</span>
-      Lives: <span id="lives">3</span>
-      Level: <span id="level">1</span>
-    </div>
 
-  </div>
+        SCORE:
+        <span id="score">0</span>
 
+        WAVE:
+        <span id="wave">1</span>
 
-  <!-- GAME -->
-
-  <div id="game">
-
-    <div class="moon"></div>
-
-
-    <!-- PLAYER -->
-
-    <div id="player">
-
-      <!-- Person -->
-
-      <div class="player-head"></div>
-
-      <div class="player-body"></div>
-
-      <div class="player-arm left"></div>
-      <div class="player-arm right"></div>
-
-      <div class="player-leg left"></div>
-      <div class="player-leg right"></div>
-
-
-      <!-- Missile being ridden -->
-
-      <div class="player-missile">
-
-        <div class="player-flame"></div>
-
-        <div class="player-missile-body"></div>
-
-        <div class="player-missile-nose"></div>
-
-      </div>
+        ❤️
+        <span id="lives">3</span>
 
     </div>
-
-
-    <div class="ground"></div>
-
-
-    <!-- MENU -->
-
-    <div id="overlay">
-
-      <div class="menu">
-
-        <h1>MISSILE MAYHEM</h1>
-
-        <p id="menuText">
-
-          🚀 Ride your missile through the chaos!
-
-          <br><br>
-
-          Jump over incoming missiles.
-          <br>
-
-          Duck underneath high missiles.
-
-          <br><br>
-
-          <b>↑ Jump</b>
-          &nbsp;&nbsp;
-          <b>↓ Duck</b>
-
-        </p>
-
-        <button
-          class="start-button"
-          id="startButton">
-
-          START GAME
-
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <!-- MOBILE BUTTONS -->
-
-  <div class="controls">
-
-    <button
-      class="control-button"
-      id="jumpButton">
-
-      ↑
-      <small>JUMP</small>
-
-    </button>
-
-
-    <button
-      class="control-button"
-      id="duckButton">
-
-      ↓
-      <small>DUCK</small>
-
-    </button>
-
-  </div>
 
 </div>
 
 
+<!-- WAVE MESSAGE -->
+
+<div id="waveMessage">
+
+    <div id="waveNumber">
+        WAVE 1
+    </div>
+
+    <div id="waveText">
+        GET READY!
+    </div>
+
+</div>
+
+
+<!-- START SCREEN -->
+
+<div id="startScreen" class="screen">
+
+    <div class="box">
+
+        <h1>
+            MISSILE<br>
+            MAYHEM
+        </h1>
+
+        <h2>
+            🚀 3D
+        </h2>
+
+        <p>
+            Jump over missiles!
+            <br>
+            Duck under missiles!
+            <br><br>
+            Survive as many waves as you can!
+        </p>
+
+        <button
+            class="startButton"
+            id="startButton">
+
+            START GAME
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- GAME OVER -->
+
+<div id="gameOver" class="screen">
+
+    <div class="box">
+
+        <h1>
+            💥 BOOM!
+        </h1>
+
+        <h2>
+            GAME OVER
+        </h2>
+
+        <p id="finalScore">
+            Score: 0
+        </p>
+
+        <p id="finalWave">
+            Wave: 1
+        </p>
+
+        <button
+            class="startButton"
+            id="restartButton">
+
+            PLAY AGAIN
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- MOBILE CONTROLS -->
+
+<div id="controls">
+
+    <button
+        class="control"
+        id="jumpButton">
+
+        <span class="arrow">↑</span>
+        <span class="label">JUMP</span>
+
+    </button>
+
+    <button
+        class="control"
+        id="duckButton">
+
+        <span class="arrow">↓</span>
+        <span class="label">DUCK</span>
+
+    </button>
+
+</div>
+
+
+<!-- THREE.JS -->
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
+
+
 <script>
 
-/* =====================================================
-   VARIABLES
-===================================================== */
+/* ==========================================
+   MISSILE MAYHEM 3D
+========================================== */
 
-const game =
-  document.getElementById("game");
+
+/* SCENE */
+
+const scene =
+    new THREE.Scene();
+
+scene.background =
+    new THREE.Color(0x020611);
+
+scene.fog =
+    new THREE.Fog(
+        0x020611,
+        30,
+        180
+    );
+
+
+/* CAMERA */
+
+const camera =
+    new THREE.PerspectiveCamera(
+        70,
+        window.innerWidth /
+        window.innerHeight,
+        .1,
+        500
+    );
+
+camera.position.set(
+    0,
+    5,
+    13
+);
+
+
+/* RENDERER */
+
+const renderer =
+    new THREE.WebGLRenderer({
+        antialias:true
+    });
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+renderer.setPixelRatio(
+    Math.min(
+        window.devicePixelRatio,
+        2
+    )
+);
+
+renderer.shadowMap.enabled = true;
+
+document
+    .getElementById("game")
+    .appendChild(renderer.domElement);
+
+
+/* ==========================================
+   LIGHTS
+========================================== */
+
+const ambient =
+    new THREE.AmbientLight(
+        0x8899bb,
+        1.5
+    );
+
+scene.add(ambient);
+
+
+const sun =
+    new THREE.DirectionalLight(
+        0xffffff,
+        2
+    );
+
+sun.position.set(
+    -10,
+    20,
+    10
+);
+
+sun.castShadow = true;
+
+scene.add(sun);
+
+
+const redLight =
+    new THREE.PointLight(
+        0xff3322,
+        5,
+        40
+    );
+
+redLight.position.set(
+    0,
+    5,
+    0
+);
+
+scene.add(redLight);
+
+
+/* ==========================================
+   STARS
+========================================== */
+
+const starGeometry =
+    new THREE.BufferGeometry();
+
+const starPositions = [];
+
+for(let i=0;i<800;i++){
+
+    starPositions.push(
+        (Math.random()-.5)*250,
+        Math.random()*100,
+        (Math.random()-.5)*250
+    );
+
+}
+
+starGeometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(
+        starPositions,
+        3
+    )
+);
+
+const starMaterial =
+    new THREE.PointsMaterial({
+        color:0xffffff,
+        size:.35
+    });
+
+const stars =
+    new THREE.Points(
+        starGeometry,
+        starMaterial
+    );
+
+scene.add(stars);
+
+
+/* ==========================================
+   MOON
+========================================== */
+
+const moon =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            7,
+            32,
+            32
+        ),
+
+        new THREE.MeshBasicMaterial({
+            color:0xfff1bd
+        })
+
+    );
+
+moon.position.set(
+    35,
+    35,
+    -100
+);
+
+scene.add(moon);
+
+
+/* ==========================================
+   GROUND
+========================================== */
+
+const ground =
+    new THREE.Mesh(
+
+        new THREE.PlaneGeometry(
+            180,
+            500
+        ),
+
+        new THREE.MeshStandardMaterial({
+            color:0x17202e,
+            roughness:1
+        })
+
+    );
+
+ground.rotation.x =
+    -Math.PI/2;
+
+ground.position.y =
+    -2;
+
+ground.position.z =
+    -100;
+
+ground.receiveShadow = true;
+
+scene.add(ground);
+
+
+/* ==========================================
+   ROAD LINES
+========================================== */
+
+for(
+    let z=0;
+    z>-300;
+    z-=10
+){
+
+    const line =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                .25,
+                .05,
+                4
+            ),
+
+            new THREE.MeshBasicMaterial({
+                color:0x3c4d68
+            })
+
+        );
+
+    line.position.set(
+        0,
+        -1.94,
+        z
+    );
+
+    scene.add(line);
+
+}
+
+
+/* ==========================================
+   CREATE MISSILE
+========================================== */
+
+function createMissile(){
+
+    const missile =
+        new THREE.Group();
+
+
+    /* BODY */
+
+    const body =
+        new THREE.Mesh(
+
+            new THREE.CylinderGeometry(
+                .55,
+                .55,
+                3,
+                16
+            ),
+
+            new THREE.MeshStandardMaterial({
+                color:0xff3028,
+                metalness:.6,
+                roughness:.3
+            })
+
+        );
+
+    body.rotation.z =
+        Math.PI/2;
+
+    missile.add(body);
+
+
+    /* NOSE */
+
+    const nose =
+        new THREE.Mesh(
+
+            new THREE.ConeGeometry(
+                .55,
+                1.2,
+                16
+            ),
+
+            new THREE.MeshStandardMaterial({
+                color:0xff3b30
+            })
+
+        );
+
+    nose.rotation.z =
+        -Math.PI/2;
+
+    nose.position.x =
+        2;
+
+    missile.add(nose);
+
+
+    /* FINS */
+
+    for(
+        let side of [-1,1]
+    ){
+
+        const fin =
+            new THREE.Mesh(
+
+                new THREE.BoxGeometry(
+                    .8,
+                    .12,
+                    .8
+                ),
+
+                new THREE.MeshStandardMaterial({
+                    color:0x8e1118
+                })
+
+            );
+
+        fin.position.x =
+            -1;
+
+        fin.position.z =
+            side*.5;
+
+        missile.add(fin);
+
+    }
+
+
+    /* FLAME */
+
+    const flame =
+        new THREE.Mesh(
+
+            new THREE.ConeGeometry(
+                .4,
+                1.5,
+                12
+            ),
+
+            new THREE.MeshBasicMaterial({
+                color:0xffaa22
+            })
+
+        );
+
+    flame.rotation.z =
+        Math.PI/2;
+
+    flame.position.x =
+        -2.2;
+
+    missile.add(flame);
+
+
+    /* LIGHT */
+
+    const glow =
+        new THREE.PointLight(
+            0xff4422,
+            5,
+            10
+        );
+
+    glow.position.x =
+        -2;
+
+    missile.add(glow);
+
+
+    return missile;
+
+}
+
+
+/* ==========================================
+   PLAYER
+========================================== */
 
 const player =
-  document.getElementById("player");
+    new THREE.Group();
 
-const scoreText =
-  document.getElementById("score");
+player.position.set(
+    0,
+    0,
+    5
+);
 
-const livesText =
-  document.getElementById("lives");
+scene.add(player);
 
-const levelText =
-  document.getElementById("level");
 
-const overlay =
-  document.getElementById("overlay");
+/* HEAD */
 
-const menuText =
-  document.getElementById("menuText");
+const head =
+    new THREE.Mesh(
 
-const startButton =
-  document.getElementById("startButton");
+        new THREE.SphereGeometry(
+            .55,
+            20,
+            20
+        ),
 
-const jumpButton =
-  document.getElementById("jumpButton");
+        new THREE.MeshStandardMaterial({
+            color:0x5eeaff,
+            emissive:0x164d5a
+        })
 
-const duckButton =
-  document.getElementById("duckButton");
+    );
 
+head.position.y =
+    2.5;
+
+player.add(head);
+
+
+/* BODY */
+
+const body =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            .8,
+            1.3,
+            .6
+        ),
+
+        new THREE.MeshStandardMaterial({
+            color:0x26aabd
+        })
+
+    );
+
+body.position.y =
+    1.5;
+
+player.add(body);
+
+
+/* LEGS */
+
+for(
+    let side of [-1,1]
+){
+
+    const leg =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                .25,
+                .9,
+                .25
+            ),
+
+            new THREE.MeshStandardMaterial({
+                color:0x197e94
+            })
+
+        );
+
+    leg.position.set(
+        side*.25,
+        .6,
+        0
+    );
+
+    player.add(leg);
+
+}
+
+
+/* ARMS */
+
+for(
+    let side of [-1,1]
+){
+
+    const arm =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                .22,
+                1,
+                .22
+            ),
+
+            new THREE.MeshStandardMaterial({
+                color:0x5eeaff
+            })
+
+        );
+
+    arm.position.set(
+        side*.58,
+        1.5,
+        0
+    );
+
+    player.add(arm);
+
+}
+
+
+/* PLAYER MISSILE */
+
+const playerMissile =
+    createMissile();
+
+playerMissile.scale.set(
+    .8,
+    .8,
+    .8
+);
+
+playerMissile.position.y =
+    .1;
+
+player.add(
+    playerMissile
+);
+
+
+/* ==========================================
+   GAME VARIABLES
+========================================== */
 
 let running = false;
 
+let alive = true;
+
 let score = 0;
+
 let lives = 3;
-let level = 1;
+
+let wave = 1;
 
 let playerY = 0;
+
 let velocityY = 0;
+
+let ducking = false;
 
 let missiles = [];
 
-let lastTime = 0;
 let spawnTimer = 0;
 
-const GRAVITY = 0.002;
-const JUMP_POWER = 0.82;
+let waveMissiles = 0;
+
+let waveComplete = false;
+
+let waveDelay = 0;
+
+let cameraShake = 0;
+
+let lastTime =
+    performance.now();
 
 
-/* =====================================================
-   START
-===================================================== */
+/* ==========================================
+   WAVE DIFFICULTY
+========================================== */
 
-function startGame() {
+function settings(){
 
-  score = 0;
-  lives = 3;
-  level = 1;
+    return {
 
-  playerY = 0;
-  velocityY = 0;
+        amount:
+            5 + (wave-1)*2,
 
-  missiles.forEach(m => {
-    m.element.remove();
-  });
+        speed:
+            18 + (wave-1)*2.5,
 
-  missiles = [];
+        spawn:
+            Math.max(
+                .32,
+                .9-(wave-1)*.04
+            )
 
-  player.classList.remove("ducking");
-
-  updateUI();
-
-  overlay.style.display = "none";
-
-  running = true;
-
-  lastTime = performance.now();
-
-  spawnTimer = 0;
-
-  requestAnimationFrame(gameLoop);
-}
-
-
-/* =====================================================
-   UI
-===================================================== */
-
-function updateUI() {
-
-  scoreText.textContent = score;
-
-  livesText.textContent = lives;
-
-  levelText.textContent = level;
+    };
 
 }
 
 
-/* =====================================================
-   JUMP
-===================================================== */
+/* ==========================================
+   SPAWN MISSILE
+========================================== */
 
-function jump() {
+function spawnMissile(){
 
-  if (!running) return;
-
-  if (playerY <= 1) {
-
-    velocityY = JUMP_POWER;
-
-    player.classList.remove("ducking");
-
-  }
-
-}
-
-
-/* =====================================================
-   DUCK
-===================================================== */
-
-function duckStart() {
-
-  if (!running) return;
-
-  if (playerY <= 1) {
-
-    player.classList.add("ducking");
-
-  }
-
-}
-
-
-function duckStop() {
-
-  player.classList.remove("ducking");
-
-}
-
-
-/* =====================================================
-   CREATE MISSILE
-===================================================== */
-
-function createMissile() {
-
-  const element =
-    document.createElement("div");
-
-  element.className = "missile";
-
-  element.innerHTML = `
-    <div class="flame"></div>
-    <div class="missile-body"></div>
-    <div class="missile-fin"></div>
-    <div class="missile-nose"></div>
-  `;
-
-  game.appendChild(element);
-
-
-  /*
-    30% of missiles are high.
-    You need to duck under them.
-  */
-
-  const high =
-    Math.random() < .30;
-
-
-  const missile = {
-
-    element,
-
-    x: game.clientWidth + 100,
-
-    y: high ? 110 : 78,
-
-    width: 85,
-
-    height: 25,
-
-    speed:
-      .38 +
-      level * .035
-
-  };
-
-
-  element.style.left =
-    missile.x + "px";
-
-  element.style.bottom =
-    missile.y + "px";
-
-
-  missiles.push(missile);
-
-}
-
-
-/* =====================================================
-   PLAYER PHYSICS
-===================================================== */
-
-function updatePlayer(delta) {
-
-  velocityY -=
-    GRAVITY * delta;
-
-  playerY +=
-    velocityY * delta;
-
-
-  if (playerY <= 0) {
-
-    playerY = 0;
-
-    velocityY = 0;
-
-  }
-
-
-  player.style.bottom =
-    (70 + playerY) + "px";
-
-
-  /*
-    Cannot duck while jumping.
-  */
-
-  if (playerY > 5) {
-
-    player.classList.remove("ducking");
-
-  }
-
-}
-
-
-/* =====================================================
-   COLLISION
-===================================================== */
-
-function isColliding(missile) {
-
-  const playerLeft = 90;
-
-  const playerRight =
-    playerLeft + 70;
-
-
-  const playerBottom =
-    70 + playerY;
-
-
-  let playerTop;
-
-
-  /*
-    Smaller hitbox while ducking.
-  */
-
-  if (
-    player.classList.contains("ducking")
-  ) {
-
-    playerTop =
-      playerBottom + 42;
-
-  } else {
-
-    playerTop =
-      playerBottom + 100;
-
-  }
-
-
-  const missileLeft =
-    missile.x;
-
-  const missileRight =
-    missile.x +
-    missile.width;
-
-
-  const missileBottom =
-    missile.y;
-
-  const missileTop =
-    missile.y +
-    missile.height;
-
-
-  return (
-
-    playerRight > missileLeft &&
-    playerLeft < missileRight &&
-    playerTop > missileBottom &&
-    playerBottom < missileTop
-
-  );
-
-}
-
-
-/* =====================================================
-   EXPLOSION
-===================================================== */
-
-function makeExplosion(x, y) {
-
-  const explosion =
-    document.createElement("div");
-
-  explosion.className =
-    "explosion";
-
-  explosion.style.left =
-    (x - 35) + "px";
-
-  explosion.style.bottom =
-    (y - 35) + "px";
-
-  game.appendChild(explosion);
-
-
-  setTimeout(() => {
-
-    explosion.remove();
-
-  }, 400);
-
-}
-
-
-/* =====================================================
-   DAMAGE
-===================================================== */
-
-function damage(missile) {
-
-  lives--;
-
-  makeExplosion(
-    120,
-    110 + playerY
-  );
-
-  missile.element.remove();
-
-  updateUI();
-
-
-  if (lives <= 0) {
-
-    gameOver();
-
-  }
-
-}
-
-
-/* =====================================================
-   MISSILES
-===================================================== */
-
-function updateMissiles(delta) {
-
-  for (
-    let i = missiles.length - 1;
-    i >= 0;
-    i--
-  ) {
+    const s =
+        settings();
 
     const missile =
-      missiles[i];
+        createMissile();
 
 
-    missile.x -=
-      missile.speed * delta;
+    /* THREE LANES */
+
+    const lane =
+        Math.floor(
+            Math.random()*3
+        )-1;
 
 
-    missile.element.style.left =
-      missile.x + "px";
+    /*
+      LOW = JUMP
+      HIGH = DUCK
+    */
+
+    const high =
+        Math.random()<.35;
 
 
-    if (isColliding(missile)) {
+    missile.position.set(
 
-      damage(missile);
+        lane*3,
 
-      missiles.splice(i, 1);
+        high
+            ? 3.1
+            : 0,
 
-      continue;
+        -110
+
+    );
+
+
+    missile.rotation.y =
+        Math.PI;
+
+
+    scene.add(
+        missile
+    );
+
+
+    missiles.push({
+
+        mesh:missile,
+
+        speed:
+            s.speed *
+            (.85+
+            Math.random()*.3),
+
+        high:high,
+
+        checked:false
+
+    });
+
+
+    waveMissiles++;
+
+}
+
+
+/* ==========================================
+   JUMP
+========================================== */
+
+function jump(){
+
+    if(
+        !running ||
+        !alive
+    ) return;
+
+
+    if(
+        playerY<=.05
+    ){
+
+        velocityY =
+            12;
+
+        ducking =
+            false;
+
+    }
+
+}
+
+
+/* ==========================================
+   DUCK
+========================================== */
+
+function duckStart(){
+
+    if(
+        !running ||
+        !alive
+    ) return;
+
+
+    /*
+      You can duck even while
+      falling from a jump.
+    */
+
+    ducking = true;
+
+}
+
+
+function duckStop(){
+
+    ducking = false;
+
+}
+
+
+/* ==========================================
+   PLAYER UPDATE
+========================================== */
+
+function updatePlayer(delta){
+
+    /* GRAVITY */
+
+    velocityY -=
+        30*delta;
+
+    playerY +=
+        velocityY*delta;
+
+
+    if(
+        playerY<=0
+    ){
+
+        playerY=0;
+
+        velocityY=0;
+
+    }
+
+
+    player.position.y =
+        playerY;
+
+
+    /* DUCK */
+
+    const target =
+        ducking ? .55 : 1;
+
+    player.scale.y +=
+        (target-player.scale.y)
+        *Math.min(delta*15,1);
+
+
+    /* MISSILE BOB */
+
+    playerMissile.rotation.z =
+        Math.sin(
+            performance.now()*.004
+        )*.04;
+
+}
+
+
+/* ==========================================
+   COLLISION
+========================================== */
+
+function hitTest(m){
+
+    const dx =
+        Math.abs(
+            m.mesh.position.x -
+            player.position.x
+        );
+
+    const dz =
+        Math.abs(
+            m.mesh.position.z -
+            player.position.z
+        );
+
+
+    if(
+        dx>2.2 ||
+        dz>2.5
+    ){
+
+        return false;
 
     }
 
 
     /*
-      Successfully avoided missile.
+      LOW MISSILE
+
+      Jump high enough = safe.
     */
 
-    if (missile.x < -120) {
+    if(
+        !m.high
+    ){
 
-      missile.element.remove();
+        if(
+            playerY>1.3
+        ){
 
-      missiles.splice(i, 1);
+            return false;
 
-      score++;
+        }
 
-      level =
-        Math.floor(score / 10) + 1;
-
-      updateUI();
+        return true;
 
     }
 
-  }
+
+    /*
+      HIGH MISSILE
+
+      Duck = safe.
+    */
+
+    if(
+        m.high
+    ){
+
+        if(
+            ducking
+        ){
+
+            return false;
+
+        }
+
+        return true;
+
+    }
+
+
+    return false;
 
 }
 
 
-/* =====================================================
-   GAME LOOP
-===================================================== */
+/* ==========================================
+   EXPLOSION
+========================================== */
 
-function gameLoop(time) {
+function explosion(position){
 
-  if (!running) return;
+    const material =
+        new THREE.MeshBasicMaterial({
+            color:0xff7722,
+            transparent:true,
+            opacity:1
+        });
 
 
-  const delta =
-    Math.min(
-      time - lastTime,
-      40
+    const geometry =
+        new THREE.SphereGeometry(
+            1,
+            16,
+            16
+        );
+
+
+    const blast =
+        new THREE.Mesh(
+            geometry,
+            material
+        );
+
+
+    blast.position.copy(
+        position
     );
 
 
-  lastTime = time;
-
-
-  updatePlayer(delta);
-
-  updateMissiles(delta);
-
-
-  spawnTimer += delta;
-
-
-  /*
-    Missiles become faster
-    and spawn more frequently.
-  */
-
-  const spawnRate =
-    Math.max(
-      430,
-      1200 - level * 75
+    scene.add(
+        blast
     );
 
 
-  if (
-    spawnTimer >= spawnRate
-  ) {
-
-    createMissile();
-
-    spawnTimer = 0;
-
-  }
+    let size=1;
 
 
-  requestAnimationFrame(
-    gameLoop
-  );
+    function animate(){
+
+        size+=.18;
+
+        material.opacity-=.07;
+
+        blast.scale.setScalar(
+            size
+        );
+
+
+        if(
+            material.opacity<=0
+        ){
+
+            scene.remove(
+                blast
+            );
+
+            geometry.dispose();
+
+            material.dispose();
+
+            return;
+
+        }
+
+
+        requestAnimationFrame(
+            animate
+        );
+
+    }
+
+
+    animate();
 
 }
 
 
-/* =====================================================
+/* ==========================================
+   HIT PLAYER
+========================================== */
+
+function playerHit(){
+
+    lives--;
+
+    document.getElementById(
+        "lives"
+    ).textContent =
+        lives;
+
+
+    explosion(
+        player.position.clone()
+    );
+
+
+    cameraShake =
+        .5;
+
+
+    if(
+        lives<=0
+    ){
+
+        gameOver();
+
+    }
+
+}
+
+
+/* ==========================================
+   UPDATE MISSILES
+========================================== */
+
+function updateMissiles(delta){
+
+    for(
+        let i=missiles.length-1;
+        i>=0;
+        i--
+    ){
+
+        const m =
+            missiles[i];
+
+
+        m.mesh.position.z +=
+            m.speed*delta;
+
+
+        /*
+          When missile reaches
+          player.
+        */
+
+        if(
+            !m.checked &&
+            m.mesh.position.z>2
+        ){
+
+            m.checked=true;
+
+
+            if(
+                hitTest(m)
+            ){
+
+                playerHit();
+
+            }
+            else{
+
+                score++;
+
+                document.getElementById(
+                    "score"
+                ).textContent =
+                    score;
+
+            }
+
+        }
+
+
+        /*
+          Delete old missiles.
+        */
+
+        if(
+            m.mesh.position.z>20
+        ){
+
+            scene.remove(
+                m.mesh
+            );
+
+            missiles.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+}
+
+
+/* ==========================================
+   START WAVE
+========================================== */
+
+function startWave(){
+
+    const s =
+        settings();
+
+
+    waveMissiles=0;
+
+    waveComplete=false;
+
+
+    showWave(
+        "WAVE "+wave,
+        wave===1
+            ? "GET READY!"
+            : "MISSILES INCOMING!"
+    );
+
+}
+
+
+/* ==========================================
+   WAVE MESSAGE
+========================================== */
+
+function showWave(
+    title,
+    text
+){
+
+    const box =
+        document.getElementById(
+            "waveMessage"
+        );
+
+
+    document.getElementById(
+        "waveNumber"
+    ).textContent =
+        title;
+
+
+    document.getElementById(
+        "waveText"
+    ).textContent =
+        text;
+
+
+    box.classList.add(
+        "show"
+    );
+
+
+    setTimeout(
+        ()=>{
+            box.classList.remove(
+                "show"
+            );
+        },
+        1500
+    );
+
+}
+
+
+/* ==========================================
+   CHECK WAVE
+========================================== */
+
+function checkWave(){
+
+    if(
+        waveComplete
+    ) return;
+
+
+    const s =
+        settings();
+
+
+    if(
+        waveMissiles>=s.amount &&
+        missiles.length===0
+    ){
+
+        waveComplete=true;
+
+        waveDelay=2;
+
+    }
+
+}
+
+
+/* ==========================================
+   SPAWN SYSTEM
+========================================== */
+
+function spawning(delta){
+
+    if(
+        waveComplete
+    ){
+
+        waveDelay-=delta;
+
+
+        if(
+            waveDelay<=0
+        ){
+
+            wave++;
+
+            document.getElementById(
+                "wave"
+            ).textContent =
+                wave;
+
+            startWave();
+
+        }
+
+        return;
+
+    }
+
+
+    const s =
+        settings();
+
+
+    spawnTimer+=delta;
+
+
+    if(
+        waveMissiles<s.amount &&
+        spawnTimer>=s.spawn
+    ){
+
+        spawnMissile();
+
+        spawnTimer=0;
+
+    }
+
+}
+
+
+/* ==========================================
    GAME OVER
-===================================================== */
+========================================== */
 
-function gameOver() {
+function gameOver(){
 
-  running = false;
+    running=false;
 
-  overlay.style.display =
-    "flex";
+    alive=false;
 
-
-  menuText.innerHTML = `
-    💥 Your missile exploded!
-
-    <br><br>
-
-    Final Score:
-    <strong>${score}</strong>
-
-    <br>
-
-    Level:
-    <strong>${level}</strong>
-
-    <br><br>
-
-    Can you survive longer?
-  `;
+    ducking=false;
 
 
-  startButton.textContent =
-    "PLAY AGAIN";
+    document.getElementById(
+        "finalScore"
+    ).textContent =
+        "Score: "+score;
+
+
+    document.getElementById(
+        "finalWave"
+    ).textContent =
+        "Wave: "+wave;
+
+
+    document.getElementById(
+        "gameOver"
+    ).style.display =
+        "flex";
 
 }
 
 
-/* =====================================================
+/* ==========================================
+   RESET
+========================================== */
+
+function reset(){
+
+    missiles.forEach(
+        m=>{
+            scene.remove(
+                m.mesh
+            );
+        }
+    );
+
+
+    missiles=[];
+
+
+    score=0;
+
+    lives=3;
+
+    wave=1;
+
+    playerY=0;
+
+    velocityY=0;
+
+    ducking=false;
+
+    waveMissiles=0;
+
+    waveComplete=false;
+
+    waveDelay=0;
+
+    spawnTimer=0;
+
+    alive=true;
+
+    running=true;
+
+
+    player.position.y=0;
+
+    player.scale.y=1;
+
+
+    document.getElementById(
+        "score"
+    ).textContent=0;
+
+
+    document.getElementById(
+        "lives"
+    ).textContent=3;
+
+
+    document.getElementById(
+        "wave"
+    ).textContent=1;
+
+
+    document.getElementById(
+        "gameOver"
+    ).style.display="none";
+
+
+    startWave();
+
+}
+
+
+/* ==========================================
    KEYBOARD
-===================================================== */
+========================================== */
 
 document.addEventListener(
-  "keydown",
-  event => {
+    "keydown",
+    event=>{
 
-    if (
-      event.code === "ArrowUp"
-    ) {
+        if(
+            event.code==="ArrowUp"
+        ){
 
-      event.preventDefault();
+            event.preventDefault();
 
-      jump();
+            jump();
+
+        }
+
+
+        if(
+            event.code==="ArrowDown"
+        ){
+
+            event.preventDefault();
+
+            duckStart();
+
+        }
 
     }
-
-
-    if (
-      event.code === "ArrowDown"
-    ) {
-
-      event.preventDefault();
-
-      duckStart();
-
-    }
-
-  }
 );
 
 
 document.addEventListener(
-  "keyup",
-  event => {
+    "keyup",
+    event=>{
 
-    if (
-      event.code === "ArrowDown"
-    ) {
+        if(
+            event.code==="ArrowDown"
+        ){
 
-      duckStop();
+            event.preventDefault();
+
+            duckStop();
+
+        }
 
     }
-
-  }
 );
 
 
-/* =====================================================
+/* ==========================================
    MOBILE JUMP
-===================================================== */
+========================================== */
+
+const jumpButton =
+    document.getElementById(
+        "jumpButton"
+    );
+
 
 jumpButton.addEventListener(
-  "pointerdown",
-  event => {
+    "pointerdown",
+    event=>{
 
-    event.preventDefault();
+        event.preventDefault();
 
-    jump();
+        jump();
 
-  }
+    }
 );
 
 
-/* =====================================================
+/* ==========================================
    MOBILE DUCK
-===================================================== */
+========================================== */
+
+const duckButton =
+    document.getElementById(
+        "duckButton"
+    );
+
 
 duckButton.addEventListener(
-  "pointerdown",
-  event => {
+    "pointerdown",
+    event=>{
 
-    event.preventDefault();
+        event.preventDefault();
 
-    duckStart();
+        duckButton.setPointerCapture(
+            event.pointerId
+        );
 
-  }
+        duckStart();
+
+    }
 );
 
 
 duckButton.addEventListener(
-  "pointerup",
-  event => {
+    "pointerup",
+    event=>{
 
-    event.preventDefault();
+        event.preventDefault();
 
-    duckStop();
+        duckStop();
 
-  }
+    }
 );
 
 
 duckButton.addEventListener(
-  "pointercancel",
-  duckStop
+    "pointercancel",
+    duckStop
 );
 
 
-/* =====================================================
+/* ==========================================
    START BUTTON
-===================================================== */
+========================================== */
 
-startButton.addEventListener(
-  "click",
-  startGame
+document.getElementById(
+    "startButton"
+).onclick=()=>{
+
+    document.getElementById(
+        "startScreen"
+    ).style.display="none";
+
+    reset();
+
+};
+
+
+/* ==========================================
+   RESTART
+========================================== */
+
+document.getElementById(
+    "restartButton"
+).onclick=()=>{
+
+    reset();
+
+};
+
+
+/* ==========================================
+   CAMERA
+========================================== */
+
+function updateCamera(delta){
+
+    if(
+        cameraShake>0
+    ){
+
+        cameraShake-=delta;
+
+        camera.position.x =
+            (Math.random()-.5)
+            *cameraShake;
+
+        camera.position.y =
+            5+
+            (Math.random()-.5)
+            *cameraShake;
+
+    }
+    else{
+
+        camera.position.x *= .9;
+
+        camera.position.y +=
+            (5-camera.position.y)
+            *.1;
+
+    }
+
+}
+
+
+/* ==========================================
+   MAIN GAME LOOP
+========================================== */
+
+function loop(time){
+
+    requestAnimationFrame(
+        loop
+    );
+
+
+    const delta =
+        Math.min(
+            (time-lastTime)/1000,
+            .05
+        );
+
+
+    lastTime=time;
+
+
+    if(
+        running
+    ){
+
+        updatePlayer(delta);
+
+        updateMissiles(delta);
+
+        spawning(delta);
+
+        checkWave();
+
+        updateCamera(delta);
+
+    }
+
+
+    stars.rotation.y +=
+        delta*.01;
+
+
+    renderer.render(
+        scene,
+        camera
+    );
+
+}
+
+
+requestAnimationFrame(
+    loop
 );
 
 
-updateUI();
+/* ==========================================
+   WINDOW RESIZE
+========================================== */
+
+window.addEventListener(
+    "resize",
+    ()=>{
+
+        camera.aspect =
+            window.innerWidth /
+            window.innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+    }
+);
 
 </script>
 
