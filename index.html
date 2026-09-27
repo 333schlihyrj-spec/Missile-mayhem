@@ -9,433 +9,793 @@
 <style>
 * {
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
-html, body {
     margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #050b14;
-    font-family: Arial, sans-serif;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#game {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
     overflow: hidden;
+    background: #111;
+    font-family: Arial, sans-serif;
 }
 
 canvas {
-    width: 100%;
-    height: 100%;
     display: block;
+    width: 100vw;
+    height: 100vh;
 }
-
 
 /* HUD */
 
 #hud {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    right: 12px;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    right: 15px;
 
     display: flex;
     justify-content: space-between;
 
-    z-index: 5;
-
     color: white;
     font-weight: bold;
-    font-size: 17px;
+    font-size: 20px;
+
+    text-shadow: 2px 2px 4px #000;
 
     pointer-events: none;
+    z-index: 5;
 }
 
-.box {
-    padding: 8px 12px;
-    border-radius: 10px;
+/* Pause */
 
-    background: rgba(0,0,0,.55);
+#pauseBtn {
+    position: fixed;
 
-    border: 1px solid rgba(255,255,255,.2);
+    top: 55px;
+    right: 15px;
 
-    text-shadow: 0 2px 3px black;
+    z-index: 6;
+
+    padding: 10px 16px;
+    margin: 0;
+
+    font-size: 16px;
 }
 
+/* Menus */
 
-/* MENU */
-
-#menuScreen {
-    position: absolute;
+#menu,
+#customMenu {
+    position: fixed;
     inset: 0;
 
     display: flex;
-    justify-content: center;
     align-items: center;
-
-    background: rgba(0,0,0,.68);
-
-    z-index: 20;
-}
-
-#menu {
-    width: min(90%, 440px);
-
-    padding: 30px;
-
-    text-align: center;
-
-    color: white;
-
-    background: #081421;
-
-    border: 2px solid #38d9ff;
-
-    border-radius: 20px;
-
-    box-shadow: 0 0 30px rgba(56,217,255,.3);
-}
-
-#menu h1 {
-    margin: 0 0 10px;
-
-    font-size: clamp(34px, 8vw, 58px);
-
-    color: #38d9ff;
-
-    text-shadow:
-        0 0 10px #38d9ff,
-        0 0 25px rgba(56,217,255,.5);
-}
-
-#menu p {
-    line-height: 1.5;
-}
-
-#start {
-    margin-top: 15px;
-
-    padding: 14px 32px;
-
-    border: none;
-    border-radius: 12px;
-
-    background: #38d9ff;
-
-    color: #06101a;
-
-    font-size: 19px;
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-#start:active {
-    transform: scale(.95);
-}
-
-
-/* MOBILE CONTROLS */
-
-#controls {
-    position: absolute;
-
-    left: 0;
-    right: 0;
-    bottom: 12px;
-
-    display: flex;
     justify-content: center;
 
-    gap: 20px;
+    background: rgba(0,0,0,.65);
 
     z-index: 10;
 }
 
-.control {
-    width: 115px;
-    height: 78px;
+.panel {
+    width: min(90vw, 500px);
 
-    border-radius: 18px;
+    padding: 30px;
 
-    border: 2px solid rgba(255,255,255,.35);
+    border-radius: 20px;
 
-    background: rgba(0,0,0,.6);
+    background: rgba(20,25,35,.95);
 
     color: white;
 
-    font-size: 36px;
+    text-align: center;
+
+    box-shadow: 0 0 40px rgba(0,0,0,.7);
+}
+
+h1 {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+button {
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 14px 22px;
+    margin: 7px;
+
+    font-size: 18px;
     font-weight: bold;
 
-    touch-action: none;
-    user-select: none;
+    cursor: pointer;
+
+    background: #3498db;
+    color: white;
 }
 
-.control small {
+button:hover {
+    background: #5dade2;
+}
+
+.option {
+    margin: 12px 0;
+}
+
+.option label {
     display: block;
-    font-size: 12px;
+    margin-bottom: 5px;
 }
 
-.control:active {
-    background: rgba(56,217,255,.55);
-    transform: scale(.94);
+select {
+    padding: 8px;
+
+    border-radius: 8px;
+
+    font-size: 16px;
 }
 
+/* Mobile */
 
-/* Hide mobile controls on desktop */
+#mobileControls {
+    position: fixed;
 
-@media (min-width: 800px) {
-    #controls {
-        display: none;
-    }
+    bottom: 20px;
+
+    left: 0;
+    right: 0;
+
+    display: flex;
+
+    justify-content: space-around;
+
+    pointer-events: none;
+
+    z-index: 5;
 }
 
-@media (max-width: 500px) {
+.mobileButton {
+    width: 130px;
+    height: 65px;
 
-    #hud {
-        font-size: 13px;
-        top: 7px;
-        left: 7px;
-        right: 7px;
-    }
+    border-radius: 20px;
 
-    .box {
-        padding: 6px 8px;
-    }
+    background: rgba(255,255,255,.2);
 
-    .control {
-        width: 105px;
-        height: 70px;
-    }
+    border: 2px solid rgba(255,255,255,.5);
+
+    color: white;
+
+    font-weight: bold;
+
+    font-size: 20px;
+
+    pointer-events: auto;
+
+    touch-action: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.small {
+    font-size: 14px;
+
+    opacity: .75;
+
+    margin-top: 10px;
 }
 </style>
 </head>
 
-
 <body>
 
-<div id="game">
+<canvas id="game"></canvas>
 
-    <canvas id="canvas"></canvas>
+<!-- HUD -->
 
+<div id="hud">
 
-    <!-- HUD -->
-
-    <div id="hud">
-
-        <div class="box">
-            SCORE:
-            <span id="score">0</span>
-        </div>
-
-        <div class="box">
-            LIVES:
-            <span id="lives">❤️❤️❤️</span>
-        </div>
-
-        <div class="box">
-            LEVEL:
-            <span id="level">1</span>
-        </div>
-
+    <div id="score">
+        SCORE: 0
     </div>
 
-
-    <!-- MENU -->
-
-    <div id="menuScreen">
-
-        <div id="menu">
-
-            <h1 id="title">
-                MISSILE MAYHEM
-            </h1>
-
-            <p id="message">
-                Jump and duck to survive!
-            </p>
-
-            <p>
-                🚀 Low missile = <b>JUMP</b><br>
-                🚀 High missile = <b>DUCK</b>
-            </p>
-
-            <p>
-                Computer: ↑ Jump &nbsp; ↓ Duck<br>
-                Mobile: Use the buttons
-            </p>
-
-            <button id="start">
-                START GAME
-            </button>
-
-        </div>
-
+    <div id="level">
+        LEVEL: 1
     </div>
 
+    <div id="lives">
+        LIVES: ❤️❤️❤️
+    </div>
 
-    <!-- MOBILE BUTTONS -->
+</div>
 
-    <div id="controls">
+<button id="pauseBtn" onclick="togglePause()">
+    PAUSE
+</button>
 
-        <button
-            id="jump"
-            class="control">
+<!-- START MENU -->
 
-            ↑
-            <small>JUMP</small>
+<div id="menu">
 
+    <div class="panel">
+
+        <h1>
+            MISSILE MAYHEM
+        </h1>
+
+        <p>
+            Dodge the incoming missiles!
+        </p>
+
+        <br>
+
+        <button onclick="openCustomization()">
+            CUSTOMIZE
         </button>
 
+        <button onclick="startGame()">
+            START GAME
+        </button>
 
-        <button
-            id="duck"
-            class="control">
+        <div class="small">
 
-            ↓
-            <small>DUCK</small>
+            SPACE / UP = Jump<br>
+            DOWN = Duck<br>
+            P = Pause
 
+        </div>
+
+    </div>
+
+</div>
+
+<!-- CUSTOMIZATION -->
+
+<div id="customMenu" class="hidden">
+
+    <div class="panel">
+
+        <h2>
+            Customize Character
+        </h2>
+
+        <div class="option">
+
+            <label>
+                Skin
+            </label>
+
+            <select id="skin">
+
+                <option value="#f1c27d">
+                    Light
+                </option>
+
+                <option value="#c68642">
+                    Tan
+                </option>
+
+                <option value="#8d5524">
+                    Brown
+                </option>
+
+                <option value="#5c3a21">
+                    Dark
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="option">
+
+            <label>
+                Shirt
+            </label>
+
+            <select id="shirt">
+
+                <option value="#3498db">
+                    Blue
+                </option>
+
+                <option value="#e74c3c">
+                    Red
+                </option>
+
+                <option value="#2ecc71">
+                    Green
+                </option>
+
+                <option value="#f1c40f">
+                    Yellow
+                </option>
+
+                <option value="#9b59b6">
+                    Purple
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="option">
+
+            <label>
+                Pants
+            </label>
+
+            <select id="pants">
+
+                <option value="#222222">
+                    Black
+                </option>
+
+                <option value="#34495e">
+                    Dark Blue
+                </option>
+
+                <option value="#795548">
+                    Brown
+                </option>
+
+                <option value="#7f8c8d">
+                    Gray
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="option">
+
+            <label>
+                Hair
+            </label>
+
+            <select id="hair">
+
+                <option value="#111111">
+                    Black
+                </option>
+
+                <option value="#5b3219">
+                    Brown
+                </option>
+
+                <option value="#d4a017">
+                    Blond
+                </option>
+
+                <option value="#888888">
+                    Gray
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="option">
+
+            <label>
+                Accessory
+            </label>
+
+            <select id="accessory">
+
+                <option value="none">
+                    None
+                </option>
+
+                <option value="cap">
+                    Cap
+                </option>
+
+                <option value="glasses">
+                    Glasses
+                </option>
+
+            </select>
+
+        </div>
+
+        <button onclick="closeCustomization()">
+            DONE
         </button>
 
     </div>
 
 </div>
 
+<!-- MOBILE CONTROLS -->
+
+<div id="mobileControls">
+
+    <button
+        class="mobileButton"
+        id="jumpBtn">
+
+        JUMP
+
+    </button>
+
+    <button
+        class="mobileButton"
+        id="duckBtn">
+
+        DUCK
+
+    </button>
+
+</div>
 
 <script>
 
-/* =========================================================
-   MISSILE MAYHEM
-   SIMPLE 2D VERSION
-   ========================================================= */
+/* =====================================================
+   CANVAS
+===================================================== */
 
 const canvas =
-    document.getElementById("canvas");
+    document.getElementById("game");
 
 const ctx =
     canvas.getContext("2d");
 
-
-/* =========================================================
-   ELEMENTS
-   ========================================================= */
-
-const scoreElement =
-    document.getElementById("score");
-
-const livesElement =
-    document.getElementById("lives");
-
-const levelElement =
-    document.getElementById("level");
-
-const menuScreen =
-    document.getElementById("menuScreen");
-
-const titleElement =
-    document.getElementById("title");
-
-const messageElement =
-    document.getElementById("message");
-
-const startButton =
-    document.getElementById("start");
-
-const jumpButton =
-    document.getElementById("jump");
-
-const duckButton =
-    document.getElementById("duck");
-
-
-/* =========================================================
-   CANVAS SIZE
-   ========================================================= */
-
-let W = 0;
-let H = 0;
-let ground = 0;
-
+let width;
+let height;
 
 function resize() {
 
-    W = window.innerWidth;
-    H = window.innerHeight;
+    width =
+        canvas.width =
+        window.innerWidth *
+        devicePixelRatio;
 
-    const dpr =
-        Math.min(window.devicePixelRatio || 1, 2);
-
-    canvas.width =
-        W * dpr;
-
-    canvas.height =
-        H * dpr;
+    height =
+        canvas.height =
+        window.innerHeight *
+        devicePixelRatio;
 
     canvas.style.width =
-        W + "px";
+        window.innerWidth + "px";
 
     canvas.style.height =
-        H + "px";
+        window.innerHeight + "px";
 
     ctx.setTransform(
-        dpr,
+        devicePixelRatio,
         0,
         0,
-        dpr,
+        devicePixelRatio,
         0,
         0
     );
 
-    ground =
-        H * 0.78;
+    width =
+        window.innerWidth;
 
-    if (!running) {
-        player.y =
-            ground - player.h;
+    height =
+        window.innerHeight;
+}
+
+window.addEventListener(
+    "resize",
+    resize
+);
+
+resize();
+
+/* =====================================================
+   SOUND SYSTEM
+===================================================== */
+
+let audioContext = null;
+
+function initAudio() {
+
+    if (!audioContext) {
+
+        audioContext =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+
+    }
+
+    if (
+        audioContext.state ===
+        "suspended"
+    ) {
+
+        audioContext.resume();
+
+    }
+
+}
+
+function sound(type) {
+
+    if (!audioContext) return;
+
+    const now =
+        audioContext.currentTime;
+
+    const oscillator =
+        audioContext.createOscillator();
+
+    const gain =
+        audioContext.createGain();
+
+    oscillator.connect(gain);
+
+    gain.connect(
+        audioContext.destination
+    );
+
+    /* JUMP */
+
+    if (type === "jump") {
+
+        oscillator.type =
+            "square";
+
+        oscillator.frequency.setValueAtTime(
+            280,
+            now
+        );
+
+        oscillator.frequency
+            .exponentialRampToValueAtTime(
+                620,
+                now + 0.12
+            );
+
+        gain.gain.setValueAtTime(
+            0.12,
+            now
+        );
+
+        gain.gain
+            .exponentialRampToValueAtTime(
+                0.001,
+                now + 0.15
+            );
+
+        oscillator.start(now);
+
+        oscillator.stop(
+            now + 0.15
+        );
+    }
+
+    /* HIT */
+
+    if (type === "hit") {
+
+        oscillator.type =
+            "sawtooth";
+
+        oscillator.frequency
+            .setValueAtTime(
+                130,
+                now
+            );
+
+        oscillator.frequency
+            .exponentialRampToValueAtTime(
+                45,
+                now + 0.35
+            );
+
+        gain.gain.setValueAtTime(
+            0.2,
+            now
+        );
+
+        gain.gain
+            .exponentialRampToValueAtTime(
+                0.001,
+                now + 0.35
+            );
+
+        oscillator.start(now);
+
+        oscillator.stop(
+            now + 0.35
+        );
+    }
+
+    /* SCORE */
+
+    if (type === "score") {
+
+        oscillator.type =
+            "sine";
+
+        oscillator.frequency
+            .setValueAtTime(
+                650,
+                now
+            );
+
+        oscillator.frequency
+            .setValueAtTime(
+                900,
+                now + 0.08
+            );
+
+        gain.gain.setValueAtTime(
+            0.08,
+            now
+        );
+
+        gain.gain
+            .exponentialRampToValueAtTime(
+                0.001,
+                now + 0.16
+            );
+
+        oscillator.start(now);
+
+        oscillator.stop(
+            now + 0.16
+        );
+    }
+
+    /* GAME OVER */
+
+    if (type === "gameover") {
+
+        oscillator.type =
+            "sawtooth";
+
+        oscillator.frequency
+            .setValueAtTime(
+                300,
+                now
+            );
+
+        oscillator.frequency
+            .exponentialRampToValueAtTime(
+                70,
+                now + 0.6
+            );
+
+        gain.gain.setValueAtTime(
+            0.16,
+            now
+        );
+
+        gain.gain
+            .exponentialRampToValueAtTime(
+                0.001,
+                now + 0.6
+            );
+
+        oscillator.start(now);
+
+        oscillator.stop(
+            now + 0.6
+        );
+    }
+
+    /* START */
+
+    if (type === "start") {
+
+        oscillator.type =
+            "square";
+
+        oscillator.frequency
+            .setValueAtTime(
+                350,
+                now
+            );
+
+        oscillator.frequency
+            .setValueAtTime(
+                500,
+                now + 0.08
+            );
+
+        oscillator.frequency
+            .setValueAtTime(
+                700,
+                now + 0.16
+            );
+
+        gain.gain.setValueAtTime(
+            0.1,
+            now
+        );
+
+        gain.gain
+            .exponentialRampToValueAtTime(
+                0.001,
+                now + 0.25
+            );
+
+        oscillator.start(now);
+
+        oscillator.stop(
+            now + 0.25
+        );
+    }
+
+    /* MISSILE WHOOSH */
+
+    if (type === "whoosh") {
+
+        oscillator.type =
+            "triangle";
+
+        oscillator.frequency
+            .setValueAtTime(
+                180,
+                now
+            );
+
+        oscillator.frequency
+            .exponentialRampToValueAtTime(
+                70,
+                now + 0.25
+            );
+
+        gain.gain.setValueAtTime(
+            0.035,
+            now
+        );
+
+        gain.gain
+            .exponentialRampToValueAtTime(
+                0.001,
+                now + 0.25
+            );
+
+        oscillator.start(now);
+
+        oscillator.stop(
+            now + 0.25
+        );
     }
 }
 
-window.addEventListener("resize", resize);
-
-
-/* =========================================================
+/* =====================================================
    GAME VARIABLES
-   ========================================================= */
+===================================================== */
 
 let running = false;
 
-let score = 0;
+let paused = false;
 
-let lives = 3;
+let score = 0;
 
 let level = 1;
 
-let lastTime = 0;
-
-let spawnTimer = 0;
-
-let screenShake = 0;
-
-let redFlash = 0;
+let lives = 3;
 
 let missiles = [];
 
 let particles = [];
 
+let spawnTimer = 0;
 
-/* =========================================================
+let lastTime = 0;
+
+let screenShake = 0;
+
+let redFlash = 0;
+
+/* =====================================================
    PLAYER
-   ========================================================= */
+===================================================== */
 
 const player = {
 
@@ -443,9 +803,9 @@ const player = {
 
     y: 0,
 
-    w: 44,
+    w: 34,
 
-    h: 72,
+    h: 54,
 
     velocity: 0,
 
@@ -458,409 +818,561 @@ const player = {
     ducking: false,
 
     invincible: 0
+
 };
 
+/* =====================================================
+   CUSTOMIZATION
+===================================================== */
 
-/* =========================================================
-   RESET PLAYER
-   ========================================================= */
+const customization = {
 
-function resetPlayer() {
+    skin: "#f1c27d",
 
-    player.x =
-        Math.min(110, W * .18);
+    shirt: "#3498db",
 
-    player.y =
-        ground - player.h;
+    pants: "#222222",
 
-    player.velocity = 0;
+    hair: "#111111",
 
-    player.jumping = false;
+    accessory: "none"
 
-    player.ducking = false;
+};
 
-    player.invincible = 0;
+/* =====================================================
+   MENU
+===================================================== */
+
+function openCustomization() {
+
+    document
+        .getElementById("customMenu")
+        .classList
+        .remove("hidden");
+
 }
 
+function closeCustomization() {
 
-/* =========================================================
-   START
-   ========================================================= */
+    customization.skin =
+        document.getElementById(
+            "skin"
+        ).value;
+
+    customization.shirt =
+        document.getElementById(
+            "shirt"
+        ).value;
+
+    customization.pants =
+        document.getElementById(
+            "pants"
+        ).value;
+
+    customization.hair =
+        document.getElementById(
+            "hair"
+        ).value;
+
+    customization.accessory =
+        document.getElementById(
+            "accessory"
+        ).value;
+
+    localStorage.setItem(
+        "missileCustomization",
+        JSON.stringify(
+            customization
+        )
+    );
+
+    document
+        .getElementById("customMenu")
+        .classList
+        .add("hidden");
+}
+
+function loadCustomization() {
+
+    const saved =
+        localStorage.getItem(
+            "missileCustomization"
+        );
+
+    if (!saved) return;
+
+    try {
+
+        Object.assign(
+            customization,
+            JSON.parse(saved)
+        );
+
+        document.getElementById(
+            "skin"
+        ).value =
+            customization.skin;
+
+        document.getElementById(
+            "shirt"
+        ).value =
+            customization.shirt;
+
+        document.getElementById(
+            "pants"
+        ).value =
+            customization.pants;
+
+        document.getElementById(
+            "hair"
+        ).value =
+            customization.hair;
+
+        document.getElementById(
+            "accessory"
+        ).value =
+            customization.accessory;
+
+    } catch {}
+
+}
+
+loadCustomization();
+
+/* =====================================================
+   START GAME
+===================================================== */
 
 function startGame() {
 
-    running = true;
+    initAudio();
+
+    sound("start");
 
     score = 0;
 
-    lives = 3;
-
     level = 1;
 
-    spawnTimer = 0;
-
-    screenShake = 0;
-
-    redFlash = 0;
+    lives = 3;
 
     missiles = [];
 
     particles = [];
 
-    resetPlayer();
+    paused = false;
+
+    running = true;
+
+    player.jumping = false;
+
+    player.ducking = false;
+
+    player.velocity = 0;
+
+    player.invincible = 0;
+
+    document
+        .getElementById("pauseBtn")
+        .textContent =
+        "PAUSE";
+
+    document
+        .getElementById("menu")
+        .classList
+        .add("hidden");
 
     updateHUD();
 
-    menuScreen.style.display =
-        "none";
-
-    lastTime =
-        performance.now();
-
-    requestAnimationFrame(loop);
 }
 
-
-/* =========================================================
+/* =====================================================
    GAME OVER
-   ========================================================= */
+===================================================== */
 
 function gameOver() {
 
     running = false;
 
-    player.ducking = false;
+    paused = false;
 
-    titleElement.textContent =
-        "GAME OVER";
+    sound("gameover");
 
-    messageElement.innerHTML =
-        "Final score: <b>" +
-        score +
-        "</b>";
+    document
+        .getElementById("pauseBtn")
+        .textContent =
+        "PAUSE";
 
-    startButton.textContent =
-        "PLAY AGAIN";
+    document
+        .getElementById("menu")
+        .classList
+        .remove("hidden");
 
-    menuScreen.style.display =
-        "flex";
 }
 
+/* =====================================================
+   PAUSE
+===================================================== */
 
-/* =========================================================
-   HUD
-   ========================================================= */
+function togglePause() {
 
-function updateHUD() {
+    if (!running) return;
 
-    scoreElement.textContent =
-        score;
+    paused =
+        !paused;
 
-    levelElement.textContent =
-        level;
+    const button =
+        document.getElementById(
+            "pauseBtn"
+        );
 
-    let hearts = "";
+    if (paused) {
 
-    for (
-        let i = 0;
-        i < lives;
-        i++
-    ) {
-        hearts += "❤️";
+        button.textContent =
+            "RESUME";
+
+    } else {
+
+        button.textContent =
+            "PAUSE";
+
+        /*
+         Prevent the game from
+         jumping forward after pause.
+        */
+
+        lastTime =
+            performance.now();
+
     }
 
-    if (lives <= 0) {
-        hearts = "💀";
-    }
-
-    livesElement.textContent =
-        hearts;
 }
 
-
-/* =========================================================
-   JUMP
-   ========================================================= */
-
-function jump() {
-
-    if (!running) {
-        return;
-    }
-
-    /*
-       IMPORTANT:
-       The player can jump whenever
-       they are not already in the air.
-    */
-
-    if (!player.jumping) {
-
-        player.ducking = false;
-
-        player.jumping = true;
-
-        player.velocity =
-            -player.jumpPower;
-    }
-}
-
-
-/* =========================================================
-   DUCK
-   ========================================================= */
-
-function startDuck() {
-
-    if (!running) {
-        return;
-    }
-
-    /*
-       Ducking is for standing
-       underneath high missiles.
-    */
-
-    if (!player.jumping) {
-
-        player.ducking = true;
-    }
-}
-
-
-function stopDuck() {
-
-    player.ducking = false;
-}
-
-
-/* =========================================================
-   KEYBOARD
-   ========================================================= */
+/* Keyboard pause */
 
 window.addEventListener(
     "keydown",
-    function(e) {
+    e => {
 
         if (
-            e.code === "ArrowUp" ||
-            e.code === "Space"
+            e.code === "KeyP"
         ) {
 
-            e.preventDefault();
+            togglePause();
 
-            if (!e.repeat) {
-                jump();
-            }
-        }
-
-
-        if (
-            e.code === "ArrowDown"
-        ) {
-
-            e.preventDefault();
-
-            startDuck();
         }
 
     }
 );
 
+/* =====================================================
+   CONTROLS
+===================================================== */
+
+function jump() {
+
+    if (!running || paused)
+        return;
+
+    if (!player.jumping) {
+
+        player.ducking =
+            false;
+
+        player.jumping =
+            true;
+
+        player.velocity =
+            -player.jumpPower;
+
+        sound("jump");
+
+    }
+
+}
+
+function setDuck(value) {
+
+    if (!running || paused)
+        return;
+
+    if (!player.jumping) {
+
+        player.ducking =
+            value;
+
+    }
+
+}
+
+/* Keyboard */
+
+window.addEventListener(
+    "keydown",
+    e => {
+
+        if (
+            e.code === "Space" ||
+            e.code === "ArrowUp" ||
+            e.code === "KeyW"
+        ) {
+
+            e.preventDefault();
+
+            jump();
+
+        }
+
+        if (
+            e.code === "ArrowDown" ||
+            e.code === "KeyS"
+        ) {
+
+            e.preventDefault();
+
+            setDuck(true);
+
+        }
+
+    }
+);
 
 window.addEventListener(
     "keyup",
-    function(e) {
+    e => {
 
         if (
-            e.code === "ArrowDown"
+            e.code === "ArrowDown" ||
+            e.code === "KeyS"
         ) {
 
-            stopDuck();
+            setDuck(false);
+
         }
 
     }
 );
 
+/* Mobile jump */
 
-/* =========================================================
-   MOBILE JUMP
-   ========================================================= */
+document
+    .getElementById("jumpBtn")
+    .addEventListener(
+        "pointerdown",
+        e => {
 
-jumpButton.addEventListener(
-    "pointerdown",
-    function(e) {
+            e.preventDefault();
 
-        e.preventDefault();
+            jump();
 
-        jump();
+        }
+    );
 
-    }
-);
+/* Mobile duck */
 
-
-/* =========================================================
-   MOBILE DUCK
-   ========================================================= */
+const duckButton =
+    document.getElementById(
+        "duckBtn"
+    );
 
 duckButton.addEventListener(
     "pointerdown",
-    function(e) {
+    e => {
 
         e.preventDefault();
 
-        startDuck();
+        setDuck(true);
 
     }
 );
-
 
 duckButton.addEventListener(
     "pointerup",
-    function(e) {
+    () => {
 
-        e.preventDefault();
-
-        stopDuck();
+        setDuck(false);
 
     }
 );
-
 
 duckButton.addEventListener(
     "pointercancel",
-    stopDuck
-);
+    () => {
 
+        setDuck(false);
+
+    }
+);
 
 duckButton.addEventListener(
     "pointerleave",
-    stopDuck
+    () => {
+
+        setDuck(false);
+
+    }
 );
 
+/* =====================================================
+   MISSILES
+===================================================== */
 
-/* =========================================================
-   MISSILE CREATION
-   ========================================================= */
-
-function createMissile() {
+function spawnMissile() {
 
     /*
-       50% chance of each type.
+       Level 10+ can spawn giant missiles.
     */
 
-    const high =
-        Math.random() < .5;
+    const giant =
+        level >= 10 &&
+        Math.random() < 0.15;
 
+    const ground =
+        height -
+        Math.max(
+            100,
+            height * 0.16
+        );
 
-    missiles.push({
+    const missile = {
 
-        x:
-            W + 80,
+        x: width + 80,
 
-        y:
-            high
-                ? ground - 72
-                : ground - 45,
+        y: 0,
 
-        w:
-            70,
+        w: giant ? 150 : 70,
 
-        h:
-            24,
+        h: giant ? 70 : 28,
 
         speed:
-            430 + level * 35,
+            430 +
+            level * 35,
 
-        high:
-            high,
+        giant,
 
-        hit:
-            false
-    });
-}
+        smokeTimer: 0,
 
+        scored: false
 
-/* =========================================================
-   PLAYER HITBOX
-   ========================================================= */
+    };
 
-function playerBox() {
+    if (giant) {
 
-    if (player.ducking) {
+        missile.y =
+            ground - 120;
 
-        return {
+    } else {
 
-            left:
-                player.x + 6,
-
-            right:
-                player.x + player.w - 6,
-
-            top:
-                ground - 38,
-
-            bottom:
-                ground
-
-        };
+        missile.y =
+            Math.random() < 0.5
+                ? ground - 44
+                : ground - 72;
 
     }
 
+    missiles.push(
+        missile
+    );
 
-    return {
+    sound("whoosh");
 
-        left:
-            player.x + 6,
-
-        right:
-            player.x + player.w - 6,
-
-        top:
-            player.y,
-
-        bottom:
-            player.y + player.h
-
-    };
 }
 
-
-/* =========================================================
+/* =====================================================
    COLLISION
-   ========================================================= */
+===================================================== */
 
-function collision(missile) {
+function checkCollision(m) {
 
-    const p =
-        playerBox();
+    let ph =
+        player.h;
 
+    if (
+        player.ducking
+    ) {
+
+        ph = 32;
+
+    }
+
+    const px =
+        player.x + 7;
+
+    const py =
+        player.y +
+        (player.h - ph);
+
+    const pw =
+        player.w - 14;
+
+    const mx =
+        m.x + 5;
+
+    const my =
+        m.y + 4;
+
+    const mw =
+        m.w - 10;
+
+    const mh =
+        m.h - 8;
+
+    /*
+       Jumping completely over
+       the missile is safe.
+    */
+
+    if (
+        py + ph <= my
+    ) {
+
+        return false;
+
+    }
 
     return (
 
-        p.left <
-        missile.x +
-        missile.w &&
+        px <
+        mx + mw &&
 
-        p.right >
-        missile.x &&
+        px + pw >
+        mx &&
 
-        p.top <
-        missile.y +
-        missile.h &&
+        py <
+        my + mh &&
 
-        p.bottom >
-        missile.y
+        py + ph >
+        my
 
     );
+
 }
 
+/* =====================================================
+   HIT
+===================================================== */
 
-/* =========================================================
-   EXPLOSION
-========================================================= */
+function hitPlayer() {
 
-function explosion(x, y) {
+    if (
+        player.invincible > 0
+    ) {
+
+        return;
+
+    }
+
+    lives--;
+
+    sound("hit");
+
+    player.invincible =
+        1.2;
+
+    screenShake =
+        0.4;
+
+    redFlash =
+        0.22;
 
     for (
         let i = 0;
@@ -868,217 +1380,248 @@ function explosion(x, y) {
         i++
     ) {
 
-        const angle =
-            Math.random() *
-            Math.PI *
-            2;
-
-        const speed =
-            80 +
-            Math.random() *
-            420;
-
         particles.push({
 
-            x: x,
+            x:
+                player.x +
+                player.w / 2,
 
-            y: y,
+            y:
+                player.y +
+                player.h / 2,
 
             vx:
-                Math.cos(angle) *
-                speed,
+                (Math.random() - .5) *
+                500,
 
             vy:
-                Math.sin(angle) *
-                speed,
-
-            size:
-                2 +
-                Math.random() * 7,
+                (Math.random() - .5) *
+                500,
 
             life:
                 .5 +
-                Math.random() *
-                .7
+                Math.random() * .5,
+
+            size:
+                3 +
+                Math.random() * 5
 
         });
+
     }
-}
-
-
-/* =========================================================
-   HIT PLAYER
-   ========================================================= */
-
-function hitPlayer(missile) {
-
-    if (player.invincible > 0) {
-        return;
-    }
-
-    player.invincible =
-        1.2;
-
-    lives--;
-
-    missile.hit = true;
-
-    explosion(
-
-        player.x +
-        player.w / 2,
-
-        player.y +
-        player.h / 2
-
-    );
-
-    screenShake = 20;
-
-    redFlash = .4;
 
     updateHUD();
 
-    if (lives <= 0) {
+    if (
+        lives <= 0
+    ) {
 
         setTimeout(
             gameOver,
-            450
+            300
         );
+
     }
+
 }
 
+/* =====================================================
+   UPDATE
+===================================================== */
 
-/* =========================================================
-   UPDATE PLAYER
-   ========================================================= */
-
-function updatePlayer(dt) {
+function update(dt) {
 
     /*
-       If jumping, apply gravity.
+       Pause freezes EVERYTHING.
     */
 
-    if (player.jumping) {
+    if (
+        !running ||
+        paused
+    ) {
+
+        return;
+
+    }
+
+    const ground =
+        height -
+        Math.max(
+            100,
+            height * 0.16
+        );
+
+    /* PLAYER */
+
+    if (
+        player.jumping
+    ) {
 
         player.velocity +=
-            player.gravity * dt;
+            player.gravity *
+            dt;
 
         player.y +=
-            player.velocity * dt;
-
-
-        /*
-           Player reaches ground.
-        */
+            player.velocity *
+            dt;
 
         if (
             player.y >=
-            ground - player.h
+            ground -
+            player.h
         ) {
 
             player.y =
-                ground - player.h;
+                ground -
+                player.h;
 
-            player.velocity = 0;
+            player.velocity =
+                0;
 
-            player.jumping = false;
+            player.jumping =
+                false;
+
         }
+
+    } else {
+
+        player.y =
+            ground -
+            player.h;
+
     }
 
+    if (
+        player.invincible > 0
+    ) {
 
-    if (player.invincible > 0) {
-
-        player.invincible -= dt;
+        player.invincible -=
+            dt;
 
     }
-}
 
+    /* MISSILE SPAWNING */
 
-/* =========================================================
-   UPDATE MISSILES
-   ========================================================= */
+    spawnTimer -=
+        dt;
 
-function updateMissiles(dt) {
+    const spawnRate =
+        Math.max(
+            0.48,
+            1.15 -
+            level * 0.045
+        );
+
+    if (
+        spawnTimer <= 0
+    ) {
+
+        spawnMissile();
+
+        spawnTimer =
+            spawnRate *
+            (
+                .75 +
+                Math.random() *
+                .45
+            );
+
+    }
+
+    /* MISSILES */
 
     for (
         let i =
             missiles.length - 1;
-
         i >= 0;
-
         i--
     ) {
 
         const m =
             missiles[i];
 
-
         m.x -=
-            m.speed * dt;
-
+            m.speed *
+            dt;
 
         /*
-           Check collision.
+           SCORE
         */
 
         if (
-            !m.hit &&
-            collision(m)
+            !m.scored &&
+            m.x + m.w <
+            player.x
         ) {
 
-            hitPlayer(m);
+            m.scored =
+                true;
+
+            score++;
+
+            sound("score");
+
+            /*
+               Every 10 points:
+               10 = Level 2
+               20 = Level 3
+               30 = Level 4
+               etc.
+            */
+
+            level =
+                Math.floor(
+                    score / 10
+                ) + 1;
+
+            updateHUD();
+
         }
 
-
-        /*
-           Missile leaves screen.
-        */
+        /* COLLISION */
 
         if (
-            m.x + m.w <
-            -50
+            checkCollision(m)
         ) {
 
-            if (!m.hit) {
-
-                score++;
-
-                level =
-                    Math.floor(
-                        score / 10
-                    ) + 1;
-
-                updateHUD();
-            }
+            hitPlayer();
 
             missiles.splice(
                 i,
                 1
             );
+
+            continue;
+
         }
+
+        /* REMOVE */
+
+        if (
+            m.x + m.w <
+            -100
+        ) {
+
+            missiles.splice(
+                i,
+                1
+            );
+
+        }
+
     }
-}
 
-
-/* =========================================================
-   UPDATE PARTICLES
-   ========================================================= */
-
-function updateParticles(dt) {
+    /* PARTICLES */
 
     for (
         let i =
             particles.length - 1;
-
         i >= 0;
-
         i--
     ) {
 
         const p =
             particles[i];
-
 
         p.x +=
             p.vx * dt;
@@ -1087,14 +1630,10 @@ function updateParticles(dt) {
             p.vy * dt;
 
         p.vy +=
-            650 * dt;
-
-        p.vx *=
-            .985;
+            700 * dt;
 
         p.life -=
             dt;
-
 
         if (
             p.life <= 0
@@ -1104,41 +1643,60 @@ function updateParticles(dt) {
                 i,
                 1
             );
+
         }
+
     }
+
+    screenShake =
+        Math.max(
+            0,
+            screenShake - dt
+        );
+
+    redFlash =
+        Math.max(
+            0,
+            redFlash - dt
+        );
+
 }
 
-
-/* =========================================================
-   DRAW BACKGROUND
-   ========================================================= */
+/* =====================================================
+   BACKGROUND
+===================================================== */
 
 function drawBackground() {
+
+    const ground =
+        height -
+        Math.max(
+            100,
+            height * 0.16
+        );
 
     const gradient =
         ctx.createLinearGradient(
             0,
             0,
             0,
-            H
+            height
         );
-
 
     gradient.addColorStop(
         0,
-        "#050b18"
+        "#152b52"
     );
 
     gradient.addColorStop(
-        .55,
-        "#12395b"
+        .65,
+        "#426b91"
     );
 
     gradient.addColorStop(
         1,
-        "#28454a"
+        "#9eb8c9"
     );
-
 
     ctx.fillStyle =
         gradient;
@@ -1146,153 +1704,150 @@ function drawBackground() {
     ctx.fillRect(
         0,
         0,
-        W,
-        H
+        width,
+        height
     );
 
-
-    /*
-       Stars
-    */
+    /* Moon */
 
     ctx.fillStyle =
-        "white";
-
-    for (
-        let i = 0;
-        i < 90;
-        i++
-    ) {
-
-        const x =
-            (i * 173) % W;
-
-        const y =
-            (i * 71) %
-            (H * .55);
-
-        ctx.fillRect(
-            x,
-            y,
-            2,
-            2
-        );
-    }
-
-
-    /*
-       Moon
-    */
-
-    ctx.fillStyle =
-        "#e8f3ff";
+        "#f5f1c8";
 
     ctx.beginPath();
 
     ctx.arc(
-        W - 100,
-        95,
+        width * .8,
+        height * .18,
         45,
         0,
         Math.PI * 2
     );
 
     ctx.fill();
-}
 
-
-/* =========================================================
-   DRAW GROUND
-   ========================================================= */
-
-function drawGround() {
+    /* Clouds */
 
     ctx.fillStyle =
-        "#15292e";
-
-    ctx.fillRect(
-        0,
-        ground,
-        W,
-        H - ground
-    );
-
-
-    /*
-       Neon ground line
-    */
-
-    ctx.fillStyle =
-        "#38d9ff";
-
-    ctx.fillRect(
-        0,
-        ground,
-        W,
-        4
-    );
-
-
-    /*
-       Moving road marks
-    */
-
-    const offset =
-        (
-            performance.now() / 5
-        ) % 100;
-
-
-    ctx.fillStyle =
-        "rgba(255,255,255,.15)";
-
+        "rgba(255,255,255,.18)";
 
     for (
-        let x = -100 + offset;
-        x < W;
-        x += 100
+        let i = 0;
+        i < 5;
+        i++
     ) {
 
-        ctx.fillRect(
+        const x =
+            (
+                i * 240 +
+                100
+            ) %
+            (width + 300) -
+            150;
+
+        const y =
+            80 +
+            (i % 3) * 70;
+
+        ctx.beginPath();
+
+        ctx.arc(
             x,
-            ground + 48,
-            50,
-            4
+            y,
+            30,
+            0,
+            Math.PI * 2
         );
+
+        ctx.arc(
+            x + 35,
+            y - 10,
+            38,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.arc(
+            x + 75,
+            y,
+            28,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+
     }
+
+    /* Hills */
+
+    ctx.fillStyle =
+        "#294f42";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        0,
+        ground
+    );
+
+    for (
+        let x = 0;
+        x <= width;
+        x += 80
+    ) {
+
+        const y =
+            ground -
+            40 -
+            Math.sin(
+                x * .008
+            ) * 35;
+
+        ctx.lineTo(
+            x,
+            y
+        );
+
+    }
+
+    ctx.lineTo(
+        width,
+        ground
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    /* Ground */
+
+    ctx.fillStyle =
+        "#202820";
+
+    ctx.fillRect(
+        0,
+        ground,
+        width,
+        height - ground
+    );
+
+    ctx.fillStyle =
+        "#4c6047";
+
+    ctx.fillRect(
+        0,
+        ground,
+        width,
+        6
+    );
+
 }
 
-
-/* =========================================================
-   DRAW PLAYER
-   ========================================================= */
+/* =====================================================
+   PLAYER DRAW
+===================================================== */
 
 function drawPlayer() {
-
-    /*
-       THIS IS THE IMPORTANT JUMP FIX.
-
-       When jumping, player.y is used.
-
-       When ducking, the player becomes
-       shorter but stays on the ground.
-    */
-
-    const h =
-        player.ducking
-            ? 40
-            : player.h;
-
-
-    const y =
-        player.ducking
-            ? ground - h
-            : player.y;
-
-
-    /*
-       Hit flash
-    */
 
     if (
         player.invincible > 0 &&
@@ -1302,284 +1857,820 @@ function drawPlayer() {
     ) {
 
         return;
+
     }
 
+    let h =
+        player.h;
 
-    /*
-       Shadow
-    */
+    if (
+        player.ducking
+    ) {
 
-    ctx.fillStyle =
-        "rgba(0,0,0,.35)";
+        h = 32;
 
-    ctx.beginPath();
+    }
 
-    ctx.ellipse(
-        player.x + 22,
-        ground + 5,
-        28,
-        7,
-        0,
-        0,
-        Math.PI * 2
-    );
+    const x =
+        player.x;
 
-    ctx.fill();
+    const y =
+        player.y +
+        player.h -
+        h;
 
-
-    /*
-       Body
-    */
+    /* Legs */
 
     ctx.fillStyle =
-        "#38d9ff";
+        customization.pants;
+
+    if (
+        !player.ducking
+    ) {
+
+        ctx.fillRect(
+            x + 7,
+            y + 35,
+            8,
+            19
+        );
+
+        ctx.fillRect(
+            x + 20,
+            y + 35,
+            8,
+            19
+        );
+
+    } else {
+
+        ctx.fillRect(
+            x + 5,
+            y + 23,
+            23,
+            9
+        );
+
+    }
+
+    /* Body */
+
+    ctx.fillStyle =
+        customization.shirt;
 
     ctx.fillRect(
-        player.x + 8,
-        y + 18,
-        28,
-        h - 18
+        x + 5,
+        y + 16,
+        24,
+        player.ducking
+            ? 15
+            : 23
     );
 
-
-    /*
-       Head
-    */
+    /* Head */
 
     ctx.fillStyle =
-        "#f1c27d";
+        customization.skin;
 
     ctx.beginPath();
 
     ctx.arc(
-        player.x + 22,
-        y + 12,
-        12,
+        x + 17,
+        y + 10,
+        10,
         0,
         Math.PI * 2
     );
 
     ctx.fill();
 
-
-    /*
-       Helmet
-    */
+    /* Hair */
 
     ctx.fillStyle =
-        "#dce8f2";
+        customization.hair;
 
     ctx.beginPath();
 
     ctx.arc(
-        player.x + 22,
-        y + 9,
-        13,
+        x + 17,
+        y + 6,
+        10,
         Math.PI,
         Math.PI * 2
     );
 
     ctx.fill();
 
+    /* Arms */
 
-    /*
-       Visor
-    */
+    ctx.strokeStyle =
+        customization.skin;
 
-    ctx.fillStyle =
-        "#14283d";
+    ctx.lineWidth = 6;
 
-    ctx.fillRect(
-        player.x + 22,
-        y + 8,
-        10,
-        6
-    );
+    ctx.lineCap =
+        "round";
 
+    if (
+        !player.ducking
+    ) {
 
-    /*
-       Legs
-    */
+        ctx.beginPath();
 
-    if (!player.ducking) {
+        ctx.moveTo(
+            x + 6,
+            y + 20
+        );
+
+        ctx.lineTo(
+            x - 2,
+            y + 32
+        );
+
+        ctx.stroke();
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x + 28,
+            y + 20
+        );
+
+        ctx.lineTo(
+            x + 36,
+            y + 32
+        );
+
+        ctx.stroke();
+
+    }
+
+    /* Cap */
+
+    if (
+        customization.accessory ===
+        "cap"
+    ) {
 
         ctx.fillStyle =
-            "#197aa7";
+            "#e74c3c";
 
         ctx.fillRect(
-            player.x + 8,
-            y + h - 17,
-            9,
-            17
+            x + 7,
+            y - 2,
+            20,
+            5
         );
 
         ctx.fillRect(
-            player.x + 27,
-            y + h - 17,
-            9,
-            17
+            x + 25,
+            y + 1,
+            8,
+            3
         );
+
     }
+
+    /* Glasses */
+
+    if (
+        customization.accessory ===
+        "glasses"
+    ) {
+
+        ctx.strokeStyle =
+            "#111";
+
+        ctx.lineWidth =
+            2;
+
+        ctx.strokeRect(
+            x + 9,
+            y + 7,
+            6,
+            5
+        );
+
+        ctx.strokeRect(
+            x + 19,
+            y + 7,
+            6,
+            5
+        );
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x + 15,
+            y + 9
+        );
+
+        ctx.lineTo(
+            x + 19,
+            y + 9
+        );
+
+        ctx.stroke();
+
+    }
+
 }
 
-
-/* =========================================================
-   DRAW MISSILE
-   ========================================================= */
+/* =====================================================
+   MISSILE DRAW
+===================================================== */
 
 function drawMissile(m) {
 
-    if (m.hit) {
-        return;
+    /*
+       Flip entire missile so
+       nose faces LEFT toward
+       the player.
+    */
+
+    ctx.save();
+
+    ctx.translate(
+        m.x +
+        m.w / 2,
+        0
+    );
+
+    ctx.scale(
+        -1,
+        1
+    );
+
+    ctx.translate(
+        -(m.x +
+        m.w / 2),
+        0
+    );
+
+    if (
+        m.giant
+    ) {
+
+        drawGiantMissile(m);
+
+    } else {
+
+        drawNormalMissile(m);
+
     }
 
+    ctx.restore();
 
-    /*
-       Flame
-    */
+}
+
+/* =====================================================
+   NORMAL MISSILE
+===================================================== */
+
+function drawNormalMissile(m) {
+
+    const x =
+        m.x;
+
+    const y =
+        m.y;
+
+    const w =
+        m.w;
+
+    const h =
+        m.h;
+
+    /* Exhaust */
+
+    const flame =
+        ctx.createLinearGradient(
+            x - 30,
+            y,
+            x,
+            y
+        );
+
+    flame.addColorStop(
+        0,
+        "rgba(255,80,0,0)"
+    );
+
+    flame.addColorStop(
+        .4,
+        "#ff5a00"
+    );
+
+    flame.addColorStop(
+        1,
+        "#ffe66d"
+    );
 
     ctx.fillStyle =
-        "#ff9d00";
+        flame;
 
     ctx.beginPath();
 
     ctx.moveTo(
-        m.x + m.w,
-        m.y + m.h / 2
+        x - 35,
+        y + h / 2
     );
 
     ctx.lineTo(
-        m.x + m.w + 28,
-        m.y + 3
+        x + 2,
+        y + 5
     );
 
     ctx.lineTo(
-        m.x + m.w + 28,
-        m.y + m.h - 3
+        x + 2,
+        y + h - 5
     );
 
     ctx.closePath();
 
     ctx.fill();
 
-
-    /*
-       Inner flame
-    */
+    /* Nozzle */
 
     ctx.fillStyle =
-        "#fff000";
+        "#20252a";
 
-    ctx.beginPath();
-
-    ctx.moveTo(
-        m.x + m.w,
-        m.y + m.h / 2
+    ctx.fillRect(
+        x - 5,
+        y + 7,
+        12,
+        h - 14
     );
 
-    ctx.lineTo(
-        m.x + m.w + 17,
-        m.y + 8
+    /* Body */
+
+    const body =
+        ctx.createLinearGradient(
+            x,
+            y,
+            x,
+            y + h
+        );
+
+    body.addColorStop(
+        0,
+        "#dce3e7"
     );
 
-    ctx.lineTo(
-        m.x + m.w + 17,
-        m.y + m.h - 8
+    body.addColorStop(
+        .3,
+        "#7c8991"
     );
 
-    ctx.closePath();
+    body.addColorStop(
+        .6,
+        "#4d5960"
+    );
 
-    ctx.fill();
-
-
-    /*
-       Missile body
-    */
+    body.addColorStop(
+        1,
+        "#20282d"
+    );
 
     ctx.fillStyle =
-        "#e7edf2";
+        body;
 
     ctx.beginPath();
 
     ctx.roundRect(
-        m.x,
-        m.y,
-        m.w,
-        m.h,
-        10
+        x,
+        y + 3,
+        w - 12,
+        h - 6,
+        8
     );
 
     ctx.fill();
 
-
-    /*
-       Nose
-    */
+    /* Nose */
 
     ctx.fillStyle =
-        "#e83b4f";
+        "#9fa8ad";
 
     ctx.beginPath();
 
     ctx.moveTo(
-        m.x,
-        m.y
+        x + w - 12,
+        y + 3
     );
 
     ctx.lineTo(
-        m.x - 16,
-        m.y + m.h / 2
+        x + w,
+        y + h / 2
     );
 
     ctx.lineTo(
-        m.x,
-        m.y + m.h
+        x + w - 12,
+        y + h - 3
     );
 
     ctx.closePath();
 
     ctx.fill();
 
-
-    /*
-       Window
-    */
+    /* Warning stripe */
 
     ctx.fillStyle =
-        "#182636";
+        "#d6a900";
+
+    ctx.fillRect(
+        x + 22,
+        y + 4,
+        9,
+        h - 8
+    );
+
+    ctx.fillStyle =
+        "#202020";
+
+    ctx.fillRect(
+        x + 32,
+        y + 4,
+        5,
+        h - 8
+    );
+
+    /* Fins */
+
+    ctx.fillStyle =
+        "#3a454c";
 
     ctx.beginPath();
 
-    ctx.arc(
-        m.x + 22,
-        m.y + 12,
-        5,
+    ctx.moveTo(
+        x + 15,
+        y + 5
+    );
+
+    ctx.lineTo(
+        x + 7,
+        y - 10
+    );
+
+    ctx.lineTo(
+        x + 27,
+        y + 5
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x + 15,
+        y + h - 5
+    );
+
+    ctx.lineTo(
+        x + 7,
+        y + h + 10
+    );
+
+    ctx.lineTo(
+        x + 27,
+        y + h - 5
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    /* Panels */
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,.35)";
+
+    ctx.lineWidth = 1;
+
+    for (
+        let i = 0;
+        i < 3;
+        i++
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x + 40 +
+            i * 7,
+            y + 7
+        );
+
+        ctx.lineTo(
+            x + 40 +
+            i * 7,
+            y + h - 7
+        );
+
+        ctx.stroke();
+
+    }
+
+}
+
+/* =====================================================
+   GIANT MISSILE
+===================================================== */
+
+function drawGiantMissile(m) {
+
+    const x =
+        m.x;
+
+    const y =
+        m.y;
+
+    const w =
+        m.w;
+
+    const h =
+        m.h;
+
+    /* Exhaust */
+
+    const flame =
+        ctx.createLinearGradient(
+            x - 65,
+            y + h / 2,
+            x,
+            y + h / 2
+        );
+
+    flame.addColorStop(
         0,
-        Math.PI * 2
+        "rgba(255,50,0,0)"
+    );
+
+    flame.addColorStop(
+        .35,
+        "#ff3b00"
+    );
+
+    flame.addColorStop(
+        .7,
+        "#ff9800"
+    );
+
+    flame.addColorStop(
+        1,
+        "#fff176"
+    );
+
+    ctx.fillStyle =
+        flame;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x - 70,
+        y + h / 2
+    );
+
+    ctx.lineTo(
+        x,
+        y + 8
+    );
+
+    ctx.lineTo(
+        x,
+        y + h - 8
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    /* Nozzle */
+
+    ctx.fillStyle =
+        "#171b1e";
+
+    ctx.fillRect(
+        x - 8,
+        y + 12,
+        22,
+        h - 24
+    );
+
+    /* Body */
+
+    const body =
+        ctx.createLinearGradient(
+            x,
+            y,
+            x,
+            y + h
+        );
+
+    body.addColorStop(
+        0,
+        "#eef2f3"
+    );
+
+    body.addColorStop(
+        .3,
+        "#87939a"
+    );
+
+    body.addColorStop(
+        .65,
+        "#4c575e"
+    );
+
+    body.addColorStop(
+        1,
+        "#20272b"
+    );
+
+    ctx.fillStyle =
+        body;
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x,
+        y + 5,
+        w - 18,
+        h - 10,
+        15
     );
 
     ctx.fill();
 
-
-    /*
-       Stripe
-    */
+    /* Nose */
 
     ctx.fillStyle =
-        "#e83b4f";
+        "#aeb8bd";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x + w - 18,
+        y + 5
+    );
+
+    ctx.lineTo(
+        x + w,
+        y + h / 2
+    );
+
+    ctx.lineTo(
+        x + w - 18,
+        y + h - 5
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    /* Warning stripe */
+
+    ctx.fillStyle =
+        "#e0b400";
 
     ctx.fillRect(
-        m.x + 43,
-        m.y,
-        7,
-        m.h
+        x + 42,
+        y + 6,
+        16,
+        h - 12
     );
+
+    ctx.fillStyle =
+        "#222";
+
+    ctx.fillRect(
+        x + 60,
+        y + 6,
+        8,
+        h - 12
+    );
+
+    /* Fins */
+
+    ctx.fillStyle =
+        "#354047";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x + 30,
+        y + 10
+    );
+
+    ctx.lineTo(
+        x + 12,
+        y - 30
+    );
+
+    ctx.lineTo(
+        x + 55,
+        y + 10
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x + 30,
+        y + h - 10
+    );
+
+    ctx.lineTo(
+        x + 12,
+        y + h + 30
+    );
+
+    ctx.lineTo(
+        x + 55,
+        y + h - 10
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    /* Warning symbol */
+
+    ctx.fillStyle =
+        "#111";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x + 83,
+        y + 18
+    );
+
+    ctx.lineTo(
+        x + 105,
+        y + h - 18
+    );
+
+    ctx.lineTo(
+        x + 61,
+        y + h - 18
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.fillStyle =
+        "#f4d03f";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x + 83,
+        y + 25
+    );
+
+    ctx.lineTo(
+        x + 98,
+        y + h - 24
+    );
+
+    ctx.lineTo(
+        x + 68,
+        y + h - 24
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.fillStyle =
+        "#222";
+
+    ctx.fillRect(
+        x + 81,
+        y + 31,
+        4,
+        18
+    );
+
+    ctx.fillRect(
+        x + 81,
+        y + 52,
+        4,
+        4
+    );
+
 }
 
-
-/* =========================================================
-   DRAW PARTICLES
-   ========================================================= */
+/* =====================================================
+   PARTICLES
+===================================================== */
 
 function drawParticles() {
 
@@ -1594,227 +2685,214 @@ function drawParticles() {
             );
 
         ctx.fillStyle =
-            p.life > .5
-                ? "#ffd000"
-                : "#ff4b20";
+            "#ff9f43";
 
-
-        ctx.beginPath();
-
-        ctx.arc(
+        ctx.fillRect(
             p.x,
             p.y,
             p.size,
-            0,
-            Math.PI * 2
+            p.size
         );
 
-        ctx.fill();
     }
 
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha =
+        1;
+
 }
 
+/* =====================================================
+   HUD
+===================================================== */
 
-/* =========================================================
+function updateHUD() {
+
+    document
+        .getElementById("score")
+        .textContent =
+        "SCORE: " +
+        score;
+
+    document
+        .getElementById("level")
+        .textContent =
+        "LEVEL: " +
+        level;
+
+    document
+        .getElementById("lives")
+        .textContent =
+        "LIVES: " +
+        "❤️".repeat(
+            Math.max(
+                0,
+                lives
+            )
+        );
+
+}
+
+/* =====================================================
    DRAW
-   ========================================================= */
+===================================================== */
 
 function draw() {
 
-    ctx.save();
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
 
+    drawBackground();
 
-    /*
-       Screen shake
-    */
+    let shakeX = 0;
+    let shakeY = 0;
 
     if (
         screenShake > 0
     ) {
 
-        ctx.translate(
-            (Math.random() - .5) *
-            screenShake,
+        const power =
+            screenShake * 60;
 
-            (Math.random() - .5) *
-            screenShake
-        );
+        shakeX =
+            (
+                Math.random() -
+                .5
+            ) *
+            power;
+
+        shakeY =
+            (
+                Math.random() -
+                .5
+            ) *
+            power;
+
     }
 
+    ctx.save();
 
-    drawBackground();
-
-    drawGround();
-
+    ctx.translate(
+        shakeX,
+        shakeY
+    );
 
     for (
         const m of missiles
     ) {
 
         drawMissile(m);
-    }
 
+    }
 
     drawPlayer();
 
     drawParticles();
 
-
     ctx.restore();
 
-
-    /*
-       Red hit flash
-    */
+    /* Red flash */
 
     if (
         redFlash > 0
     ) {
 
         ctx.fillStyle =
-            "rgba(255,0,0," +
-            redFlash +
-            ")";
+            `rgba(255,0,0,${
+                redFlash * .5
+            })`;
 
         ctx.fillRect(
             0,
             0,
-            W,
-            H
+            width,
+            height
         );
 
-        redFlash -=
-            .025;
     }
 
-
-    /*
-       Shake decay
-    */
+    /* PAUSED SCREEN */
 
     if (
-        screenShake > 0
+        paused &&
+        running
     ) {
 
-        screenShake *= .9;
+        ctx.fillStyle =
+            "rgba(0,0,0,.55)";
 
-        if (
-            screenShake < .5
-        ) {
+        ctx.fillRect(
+            0,
+            0,
+            width,
+            height
+        );
 
-            screenShake = 0;
-        }
+        ctx.fillStyle =
+            "white";
+
+        ctx.textAlign =
+            "center";
+
+        ctx.font =
+            "bold 52px Arial";
+
+        ctx.fillText(
+            "PAUSED",
+            width / 2,
+            height / 2
+        );
+
+        ctx.font =
+            "20px Arial";
+
+        ctx.fillText(
+            "Press RESUME or P",
+            width / 2,
+            height / 2 + 40
+        );
+
+        ctx.textAlign =
+            "left";
+
     }
+
 }
 
-
-/* =========================================================
+/* =====================================================
    GAME LOOP
-   ========================================================= */
+===================================================== */
 
-function loop(time) {
+function gameLoop(timestamp) {
 
-    if (!running) {
-
-        draw();
-
-        return;
-    }
-
-
-    let dt =
-        (time - lastTime) /
-        1000;
-
-
-    lastTime =
-        time;
-
-
-    /*
-       Don't let lag make the player
-       teleport through the game.
-    */
-
-    dt =
+    const dt =
         Math.min(
-            dt,
+            (
+                timestamp -
+                lastTime
+            ) / 1000,
             .033
         );
 
+    lastTime =
+        timestamp;
 
-    /*
-       Missile spawning
-    */
-
-    spawnTimer +=
-        dt;
-
-
-    const spawnDelay =
-        Math.max(
-            .48,
-            1.25 -
-            level * .06
-        );
-
-
-    if (
-        spawnTimer >=
-        spawnDelay
-    ) {
-
-        spawnTimer = 0;
-
-        createMissile();
-    }
-
-
-    updatePlayer(dt);
-
-    updateMissiles(dt);
-
-    updateParticles(dt);
+    update(dt);
 
     draw();
 
-
     requestAnimationFrame(
-        loop
+        gameLoop
     );
+
 }
 
-
-/* =========================================================
-   START BUTTON
-   ========================================================= */
-
-startButton.addEventListener(
-    "click",
-    function() {
-
-        titleElement.textContent =
-            "MISSILE MAYHEM";
-
-        messageElement.textContent =
-            "Jump and duck to survive!";
-
-        startGame();
-
-    }
+requestAnimationFrame(
+    gameLoop
 );
-
-
-/* =========================================================
-   INITIALIZE
-   ========================================================= */
-
-resize();
-
-resetPlayer();
-
-draw();
 
 </script>
 
