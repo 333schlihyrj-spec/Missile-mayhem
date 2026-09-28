@@ -1218,6 +1218,33 @@ function collision(a,b){
 }
 
 
+function stompMissile(m, previousBottom){
+
+  if(player.ducking){
+    return false;
+  }
+
+  const box = getPlayerHitbox();
+  const currentBottom = box.y + box.h;
+
+  const horizontalHit =
+    box.x + box.w > m.x &&
+    box.x < m.x + m.w;
+
+  const falling = player.velocity > 0;
+
+  const crossedTop =
+    previousBottom <= m.y + 10 &&
+    currentBottom >= m.y;
+
+  return(
+    horizontalHit &&
+    falling &&
+    crossedTop
+  );
+}
+
+
 /* =========================================================
    MISSILES
 ========================================================= */
@@ -1709,6 +1736,9 @@ function update(dt){
   const groundY =
     H - 110;
 
+  const previousPlayerBottom =
+    getPlayerHitbox().y + getPlayerHitbox().h;
+
   /* player */
 
   player.velocity +=
@@ -1810,6 +1840,38 @@ function update(dt){
 
     m.x -=
       m.speed * dt;
+
+    if(stompMissile(m, previousPlayerBottom)){
+
+      missiles.splice(i,1);
+
+      player.velocity =
+        -player.jumpPower * .8;
+
+      player.jumping = true;
+      player.jumpCount = 1;
+      player.ducking = false;
+
+      score += 1;
+
+      shake = Math.max(shake, .12);
+
+      for(let j=0;j<14;j++){
+
+        particles.push({
+          x:player.x + player.w/2,
+          y:m.y,
+          vx:(Math.random()-.5)*280,
+          vy:-Math.random()*280,
+          life:.55,
+          color:j%2===0 ? '#ffd166' : '#ff6b35'
+        });
+      }
+
+      sound('score');
+
+      continue;
+    }
 
     if(collision(player,m)){
 
