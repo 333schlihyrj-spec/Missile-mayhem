@@ -172,6 +172,47 @@ select{
   display:none;
 }
 
+#levelSelect{
+  position:fixed;
+  inset:0;
+  z-index:60;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  overflow-y:auto;
+  padding:20px;
+  background:rgba(5,8,25,.92);
+}
+
+#levelSelect h2{
+  margin-bottom:10px;
+  color:#8be9fd;
+}
+
+.levelGrid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+
+.levelButton{
+  padding:10px 6px;
+  border:0;
+  border-radius:10px;
+  color:white;
+  font-weight:bold;
+  background:linear-gradient(135deg,#2563eb,#06b6d4);
+  cursor:pointer;
+}
+
+.levelButton.boss{
+  background:linear-gradient(135deg,#dc2626,#7c3aed);
+}
+
+@media(max-width:520px){
+  .levelGrid{grid-template-columns:repeat(4,1fr);}
+}
+
 .shopBox{
   width:min(800px,95vw);
   max-height:92vh;
@@ -256,7 +297,7 @@ select{
 
 .mobileControls button{
   pointer-events:auto;
-  width:110px;
+  width:100px;
   height:65px;
   border:0;
   border-radius:20px;
@@ -277,6 +318,10 @@ select{
 #duckBtn.active{
   transform:scale(.95);
   filter:brightness(1.25);
+}
+
+#fireBtn{
+  background:linear-gradient(135deg,#ef4444,#f97316);
 }
 
 @media(max-width:700px){
@@ -381,6 +426,10 @@ select{
           <option value="none">None</option>
           <option value="cap">Cap</option>
           <option value="glasses">Glasses</option>
+          <option value="crown">Crown</option>
+          <option value="wizard">Wizard Hat</option>
+          <option value="halo">Halo</option>
+          <option value="backpack">Backpack</option>
         </select>
       </label>
 
@@ -394,6 +443,19 @@ select{
       🛒 SHOP
     </button>
 
+    <button class="menuButton secondaryButton" id="deleteProgressButton" style="background:#7f1d1d;">
+      🗑️ DELETE PROGRESS
+    </button>
+
+  </div>
+</div>
+
+<div id="levelSelect">
+  <div class="menuBox" style="max-width:760px;">
+    <h1 style="font-size:42px;">LEVEL SELECT</h1>
+    <h2>🎮 Choose a level</h2>
+    <div id="levelButtons" class="levelGrid"></div>
+    <button class="menuButton secondaryButton" onclick="returnToLevelSelect()">BACK</button>
   </div>
 </div>
 
@@ -416,41 +478,19 @@ select{
 
     <div class="shopGrid">
 
-      <div class="shopCard">
-        <div class="shopIcon">👑</div>
-        <h3>Golden Outfit</h3>
-        <p>
-          Turn your character into a shiny golden hero.
-        </p>
-        <button data-item="gold">🪙 50</button>
-      </div>
+      <div class="shopCard"><div class="shopIcon">👑</div><h3>Golden Outfit</h3><p>Turn your character into a shiny golden hero.</p><button data-item="gold">🪙 50</button></div>
+      <div class="shopCard"><div class="shopIcon">🥷</div><h3>Ninja Outfit</h3><p>A stealthy dark outfit for your runner.</p><button data-item="ninja">🪙 100</button></div>
+      <div class="shopCard"><div class="shopIcon">🤖</div><h3>Robot Outfit</h3><p>Become a colorful robot runner.</p><button data-item="robot">🪙 150</button></div>
+      <div class="shopCard"><div class="shopIcon">🧲</div><h3>Coin Magnet</h3><p>Pull nearby coins toward you automatically.</p><button data-item="magnet">🪙 200</button></div>
 
-      <div class="shopCard">
-        <div class="shopIcon">🥷</div>
-        <h3>Ninja Outfit</h3>
-        <p>
-          A stealthy dark outfit for your runner.
-        </p>
-        <button data-item="ninja">🪙 100</button>
-      </div>
+      <div class="shopCard"><div class="shopIcon">👑</div><h3>Royal Crown</h3><p>Unlock a golden crown accessory.</p><button data-item="crown">🪙 75</button></div>
+      <div class="shopCard"><div class="shopIcon">🧙</div><h3>Wizard Hat</h3><p>Unlock a magical wizard hat accessory.</p><button data-item="wizard">🪙 125</button></div>
+      <div class="shopCard"><div class="shopIcon">😇</div><h3>Halo</h3><p>Unlock a glowing halo accessory.</p><button data-item="halo">🪙 175</button></div>
+      <div class="shopCard"><div class="shopIcon">🎒</div><h3>Adventure Backpack</h3><p>Unlock a colorful backpack accessory.</p><button data-item="backpack">🪙 150</button></div>
 
-      <div class="shopCard">
-        <div class="shopIcon">🤖</div>
-        <h3>Robot Outfit</h3>
-        <p>
-          Become a colorful robot runner.
-        </p>
-        <button data-item="robot">🪙 150</button>
-      </div>
-
-      <div class="shopCard">
-        <div class="shopIcon">🧲</div>
-        <h3>Coin Magnet</h3>
-        <p>
-          Pull nearby coins toward you automatically.
-        </p>
-        <button data-item="magnet">🪙 200</button>
-      </div>
+      <div class="shopCard"><div class="shopIcon">❤️</div><h3>Heart Container I</h3><p>Permanently increase your maximum hearts by 1.</p><button data-item="heart1">🪙 250</button></div>
+      <div class="shopCard"><div class="shopIcon">❤️</div><h3>Heart Container II</h3><p>Permanently increase your maximum hearts by 1.</p><button data-item="heart2">🪙 500</button></div>
+      <div class="shopCard"><div class="shopIcon">💖</div><h3>Heart Container III</h3><p>Permanently increase your maximum hearts by 1.</p><button data-item="heart3">🪙 1000</button></div>
 
     </div>
 
@@ -466,10 +506,38 @@ select{
 <div class="mobileControls">
   <button id="duckBtn">DUCK</button>
   <button id="jumpBtn">JUMP</button>
+  <button id="fireBtn">FIRE</button>
 </div>
+
+<div id="fatalError" style="display:none;position:fixed;left:10px;right:10px;bottom:10px;z-index:99999;padding:14px;border-radius:12px;background:#7f1d1d;color:white;font:bold 15px Arial;white-space:pre-wrap;"></div>
 
 <script>
 "use strict";
+
+window.addEventListener("error", (event)=>{
+  const box=document.getElementById("fatalError");
+  if(box){
+    box.style.display="block";
+    box.textContent="Game error: " + (event.error?.message || event.message || "Unknown error");
+  }
+});
+
+/* Safe storage: some browsers restrict localStorage for downloaded file:// pages. */
+const gameStorage = (()=>{
+  try{
+    const test="__missile_mayhem_test__";
+    localStorage.setItem(test,"1");
+    localStorage.removeItem(test);
+    return localStorage;
+  }catch(e){
+    const memory = {};
+    return {
+      getItem:key => Object.prototype.hasOwnProperty.call(memory,key) ? memory[key] : null,
+      setItem:(key,value)=>{ memory[key]=String(value); },
+      removeItem:key=>{ delete memory[key]; }
+    };
+  }
+})();
 
 /* =========================================================
    CANVAS
@@ -643,6 +711,18 @@ const customization = {
   document.getElementById(id).addEventListener(
     "change",
     e=>{
+      if(id === "accessory") {
+        const value = e.target.value;
+        const paidAccessory = ["crown", "wizard", "halo", "backpack"].includes(value);
+
+        if(paidAccessory && !purchasedItems[value]) {
+          e.target.value = customization.accessory;
+          sound("hit");
+          alert("You need to buy this accessory in the shop first!");
+          return;
+        }
+      }
+
       customization[id] = e.target.value;
     }
   );
@@ -676,6 +756,7 @@ let paused = false;
 let score = 0;
 let level = 1;
 let lives = 3;
+let maxLives = 3;
 
 let missiles = [];
 let particles = [];
@@ -699,33 +780,39 @@ let habitatFlash = 0;
 ========================================================= */
 
 let coins =
-  Number(localStorage.getItem("missileCoins") || 0);
+  Number(gameStorage.getItem("missileCoins") || 0);
 
 let purchasedItems = {};
 
 try{
   purchasedItems =
     JSON.parse(
-      localStorage.getItem("missileShopItems") || "{}"
+      gameStorage.getItem("missileShopItems") || "{}"
     ) || {};
 }catch{
   purchasedItems = {};
 }
 
 const shopPrices = {
-  gold:50,
-  ninja:100,
-  robot:150,
-  magnet:200
+  gold:50, ninja:100, robot:150, magnet:200,
+  crown:75, wizard:125, halo:175, backpack:150,
+  heart1:250, heart2:500, heart3:1000
 };
 
+function getMaxLives(){
+  return 3 +
+    Number(!!purchasedItems.heart1) +
+    Number(!!purchasedItems.heart2) +
+    Number(!!purchasedItems.heart3);
+}
+
 function saveShop(){
-  localStorage.setItem(
+  gameStorage.setItem(
     "missileShopItems",
     JSON.stringify(purchasedItems)
   );
 
-  localStorage.setItem(
+  gameStorage.setItem(
     "missileCoins",
     String(coins)
   );
@@ -759,35 +846,15 @@ function closeShop(){
 }
 
 function updateShopButtons(){
-
-  const keys = [
-    "gold",
-    "ninja",
-    "robot",
-    "magnet"
-  ];
-
-  document.querySelectorAll(
-    ".shopCard button"
-  ).forEach((button,index)=>{
-
-    const key = keys[index];
-
+  document.querySelectorAll(".shopCard button[data-item]").forEach(button=>{
+    const key = button.dataset.item;
     if(purchasedItems[key]){
-
-      button.textContent =
-        key === "magnet"
-          ? "PURCHASED"
-          : "EQUIP";
-
+      button.textContent = key.startsWith("heart") ? "PURCHASED" : "EQUIP";
     }else{
-
-      button.textContent =
-        "🪙 " + shopPrices[key];
-
+      button.textContent = "🪙 " + shopPrices[key];
     }
-
   });
+  maxLives = getMaxLives();
 }
 
 function buyItem(item){
@@ -807,11 +874,17 @@ function buyItem(item){
   purchasedItems[item] = true;
 
   saveShop();
+  maxLives = getMaxLives();
 
   updateCoinDisplays();
   updateShopButtons();
 
-  equipItem(item);
+  if(item.startsWith("heart")){
+    lives = Math.min(maxLives, lives + 1);
+    updateHUD();
+  }else{
+    equipItem(item);
+  }
 
   sound("coin");
 }
@@ -834,6 +907,10 @@ function equipItem(item){
     customization.shirt = "#94a3b8";
     customization.pants = "#475569";
     customization.hair = "#e2e8f0";
+  }
+
+  if(item === "crown" || item === "wizard" || item === "halo" || item === "backpack"){
+    customization.accessory = item;
   }
 
   updateCustomizationUI();
@@ -920,7 +997,8 @@ function startGame(){
 
   score = 0;
   level = 1;
-  lives = 3;
+  maxLives = getMaxLives();
+  lives = maxLives;
 
   missiles = [];
   particles = [];
@@ -933,7 +1011,6 @@ function startGame(){
 
   shake = 0;
   hitFlash = 0;
-
   habitatFlash = 1;
 
   player.x = 100;
@@ -946,446 +1023,105 @@ function startGame(){
 
   nukeCutscene = false;
   nukeTimer = 0;
+  nukePhase = false;
+  bossPhase = false;
+  boss = null;
 
-  document.getElementById("menu").style.display =
-    "none";
-
-  document.getElementById("shop").style.display =
-    "none";
-
-  document.getElementById("pauseBtn").textContent =
-    "PAUSE";
-
-  updateHUD();
-
-  lastTime = performance.now();
-
-  sound("start");
+  // Before the robot has been defeated, the game starts directly at the boss.
+  if(!bossDefeated){
+    level = 30;
+    score = 290;
+    startBossBattle();
+  }
 }
 
-function gameOver(){
+function startSelectedLevel(selectedLevel){
+  if(!bossDefeated || selectedLevel < 1 || selectedLevel > unlockedLevel) return;
 
+  document.getElementById("levelSelect").style.display = "none";
+  document.getElementById("menu").style.display = "none";
+
+  running = true;
+  paused = false;
+  level = selectedLevel;
+  score = Math.max(0, (selectedLevel - 1) * 10);
+  lives = getMaxLives();
+  maxLives = getMaxLives();
+  missiles = [];
+  particles = [];
+  powerups = [];
+  coinsList = [];
+  missileTimer = 1;
+  powerupTimer = 7;
+  coinTimer = 2;
+  nukeCutscene = false;
+  nukePhase = false;
+  bossPhase = false;
+  boss = null;
+
+  player.x = 100;
+  player.y = H - 110 - player.h;
+  player.velocity = 0;
+  player.jumping = false;
+  player.jumpCount = 0;
+  player.ducking = false;
+  player.invincible = 0;
+
+  // Level 30 remains available as a boss replay.
+  if(selectedLevel === 30){
+    startBossBattle();
+  }
+}
+
+function showLevelSelect(){
+  const select = document.getElementById("levelSelect");
+  const buttons = document.getElementById("levelButtons");
+  if(!select || !buttons) return;
+
+  select.style.display = "block";
+  buttons.innerHTML = "";
+
+  for(let i=1;i<=30;i++){
+    const button = document.createElement("button");
+    button.className = "levelButton" + (i === 30 ? " boss" : "");
+    button.textContent = i === 30 ? "🤖 BOSS" : "LEVEL " + i;
+    button.onclick = () => startSelectedLevel(i);
+    buttons.appendChild(button);
+  }
+}
+
+function returnToLevelSelect(){
   running = false;
   paused = false;
-  nukeCutscene = false;
-
-  player.ducking = false;
-
-  sound("gameover");
-
-  setTimeout(()=>{
-
-    document.getElementById("menu").style.display =
-      "flex";
-
-    document.querySelector(
-      "#menu .subtitle"
-    ).textContent =
-      "Dodge missiles. Collect coins. Survive the chaos!";
-
-    document.getElementById("pauseBtn").textContent =
-      "PAUSE";
-
-    updateHUD();
-
-  },300);
+  bossPhase = false;
+  document.getElementById("menu").style.display = "flex";
+  document.getElementById("levelSelect").style.display = bossDefeated ? "block" : "none";
 }
+
 
 
 /* =========================================================
-   PAUSE
-========================================================= */
-
-function togglePause(){
-
-  if(!running || nukeCutscene){
-    return;
-  }
-
-  paused = !paused;
-
-  document.getElementById("pauseBtn").textContent =
-    paused ? "RESUME" : "PAUSE";
-}
-
-document.getElementById("pauseBtn")
-  .addEventListener("click",togglePause);
-
-addEventListener("keydown",e=>{
-  if(e.key.toLowerCase() === "p"){
-    togglePause();
-  }
-});
-
-
-/* =========================================================
-   JUMP
-========================================================= */
-
-function jump(){
-
-  if(!running || paused || nukeCutscene){
-    return;
-  }
-
-  if(player.jumpCount < player.maxJumps){
-
-    player.velocity = -player.jumpPower;
-
-    player.jumping = true;
-
-    player.jumpCount++;
-
-    player.ducking = false;
-
-    sound("jump");
-
-    for(let i=0;i<7;i++){
-
-      particles.push({
-        x:player.x + player.w/2,
-        y:player.y + player.h,
-        vx:(Math.random()-.5)*100,
-        vy:Math.random()*80,
-        life:.3,
-        color:"#ffffff"
-      });
-
-    }
-  }
-}
-
-
-/* =========================================================
-   DUCK
-========================================================= */
-
-function startDuck(){
-
-  if(!running || paused || nukeCutscene){
-    return;
-  }
-
-  player.ducking = true;
-}
-
-function stopDuck(){
-  player.ducking = false;
-}
-
-addEventListener("keydown",e=>{
-
-  if(
-    e.code === "ArrowUp" ||
-    e.code === "Space" ||
-    e.code === "KeyW"
-  ){
-    e.preventDefault();
-    jump();
-  }
-
-  if(
-    e.code === "ArrowDown" ||
-    e.code === "KeyS"
-  ){
-    e.preventDefault();
-    startDuck();
-  }
-
-});
-
-addEventListener("keyup",e=>{
-
-  if(
-    e.code === "ArrowDown" ||
-    e.code === "KeyS"
-  ){
-    e.preventDefault();
-    stopDuck();
-  }
-
-});
-
-
-/* =========================================================
-   MOBILE JUMP
-========================================================= */
-
-const jumpBtn =
-  document.getElementById("jumpBtn");
-
-jumpBtn.addEventListener(
-  "pointerdown",
-  e=>{
-    e.preventDefault();
-    jump();
-  }
-);
-
-
-/* =========================================================
-   MOBILE DUCK
-========================================================= */
-
-const duckBtn =
-  document.getElementById("duckBtn");
-
-duckBtn.addEventListener(
-  "pointerdown",
-  e=>{
-
-    e.preventDefault();
-
-    duckBtn.setPointerCapture(
-      e.pointerId
-    );
-
-    duckBtn.classList.add("active");
-
-    startDuck();
-  }
-);
-
-duckBtn.addEventListener(
-  "pointerup",
-  e=>{
-
-    e.preventDefault();
-
-    duckBtn.classList.remove("active");
-
-    stopDuck();
-  }
-);
-
-duckBtn.addEventListener(
-  "pointercancel",
-  ()=>{
-    duckBtn.classList.remove("active");
-    stopDuck();
-  }
-);
-
-duckBtn.addEventListener(
-  "pointerleave",
-  e=>{
-    if(e.buttons === 0){
-      duckBtn.classList.remove("active");
-      stopDuck();
-    }
-  }
-);
-
-
-/* =========================================================
-   PLAYER HITBOX
-========================================================= */
-
-function getPlayerHitbox(){
-
-  const h =
-    player.ducking
-      ? 35
-      : 54;
-
-  return {
-    x:player.x + 4,
-
-    y:
-      player.ducking
-        ? H - 110 - h
-        : player.y,
-
-    w:player.w - 8,
-
-    h:h
-  };
-}
-
-function collision(a,b){
-
-  const playerBox =
-    a === player
-      ? getPlayerHitbox()
-      : a;
-
-  return(
-    playerBox.x < b.x + b.w &&
-    playerBox.x + playerBox.w > b.x &&
-    playerBox.y < b.y + b.h &&
-    playerBox.y + playerBox.h > b.y
-  );
-}
-
-
-function stompMissile(m, previousBottom){
-
-  if(player.ducking){
-    return false;
-  }
-
-  const box = getPlayerHitbox();
-  const currentBottom = box.y + box.h;
-
-  const horizontalHit =
-    box.x + box.w > m.x &&
-    box.x < m.x + m.w;
-
-  const falling = player.velocity > 0;
-
-  const crossedTop =
-    previousBottom <= m.y + 10 &&
-    currentBottom >= m.y;
-
-  return(
-    horizontalHit &&
-    falling &&
-    crossedTop
-  );
-}
-
-
-/* =========================================================
-   MISSILES
-========================================================= */
-
-function spawnMissile(){
-
-  const giant =
-    level >= 10 &&
-    Math.random() < .15;
-
-  const speed =
-    (giant ? 470 : 400) +
-    level * 22 +
-    (level >= 10 ? 180 : 0);
-
-  const h =
-    giant ? 34 : 23;
-
-  const y =
-    H - 110 - Math.random() * 250;
-
-  missiles.push({
-    x:W + 80,
-    y:y,
-    w:giant ? 90 : 65,
-    h:h,
-    speed:speed,
-    giant:giant,
-    passed:false
-  });
-}
-
-
-/* =========================================================
-   COINS
-========================================================= */
-
-function spawnCoin(){
-
-  coinsList.push({
-    x:W + 40,
-    y:H - 160 - Math.random() * 250,
-    w:26,
-    h:26,
-    speed:280 + level * 8,
-    rotation:0
-  });
-}
-
-function collectCoin(index){
-
-  coins++;
-
-  coinsList.splice(index,1);
-
-  saveShop();
-  updateCoinDisplays();
-
-  sound("coin");
-
-  for(let i=0;i<10;i++){
-
-    particles.push({
-      x:player.x + player.w/2,
-      y:player.y + player.h/2,
-      vx:(Math.random()-.5)*250,
-      vy:(Math.random()-.5)*250,
-      life:.5,
-      color:"#ffd700"
-    });
-
-  }
-}
-
-
-/* =========================================================
-   EXTRA LIFE
-========================================================= */
-
-function spawnPowerup(){
-
-  if(lives >= 3){
-    return;
-  }
-
-  powerups.push({
-    x:W + 40,
-    y:H - 180 - Math.random() * 220,
-    w:30,
-    h:30,
-    speed:270
-  });
-}
-
-function collectPowerup(index){
-
-  if(lives < 3){
-
-    lives++;
-
-    sound("life");
-  }
-
-  powerups.splice(index,1);
-}
-
-
-/* =========================================================
-   PLAYER HIT
+   PLAYER HIT / GAME OVER
 ========================================================= */
 
 function hitPlayer(){
-
-  if(player.invincible > 0){
-    return;
-  }
+  if(player.invincible > 0 || !running) return;
 
   lives--;
-
   player.invincible = 1.5;
-
   shake = 16;
-
   hitFlash = .25;
-
-  sound("hit");
+  sound('hit');
 
   for(let i=0;i<22;i++){
-
     particles.push({
       x:player.x + player.w/2,
       y:player.y + player.h/2,
       vx:(Math.random()-.5)*400,
       vy:(Math.random()-.5)*400,
       life:.7,
-      color:
-        Math.random() > .5
-          ? "#ff4d6d"
-          : "#ffd166"
+      color:Math.random() > .5 ? '#ff4d6d' : '#ffd166'
     });
-
   }
 
   if(lives <= 0){
@@ -1393,29 +1129,38 @@ function hitPlayer(){
   }
 }
 
+function gameOver(){
+  running = false;
+  paused = false;
+  nukeCutscene = false;
+  nukePhase = false;
+  nukeDrops = [];
+  nukeHoles = [];
+  bossPhase = false;
+  boss = null;
+  bossMissiles = [];
+  bossBullets = [];
+  fallenHands = [];
+  player.ducking = false;
+  player.hasRobotGun = false;
+  sound('gameover');
 
-/* =========================================================
-   BLOSSOM FLOWERS
-   FIX: generated once instead of every frame
-========================================================= */
-
-let blossomFlowers = [];
-
-function createBlossomFlowers(){
-
-  blossomFlowers = [];
-
-  for(let i=0;i<55;i++){
-
-    blossomFlowers.push({
-      x:Math.random() * W,
-      y:H - 95 - Math.random() * 150,
-      size:2 + Math.random() * 4
-    });
-
-  }
+  setTimeout(()=>{
+    document.getElementById('menu').style.display = 'flex';
+    if(bossDefeated){
+      document.getElementById('startButton').textContent = 'PLAY LEVELS';
+      document.querySelector('#menu .subtitle').textContent =
+        'Robot defeated! Levels 1–30 are unlocked.';
+      showLevelSelect();
+    }else{
+      document.getElementById('startButton').textContent = 'START GAME';
+      document.querySelector('#menu .subtitle').textContent =
+        'Dodge missiles. Defeat the robot boss.';
+      document.getElementById('levelSelect').style.display = 'none';
+    }
+    updateHUD();
+  }, 500);
 }
-
 
 /* =========================================================
    NUKE CUTSCENE STATE
@@ -1432,6 +1177,23 @@ let nukeStartY = 0;
 
 let nukePlayerStartX = 0;
 let nukePlayerStartY = 0;
+
+/* NUKE HAZARD PHASE */
+let nukePhase = false;
+let nukeDropTimer = 1.2;
+let nukeDrops = [];
+let nukeHoles = [];
+
+// Level 30 robot boss
+let bossPhase = false;
+let bossDefeated = gameStorage.getItem("missileBossDefeated") === "true";
+let unlockedLevel = bossDefeated ? 30 : 0;
+let boss = null;
+let bossMissiles = [];
+let bossBullets = [];
+let fallenHands = [];
+let bossMessageTimer = 0;
+let aimAngle = 0;
 
 
 /* =========================================================
@@ -1533,6 +1295,10 @@ function updateNukeCutscene(dt){
     hitFlash = 0;
 
     nukeCutscene = false;
+    nukePhase = true;
+    nukeDropTimer = .8;
+    nukeDrops = [];
+    nukeHoles = [];
 
     sound("whoosh");
   }
@@ -1715,6 +1481,588 @@ function drawNuke(){
 
 
 /* =========================================================
+   NUKE HAZARDS
+========================================================= */
+
+function spawnNukeDrop(){
+  // Spawn directly over the visible play area so the falling nuke is always visible.
+  nukeDrops.push({
+    x: 70 + Math.random() * Math.max(80, W - 140),
+    y: -80,
+    w: 42,
+    h: 58,
+    speed: 650 + Math.random() * 120
+  });
+}
+
+function createNukeHole(x){
+  const width = 85 + Math.random() * 45;
+  nukeHoles.push({
+    x: x - width / 2,
+    y: H - 110,
+    w: width,
+    h: 110,
+    speed: 255 + level * 4
+  });
+}
+
+function updateNukeHazards(dt){
+  const groundY = H - 110;
+
+  nukeDropTimer -= dt;
+  if(nukeDropTimer <= 0){
+    spawnNukeDrop();
+    nukeDropTimer = 1.8 + Math.random() * 1.4;
+  }
+
+  for(let i=nukeDrops.length-1;i>=0;i--){
+    const n = nukeDrops[i];
+    n.y += n.speed * dt;
+
+    if(n.y + n.h >= groundY){
+      createNukeHole(n.x);
+      shake = Math.max(shake,10);
+      hitFlash = .08;
+      sound("nuke");
+
+      for(let j=0;j<16;j++){
+        particles.push({
+          x:n.x,
+          y:groundY,
+          vx:(Math.random()-.5)*320,
+          vy:-Math.random()*280,
+          life:.6,
+          color:j%2===0 ? '#ff5b3e' : '#ffd166'
+        });
+      }
+      nukeDrops.splice(i,1);
+    }
+  }
+
+  for(let i=nukeHoles.length-1;i>=0;i--){
+    const hole = nukeHoles[i];
+    hole.x -= hole.speed * dt;
+
+    const playerBox = getPlayerHitbox();
+    const horizontalHit =
+      playerBox.x + playerBox.w > hole.x &&
+      playerBox.x < hole.x + hole.w;
+    const onGround =
+      playerBox.y + playerBox.h >= groundY - 4;
+
+    if(horizontalHit && onGround){
+      hitPlayer();
+      nukeHoles.splice(i,1);
+      continue;
+    }
+
+    if(hole.x + hole.w < -40){
+      nukeHoles.splice(i,1);
+    }
+  }
+}
+
+function drawNukeHazards(){
+  for(const hole of nukeHoles){
+    ctx.fillStyle = '#090b12';
+    ctx.fillRect(hole.x,hole.y+6,hole.w,hole.h);
+
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(hole.x+hole.w/2,hole.y+7,hole.w/2,13,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255,91,62,.45)';
+    ctx.beginPath();
+    ctx.ellipse(hole.x+hole.w/2,hole.y+8,hole.w*.28,5,0,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  for(const n of nukeDrops){
+    ctx.save();
+    ctx.translate(n.x,n.y);
+
+    ctx.strokeStyle = 'rgba(255,255,255,.35)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0,-28);
+    ctx.lineTo(0,-70);
+    ctx.stroke();
+
+    // Bright warning glow makes the falling nuke easy to see.
+    ctx.shadowColor = '#ff4538';
+    ctx.shadowBlur = 18;
+
+    ctx.fillStyle = '#202936';
+    ctx.beginPath();
+    ctx.roundRect(-19,-28,38,50,10);
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+
+    ctx.strokeStyle = '#ffd166';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(-19,-28,38,50);
+
+    ctx.fillStyle = '#ffd166';
+    ctx.font = 'bold 12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('!',0,-5);
+
+    ctx.fillStyle = '#ff4538';
+    ctx.beginPath();
+    ctx.arc(0,21,10,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffb000';
+    ctx.beginPath();
+    ctx.moveTo(-7,30);
+    ctx.lineTo(0,48 + Math.random()*8);
+    ctx.lineTo(7,30);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+
+/* =========================================================
+   LEVEL 30 ROBOT BOSS
+========================================================= */
+
+function startBossBattle(){
+  bossPhase = true;
+  nukePhase = false;
+  nukeDrops = [];
+  nukeHoles = [];
+  missiles = [];
+  powerups = [];
+  bossMissiles = [];
+  bossBullets = [];
+  fallenHands = [];
+  player.hasRobotGun = false;
+  bossMessageTimer = 4;
+
+  boss = {
+    x: W - 190,
+    y: H - 110 - 118,
+    w: 105,
+    h: 118,
+    hp: 5,
+    maxHp: 5,
+    fireTimer: 1.0,
+    rebuildTimer: 0,
+    leftHand: true,
+    rightHand: true,
+    flash: 0
+  };
+
+  sound('nuke');
+}
+
+function spawnBossMissile(){
+  if(!bossPhase || !boss) return;
+
+  const useLeft = Math.random() < .5;
+  const handX = boss.x + (useLeft ? 4 : boss.w - 4);
+  const handY = boss.y + 54;
+
+  bossMissiles.push({
+    x: handX - 34,
+    y: handY - 12,
+    w: 68,
+    h: 24,
+    speed: 430 + level * 5,
+    reflected: false,
+    targetX: boss.x + boss.w/2,
+    targetY: boss.y + 58,
+    rotation: 0
+  });
+}
+
+function damageBoss(amount, fromGun=false){
+  if(!boss || !bossPhase) return;
+
+  boss.hp -= amount;
+  boss.flash = .18;
+  shake = Math.max(shake, 9);
+  sound(fromGun ? 'score' : 'nuke');
+
+  for(let i=0;i<14;i++){
+    particles.push({
+      x:boss.x + boss.w/2,
+      y:boss.y + 55,
+      vx:(Math.random()-.5)*320,
+      vy:(Math.random()-.5)*300,
+      life:.55,
+      color:i%2 ? '#00e5ff' : '#ffd166'
+    });
+  }
+
+  if(!fromGun && boss.leftHand && boss.rightHand){
+    detachBossHand();
+  }else if(!fromGun && (boss.leftHand || boss.rightHand)){
+    detachBossHand();
+  }
+
+  if(boss.hp <= 0){
+    bossDefeated = true;
+    unlockedLevel = 30;
+    bossPhase = false;
+
+    // Defeating the Level 30 robot permanently unlocks the normal levels.
+    gameStorage.setItem("missileBossDefeated", "true");
+    gameStorage.setItem("missileUnlockedLevel", "30");
+
+    coins += 100000;
+    saveShop();
+    updateCoinDisplays();
+    bossMissiles = [];
+    bossBullets = [];
+    bossMessageTimer = 3;
+    sound('gameover');
+
+    setTimeout(()=>{
+      if(!running) return;
+      running = false;
+      document.getElementById('menu').style.display = 'flex';
+      document.querySelector('#menu .subtitle').textContent =
+        'ROBOT DEFEATED! Levels 1–30 are now unlocked!';
+      document.getElementById('startButton').textContent = 'PLAY LEVELS';
+      showLevelSelect();
+      updateHUD();
+    }, 1800);
+  }
+}
+
+function detachBossHand(){
+  if(!boss) return;
+
+  const useLeft = boss.leftHand && (!boss.rightHand || Math.random() < .5);
+  const hx = boss.x + (useLeft ? -2 : boss.w - 26);
+  const hy = boss.y + 47;
+
+  if(useLeft) boss.leftHand = false;
+  else boss.rightHand = false;
+
+  fallenHands.push({
+    x:hx,
+    y:hy,
+    w:32,
+    h:28,
+    vx:-80,
+    vy:-220,
+    picked:false,
+    rotation:0
+  });
+
+  boss.rebuildTimer = 2.2;
+  sound('hit');
+}
+
+function rebuildBossHand(dt){
+  if(!boss || (boss.leftHand && boss.rightHand)) return;
+
+  boss.rebuildTimer -= dt;
+  if(boss.rebuildTimer <= 0){
+    if(!boss.leftHand) boss.leftHand = true;
+    else if(!boss.rightHand) boss.rightHand = true;
+    boss.rebuildTimer = 999;
+
+    for(let i=0;i<12;i++){
+      particles.push({
+        x:boss.x + boss.w/2,
+        y:boss.y + 55,
+        vx:(Math.random()-.5)*220,
+        vy:-Math.random()*220,
+        life:.5,
+        color:'#00e5ff'
+      });
+    }
+    sound('whoosh');
+  }
+}
+
+function stompBossMissile(m, previousBottom){
+  if(m.reflected || player.ducking) return false;
+
+  const box = getPlayerHitbox();
+  const currentBottom = box.y + box.h;
+  const horizontal = box.x + box.w > m.x && box.x < m.x + m.w;
+  const falling = player.velocity > 0;
+  const crossed = previousBottom <= m.y + 10 && currentBottom >= m.y;
+
+  return horizontal && falling && crossed;
+}
+
+function pickUpHand(){
+  for(let i=fallenHands.length-1;i>=0;i--){
+    const h = fallenHands[i];
+    if(h.picked) continue;
+
+    const box = getPlayerHitbox();
+    if(collision(box,h)){
+      h.picked = true;
+      fallenHands.splice(i,1);
+      player.hasRobotGun = true;
+      sound('life');
+      bossMessageTimer = 2.5;
+      for(let j=0;j<12;j++){
+        particles.push({
+          x:player.x+player.w/2,
+          y:player.y+25,
+          vx:(Math.random()-.5)*220,
+          vy:-Math.random()*220,
+          life:.5,
+          color:'#00e5ff'
+        });
+      }
+    }
+  }
+}
+
+function shootRobotGun(){
+  if(!running || paused || !bossPhase || !player.hasRobotGun) return;
+
+  const sx = player.x + player.w/2;
+  const sy = player.y + 27;
+  const speed = 780;
+
+  bossBullets.push({
+    x:sx,
+    y:sy,
+    vx:Math.cos(aimAngle)*speed,
+    vy:Math.sin(aimAngle)*speed,
+    life:1.5
+  });
+
+  sound('score');
+}
+
+function updateBossBattle(dt, previousPlayerBottom){
+  if(!boss) return;
+
+  if(boss.flash > 0) boss.flash -= dt;
+  if(bossMessageTimer > 0) bossMessageTimer -= dt;
+
+  rebuildBossHand(dt);
+
+  boss.fireTimer -= dt;
+  if(boss.fireTimer <= 0){
+    spawnBossMissile();
+    boss.fireTimer = .95 + Math.random()*.65;
+  }
+
+  for(let i=bossMissiles.length-1;i>=0;i--){
+    const m = bossMissiles[i];
+
+    if(!m.reflected){
+      m.x -= m.speed * dt;
+      m.rotation = Math.PI;
+
+      if(stompBossMissile(m, previousPlayerBottom)){
+        m.reflected = true;
+        m.vx = 720;
+        m.vy = (boss.y + 55 - (m.y+m.h/2)) * 2;
+        m.rotation = 0;
+        player.velocity = -player.jumpPower * .72;
+        player.jumping = true;
+        player.jumpCount = 1;
+        shake = Math.max(shake,.14);
+        sound('score');
+        continue;
+      }
+
+      if(collision(player,m)){
+        hitPlayer();
+        bossMissiles.splice(i,1);
+        continue;
+      }
+    }else{
+      m.x += m.vx * dt;
+      m.y += m.vy * dt;
+      m.rotation = 0;
+
+      if(boss && collision(m,boss)){
+        bossMissiles.splice(i,1);
+        damageBoss(1,false);
+        continue;
+      }
+    }
+
+    if(m.x + m.w < -100 || m.x > W + 180 || m.y < -150 || m.y > H + 150){
+      bossMissiles.splice(i,1);
+    }
+  }
+
+  for(let i=fallenHands.length-1;i>=0;i--){
+    const h = fallenHands[i];
+    h.vy += 900*dt;
+    h.x += h.vx*dt;
+    h.y += h.vy*dt;
+    h.rotation += dt*4;
+
+    const groundY = H-110;
+    if(h.y+h.h >= groundY){
+      h.y = groundY-h.h;
+      h.vy *= -.35;
+      h.vx *= .92;
+    }
+  }
+
+  pickUpHand();
+
+  for(let i=bossBullets.length-1;i>=0;i--){
+    const b = bossBullets[i];
+    b.x += b.vx*dt;
+    b.y += b.vy*dt;
+    b.life -= dt;
+
+    if(boss && collision(b,boss)){
+      bossBullets.splice(i,1);
+      damageBoss(1,true);
+      continue;
+    }
+
+    if(b.life <= 0 || b.x < -80 || b.x > W+80 || b.y < -80 || b.y > H+80){
+      bossBullets.splice(i,1);
+    }
+  }
+
+  // Touching the robot itself hurts the player.
+  if(boss && collision(player,boss)){
+    hitPlayer();
+  }
+}
+
+function drawRobotBoss(){
+  if(!boss || !bossPhase) return;
+
+  ctx.save();
+  const x=boss.x, y=boss.y;
+
+  ctx.shadowColor = '#00e5ff';
+  ctx.shadowBlur = 18;
+  ctx.fillStyle = boss.flash > 0 ? '#ffffff' : '#46566f';
+  ctx.fillRect(x+25,y+28,55,68);
+  ctx.shadowBlur = 0;
+
+  // head
+  ctx.fillStyle = '#6b7d96';
+  ctx.fillRect(x+22,y,61,48);
+  ctx.fillStyle = '#101827';
+  ctx.fillRect(x+31,y+14,43,18);
+  ctx.fillStyle = '#ff334f';
+  ctx.fillRect(x+38,y+19,8,6);
+  ctx.fillRect(x+58,y+19,8,6);
+
+  // chest core
+  ctx.fillStyle = '#00e5ff';
+  ctx.beginPath();
+  ctx.arc(x+52,y+61,11,0,Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#0b1220';
+  ctx.beginPath();
+  ctx.arc(x+52,y+61,5,0,Math.PI*2);
+  ctx.fill();
+
+  // legs
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(x+30,y+94,17,24);
+  ctx.fillRect(x+60,y+94,17,24);
+
+  // launcher arms
+  if(boss.leftHand) drawRobotArm(x-12,y+42,true);
+  if(boss.rightHand) drawRobotArm(x+boss.w-8,y+42,false);
+
+  ctx.restore();
+
+  // boss bar
+  ctx.fillStyle='rgba(0,0,0,.55)';
+  ctx.fillRect(W/2-180,16,360,24);
+  ctx.fillStyle='#ef4444';
+  ctx.fillRect(W/2-176,20,352*(boss.hp/boss.maxHp),16);
+  ctx.strokeStyle='#fff';
+  ctx.strokeRect(W/2-180,16,360,24);
+  ctx.fillStyle='#fff';
+  ctx.font='bold 14px Arial';
+  ctx.textAlign='center';
+  ctx.fillText('ROBOT BOSS',W/2,34);
+  ctx.textAlign='left';
+
+  if(bossMessageTimer > 0){
+    ctx.fillStyle='rgba(0,0,0,.65)';
+    ctx.fillRect(W/2-250,70,500,58);
+    ctx.fillStyle='#fff';
+    ctx.font='bold 17px Arial';
+    ctx.textAlign='center';
+    ctx.fillText(player.hasRobotGun ? 'AIM AND FIRE THE RECOVERED LAUNCHER!' : 'JUMP ON HIS MISSILES TO SEND THEM BACK!',W/2,105);
+    ctx.textAlign='left';
+  }
+}
+
+function drawRobotArm(x,y,left){
+  ctx.fillStyle='#71839b';
+  ctx.fillRect(x-5,y,18,18);
+  ctx.fillStyle='#263447';
+  ctx.fillRect(x-10,y+16,28,12);
+  ctx.fillStyle='#ef4444';
+  ctx.beginPath();
+  ctx.arc(x+4,y+22,5,0,Math.PI*2);
+  ctx.fill();
+}
+
+function drawBossMissile(m){
+  ctx.save();
+  ctx.translate(m.x+m.w/2,m.y+m.h/2);
+  ctx.rotate(m.rotation || 0);
+  ctx.translate(-(m.x+m.w/2),-(m.y+m.h/2));
+  ctx.shadowColor = m.reflected ? '#00e5ff' : '#ff4538';
+  ctx.shadowBlur = 14;
+  ctx.fillStyle = m.reflected ? '#dbeafe' : '#596579';
+  ctx.beginPath();
+  ctx.roundRect(m.x,m.y,m.w,m.h,m.h/2);
+  ctx.fill();
+  ctx.fillStyle = m.reflected ? '#00e5ff' : '#ff334f';
+  ctx.beginPath();
+  ctx.moveTo(m.x+m.w,m.y+m.h/2);
+  ctx.lineTo(m.x+m.w-15,m.y);
+  ctx.lineTo(m.x+m.w-15,m.y+m.h);
+  ctx.closePath();
+  ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.restore();
+}
+
+function drawFallenHand(h){
+  ctx.save();
+  ctx.translate(h.x+h.w/2,h.y+h.h/2);
+  ctx.rotate(h.rotation);
+  ctx.fillStyle='#71839b';
+  ctx.fillRect(-14,-8,28,16);
+  ctx.fillStyle='#263447';
+  ctx.fillRect(-18,7,36,8);
+  ctx.fillStyle='#00e5ff';
+  ctx.beginPath();
+  ctx.arc(0,-1,4,0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBossBullets(){
+  for(const b of bossBullets){
+    ctx.fillStyle='#00e5ff';
+    ctx.shadowColor='#00e5ff';
+    ctx.shadowBlur=12;
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,6,0,Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur=0;
+  }
+}
+
+/* =========================================================
    UPDATE
 ========================================================= */
 
@@ -1811,22 +2159,36 @@ function update(dt){
       startNukeCutscene();
       return;
     }
+
+    if(level === 30){
+      startBossBattle();
+      return;
+    }
   }
 
-  /* missiles */
+  /* LEVEL 30 BOSS */
 
-  missileTimer -= dt;
+  if(bossPhase){
+    missiles = [];
+    updateBossBattle(dt, previousPlayerBottom);
+  }else if(nukePhase){
+    missiles = [];
+    updateNukeHazards(dt);
+  }else{
 
-  if(missileTimer <= 0){
+    missileTimer -= dt;
 
-    spawnMissile();
+    if(missileTimer <= 0){
 
-    missileTimer =
-      Math.max(
-        .35,
-        1.1 - level * .035
-      ) +
-      Math.random() * .6;
+      spawnMissile();
+
+      missileTimer =
+        Math.max(
+          .35,
+          1.1 - level * .035
+        ) +
+        Math.random() * .6;
+    }
   }
 
   for(
@@ -2069,6 +2431,13 @@ function updateParticles(dt){
 /* =========================================================
    HUD
 ========================================================= */
+
+// Restore boss unlock state after a page refresh.
+unlockedLevel = Number(gameStorage.getItem("missileUnlockedLevel") || (bossDefeated ? 30 : 0));
+if(bossDefeated){
+  document.getElementById("startButton").textContent = "PLAY LEVELS";
+  document.querySelector("#menu .subtitle").textContent = "Robot defeated! Levels 1–30 are unlocked.";
+}
 
 function updateHUD(){
 
@@ -3133,6 +3502,57 @@ function drawPlayer(){
 
     ctx.stroke();
   }
+
+  if(customization.accessory === "crown"){
+    ctx.fillStyle = "#facc15";
+    ctx.beginPath();
+    ctx.moveTo(x+5,y+4);
+    ctx.lineTo(x+8,y-7);
+    ctx.lineTo(x+15,y);
+    ctx.lineTo(x+21,y-8);
+    ctx.lineTo(x+27,y);
+    ctx.lineTo(x+33,y-6);
+    ctx.lineTo(x+30,y+5);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  if(customization.accessory === "wizard"){
+    ctx.fillStyle = "#7c3aed";
+    ctx.beginPath();
+    ctx.moveTo(x+5,y+3);
+    ctx.lineTo(x+17,y-18);
+    ctx.lineTo(x+30,y+3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#facc15";
+    ctx.fillRect(x+7,y+1,22,5);
+  }
+
+  if(customization.accessory === "halo"){
+    ctx.strokeStyle = "#fde047";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.ellipse(x+17,y-4,13,5,0,0,Math.PI*2);
+    ctx.stroke();
+  }
+
+  if(customization.accessory === "backpack"){
+    ctx.fillStyle = "#f97316";
+    ctx.fillRect(x-5,y+23,9,22);
+    ctx.fillRect(x+30,y+23,9,22);
+  }
+
+  if(player.hasRobotGun && bossPhase){
+    ctx.save();
+    ctx.translate(x+17,y+31);
+    ctx.rotate(aimAngle);
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(0,-5,25,10);
+    ctx.fillStyle = '#00e5ff';
+    ctx.fillRect(20,-3,12,6);
+    ctx.restore();
+  }
 }
 
 
@@ -3504,9 +3924,22 @@ function draw(){
 
   drawBackground();
 
+  drawNukeHazards();
+  drawRobotBoss();
+
   for(const m of missiles){
     drawMissile(m);
   }
+
+  for(const m of bossMissiles){
+    drawBossMissile(m);
+  }
+
+  for(const h of fallenHands){
+    drawFallenHand(h);
+  }
+
+  drawBossBullets();
 
   for(const c of coinsList){
     drawCoin(c);
@@ -3583,13 +4016,63 @@ function draw(){
 document.getElementById("startButton")
   .addEventListener(
     "click",
-    startGame
+    ()=>{
+      if(bossDefeated){
+        showLevelSelect();
+        document.getElementById("menu").style.display = "flex";
+        document.getElementById("startButton").textContent = "PLAY LEVELS";
+      }else{
+        document.getElementById("menu").style.display = "none";
+        startGame();
+      }
+    }
   );
 
 document.getElementById("shopButton")
   .addEventListener(
     "click",
     openShop
+  );
+
+document.getElementById("deleteProgressButton")
+  .addEventListener(
+    "click",
+    ()=>{
+      const confirmed = confirm(
+        "Delete ALL Missile Mayhem progress? This will erase your coins, shop purchases, heart containers, and unlocked accessories."
+      );
+
+      if(!confirmed) return;
+
+      gameStorage.removeItem("missileCoins");
+      gameStorage.removeItem("missileShopItems");
+      gameStorage.removeItem("missileBossDefeated");
+      gameStorage.removeItem("missileUnlockedLevel");
+
+      bossDefeated = false;
+      unlockedLevel = 0;
+      bossPhase = false;
+      document.getElementById("levelSelect").style.display = "none";
+      document.getElementById("startButton").textContent = "START GAME";
+
+      coins = 0;
+      purchasedItems = {};
+      maxLives = 3;
+      lives = 3;
+
+      customization.skin = "#ffd2a6";
+      customization.shirt = "#3498db";
+      customization.pants = "#222222";
+      customization.hair = "#151515";
+      customization.accessory = "none";
+
+      updateCoinDisplays();
+      updateShopButtons();
+      updateCustomizationUI();
+      updateHUD();
+
+      alert("Progress deleted. Your game has been reset.");
+    }
   );
 
 document.getElementById("backShopButton")
@@ -3634,6 +4117,34 @@ document.addEventListener(
 
 
 /* =========================================================
+   ROBOT GUN AIM / FIRE CONTROLS
+========================================================= */
+
+function updateAimFromPointer(clientX, clientY){
+  if(!player.hasRobotGun || !bossPhase) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width;
+  const scaleY = H / rect.height;
+  const px = (clientX - rect.left) * scaleX;
+  const py = (clientY - rect.top) * scaleY;
+  const sx = player.x + player.w/2;
+  const sy = player.y + 27;
+
+  aimAngle = Math.atan2(py - sy, px - sx);
+}
+
+canvas.addEventListener('pointermove', e=>{
+  updateAimFromPointer(e.clientX, e.clientY);
+});
+
+canvas.addEventListener('pointerdown', e=>{
+  if(e.pointerType === 'mouse' && e.button !== 0) return;
+  updateAimFromPointer(e.clientX, e.clientY);
+  shootRobotGun();
+});
+
+/* =========================================================
    MAIN LOOP
 ========================================================= */
 
@@ -3658,6 +4169,12 @@ function loop(time){
 /* =========================================================
    INITIALIZE
 ========================================================= */
+
+// Force a valid first render before the animation loop starts.
+resize();
+document.getElementById("menu").style.display = "flex";
+document.getElementById("shop").style.display = "none";
+document.getElementById("levelSelect").style.display = "none";
 
 player.y =
   H - 110 - player.h;
