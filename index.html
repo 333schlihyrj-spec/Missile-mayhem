@@ -2,209 +2,349 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>Missile Mayhem</title>
 
 <style>
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background: #111;
 }
 
 body {
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-    background: #05070d;
-    color: white;
+  touch-action: none;
 }
 
 canvas {
-    display: block;
-    width: 100vw;
-    height: 100vh;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
-/* HUD */
+/* =========================
+   HUD
+========================= */
+
 #hud {
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    z-index: 10;
-    font-size: 18px;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px #000;
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+
+  padding: 10px 18px;
+  border-radius: 20px;
+
+  background: rgba(0, 0, 0, .45);
+  color: white;
+
+  font-weight: bold;
+  font-size: 16px;
+
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
 }
 
-#pauseBtn {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    z-index: 20;
-    padding: 10px 18px;
-    border: none;
-    border-radius: 9px;
-    background: #222;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
+#pauseButton {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 30;
+
+  border: none;
+  border-radius: 12px;
+
+  padding: 10px 14px;
+
+  background: rgba(0,0,0,.55);
+  color: white;
+
+  font-size: 18px;
+  font-weight: bold;
 }
 
-/* MAIN MENU */
-#menu {
-    position: fixed;
-    inset: 0;
-    z-index: 30;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: rgba(0,0,0,.82);
-    text-align: center;
+/* =========================
+   MENUS
+========================= */
+
+.screen {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 50;
+
+  background:
+    radial-gradient(circle at top,
+      rgba(255,255,255,.3),
+      transparent 35%),
+    linear-gradient(
+      135deg,
+      #4facfe,
+      #7367f0,
+      #d946ef
+    );
 }
 
-#menu h1 {
-    font-size: clamp(42px, 9vw, 82px);
-    color: #ffd21f;
-    text-shadow:
-        0 0 10px #ff6b00,
-        0 0 30px #ff2d00;
-    margin-bottom: 10px;
+.menuBox {
+  width: min(92vw, 500px);
+  max-height: 92vh;
+  overflow-y: auto;
+
+  padding: 28px;
+
+  border-radius: 28px;
+
+  background: rgba(255,255,255,.94);
+
+  box-shadow:
+    0 25px 70px rgba(0,0,0,.3);
+
+  text-align: center;
 }
 
-#menu p {
-    margin: 5px;
-    color: #eee;
+.menuBox h1 {
+  margin: 0 0 8px;
+
+  font-size: clamp(38px, 10vw, 70px);
+  line-height: .9;
+
+  color: #3b267d;
+}
+
+.menuBox h2 {
+  margin: 8px 0 20px;
+  color: #555;
+}
+
+.menuBox p {
+  color: #444;
 }
 
 .menuButton {
-    margin-top: 14px;
-    padding: 13px 30px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(90deg,#ff5e00,#ffcc00);
-    color: white;
-    font-size: 19px;
-    font-weight: bold;
-    cursor: pointer;
+  width: 100%;
+
+  margin-top: 12px;
+  padding: 15px;
+
+  border: none;
+  border-radius: 15px;
+
+  background: linear-gradient(
+    135deg,
+    #6c5ce7,
+    #a855f7
+  );
+
+  color: white;
+
+  font-size: 18px;
+  font-weight: bold;
+
+  box-shadow:
+    0 7px 0 #4938a5;
+
+  cursor: pointer;
 }
 
-/* CUSTOMIZATION */
-#customization {
-    margin-top: 12px;
-    display: grid;
-    gap: 5px;
+.menuButton:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 3px 0 #4938a5;
 }
 
-select {
-    padding: 6px;
-    border-radius: 6px;
+/* =========================
+   CUSTOMIZATION
+========================= */
+
+.customization {
+  margin-top: 18px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
 }
 
-/* SHOP */
+.customization label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  font-size: 13px;
+  font-weight: bold;
+
+  color: #444;
+}
+
+.customization input,
+.customization select {
+  width: 100%;
+  height: 42px;
+
+  border: 2px solid #ddd;
+  border-radius: 10px;
+
+  background: white;
+}
+
+/* =========================
+   SHOP
+========================= */
+
 #shop {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: rgba(5,7,13,.97);
-    text-align: center;
-}
-
-#shop h2 {
-    font-size: 42px;
-    color: #ffd21f;
-    margin-bottom: 8px;
-}
-
-#coinBalance {
-    font-size: 22px;
-    margin-bottom: 20px;
+  display: none;
 }
 
 .shopGrid {
-    display: grid;
-    grid-template-columns: repeat(2,minmax(140px,220px));
-    gap: 12px;
-    width: 90%;
-    max-width: 500px;
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 12px;
+
+  margin-top: 15px;
 }
 
-.shopItem {
-    padding: 15px;
-    border-radius: 12px;
-    background: linear-gradient(145deg,#171c25,#242b36);
-    border: 2px solid #4c5665;
+.shopCard {
+  padding: 14px;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff,
+      #eef2ff
+    );
+
+  border: 2px solid #ddd;
 }
 
-.shopItem h3 {
-    margin-bottom: 7px;
+.shopIcon {
+  font-size: 40px;
 }
 
-.shopItem p {
-    color: #bbb;
-    margin-bottom: 10px;
+.shopCard h3 {
+  margin: 7px 0;
 }
 
-.shopItem button {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 7px;
-    background: #ffd21f;
-    color: #111;
-    font-weight: bold;
-    cursor: pointer;
+.shopCard p {
+  min-height: 38px;
+  font-size: 12px;
+  color: #666;
 }
 
-.shopItem button:disabled {
-    background: #555;
-    color: #aaa;
+.shopCard button {
+  width: 100%;
+
+  padding: 9px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #6c5ce7;
+  color: white;
+
+  font-weight: bold;
 }
 
-/* MOBILE */
+/* =========================
+   MOBILE CONTROLS
+========================= */
+
 #mobileControls {
-    position: fixed;
-    bottom: 20px;
-    left: 0;
-    right: 0;
-    z-index: 15;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 20px;
-    pointer-events: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+
+  display: flex;
+  justify-content: space-between;
+
+  padding: 0 20px;
+
+  z-index: 40;
+
+  pointer-events: none;
 }
 
 .control {
-    pointer-events: auto;
-    width: 100px;
-    height: 65px;
-    border: none;
-    border-radius: 15px;
-    color: white;
-    font-weight: bold;
-    font-size: 18px;
-    backdrop-filter: blur(5px);
+  width: 100px;
+  height: 70px;
+
+  border: none;
+  border-radius: 20px;
+
+  background: rgba(255,255,255,.35);
+  color: white;
+
+  backdrop-filter: blur(6px);
+
+  font-weight: bold;
+  font-size: 18px;
+
+  pointer-events: auto;
 }
 
-#jumpBtn {
-    background: rgba(0,150,255,.5);
+.control:active {
+  background: rgba(255,255,255,.6);
 }
 
-#duckBtn {
-    background: rgba(100,100,100,.55);
+@media (min-width: 800px) {
+  #mobileControls {
+    display: none;
+  }
 }
 
-.hidden {
-    display: none !important;
+/* =========================
+   HABITAT MESSAGE
+========================= */
+
+#habitatMessage {
+  position: fixed;
+  top: 90px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  z-index: 25;
+
+  padding: 10px 20px;
+
+  border-radius: 20px;
+
+  background: rgba(0,0,0,.45);
+  color: white;
+
+  font-size: 18px;
+  font-weight: bold;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition: opacity .3s;
 }
 
-@media(max-width:600px) {
-    .shopGrid {
-        grid-template-columns: 1fr 1fr;
-    }
+#habitatMessage.show {
+  opacity: 1;
 }
 </style>
 </head>
@@ -213,150 +353,219 @@ select {
 
 <canvas id="game"></canvas>
 
-<div id="hud"></div>
-
-<button id="pauseBtn" onclick="togglePause()">PAUSE</button>
-
-<div id="mobileControls">
-    <button class="control" id="duckBtn">DUCK</button>
-    <button class="control" id="jumpBtn" onclick="jump()">JUMP</button>
+<div id="hud">
+  ❤️ <span id="lives">3</span>
+  &nbsp;|&nbsp;
+  Score: <span id="score">0</span>
+  &nbsp;|&nbsp;
+  Level: <span id="level">1</span>
+  &nbsp;|&nbsp;
+  🪙 <span id="coins">0</span>
 </div>
 
+<button id="pauseButton">⏸️</button>
 
-<!-- MAIN MENU -->
+<div id="habitatMessage"></div>
 
-<div id="menu">
+<!-- =========================
+     MAIN MENU
+========================= -->
 
-    <h1>MISSILE MAYHEM</h1>
+<div id="menu" class="screen">
 
-    <p id="menuMessage">
-        Jump, double-jump, duck, and survive!
+  <div class="menuBox">
+
+    <h1>
+      MISSILE<br>
+      MAYHEM
+    </h1>
+
+    <h2>🚀 2D EDITION</h2>
+
+    <p>
+      Jump over the missiles!<br>
+      Survive as long as possible!
     </p>
 
-    <p>🪙 Collect coins and buy items in the shop!</p>
-    <p>🌎 The habitat changes every level!</p>
+    <div class="customization">
 
-    <div id="customization">
+      <label>
+        Skin
+        <input
+          id="skin"
+          type="color"
+          value="#ffd2a6">
+      </label>
 
-        <label>
-            Skin:
-            <select id="skin">
-                <option value="#ffd2a6">Light</option>
-                <option value="#c68642">Tan</option>
-                <option value="#8d5524">Brown</option>
-                <option value="#f1c27d">Warm</option>
-            </select>
-        </label>
+      <label>
+        Shirt
+        <input
+          id="shirt"
+          type="color"
+          value="#3498db">
+      </label>
 
-        <label>
-            Shirt:
-            <select id="shirt">
-                <option value="#3498db">Blue</option>
-                <option value="#e74c3c">Red</option>
-                <option value="#2ecc71">Green</option>
-                <option value="#9b59b6">Purple</option>
-                <option value="#f1c40f">Yellow</option>
-            </select>
-        </label>
+      <label>
+        Pants
+        <input
+          id="pants"
+          type="color"
+          value="#222222">
+      </label>
 
-        <label>
-            Pants:
-            <select id="pants">
-                <option value="#222222">Black</option>
-                <option value="#34495e">Dark Blue</option>
-                <option value="#795548">Brown</option>
-                <option value="#ecf0f1">White</option>
-            </select>
-        </label>
+      <label>
+        Hair
+        <input
+          id="hair"
+          type="color"
+          value="#151515">
+      </label>
 
-        <label>
-            Hair:
-            <select id="hair">
-                <option value="#151515">Black</option>
-                <option value="#6b3e26">Brown</option>
-                <option value="#d4a017">Blonde</option>
-                <option value="#eeeeee">Gray</option>
-            </select>
-        </label>
+      <label>
+        Accessory
 
-        <label>
-            Accessory:
-            <select id="accessory">
-                <option value="none">None</option>
-                <option value="cap">Cap</option>
-                <option value="glasses">Glasses</option>
-            </select>
-        </label>
-
-    </div>
-
-    <button class="menuButton" onclick="startGame()">
-        START GAME
-    </button>
-
-    <button class="menuButton" onclick="openShop()">
-        🛒 SHOP
-    </button>
-
-</div>
-
-
-<!-- SHOP -->
-
-<div id="shop">
-
-    <h2>🛒 COIN SHOP</h2>
-
-    <div id="coinBalance">
-        🪙 Coins: <span id="shopCoins">0</span>
-    </div>
-
-    <div class="shopGrid">
-
-        <div class="shopItem">
-            <h3>🥇 Golden Outfit</h3>
-            <p>50 coins</p>
-            <button onclick="buyItem('gold')" id="goldButton">
-                BUY
-            </button>
-        </div>
-
-        <div class="shopItem">
-            <h3>🥷 Ninja Outfit</h3>
-            <p>100 coins</p>
-            <button onclick="buyItem('ninja')" id="ninjaButton">
-                BUY
-            </button>
-        </div>
-
-        <div class="shopItem">
-            <h3>🤖 Robot Outfit</h3>
-            <p>150 coins</p>
-            <button onclick="buyItem('robot')" id="robotButton">
-                BUY
-            </button>
-        </div>
-
-        <div class="shopItem">
-            <h3>🧲 Coin Magnet</h3>
-            <p>200 coins</p>
-            <button onclick="buyItem('magnet')" id="magnetButton">
-                BUY
-            </button>
-        </div>
+        <select id="accessory">
+          <option value="none">None</option>
+          <option value="cap">Cap</option>
+          <option value="glasses">Glasses</option>
+        </select>
+      </label>
 
     </div>
 
     <button
-        class="menuButton"
-        onclick="closeShop()">
-        BACK
+      class="menuButton"
+      id="startButton">
+      🚀 START GAME
     </button>
+
+    <button
+      class="menuButton"
+      id="shopButton">
+      🛒 SHOP
+    </button>
+
+  </div>
 
 </div>
 
+<!-- =========================
+     SHOP
+========================= -->
+
+<div id="shop" class="screen">
+
+  <div class="menuBox">
+
+    <h1 style="font-size:42px;">
+      🛒 SHOP
+    </h1>
+
+    <h2>
+      🪙 <span id="shopCoins">0</span>
+    </h2>
+
+    <div class="shopGrid">
+
+      <div class="shopCard">
+        <div class="shopIcon">👑</div>
+
+        <h3>Golden Outfit</h3>
+
+        <p>
+          Look shiny and legendary.
+        </p>
+
+        <button
+          onclick="buyItem('gold')">
+          🪙 50
+        </button>
+      </div>
+
+      <div class="shopCard">
+        <div class="shopIcon">🥷</div>
+
+        <h3>Ninja Outfit</h3>
+
+        <p>
+          A stealthy dark outfit.
+        </p>
+
+        <button
+          onclick="buyItem('ninja')">
+          🪙 100
+        </button>
+      </div>
+
+      <div class="shopCard">
+        <div class="shopIcon">🤖</div>
+
+        <h3>Robot Outfit</h3>
+
+        <p>
+          Become a robot hero.
+        </p>
+
+        <button
+          onclick="buyItem('robot')">
+          🪙 150
+        </button>
+      </div>
+
+      <div class="shopCard">
+        <div class="shopIcon">🧲</div>
+
+        <h3>Coin Magnet</h3>
+
+        <p>
+          Pull nearby coins toward you.
+        </p>
+
+        <button
+          onclick="buyItem('magnet')">
+          🪙 200
+        </button>
+      </div>
+
+    </div>
+
+    <button
+      class="menuButton"
+      onclick="closeShop()">
+      ← BACK
+    </button>
+
+  </div>
+
+</div>
+
+<!-- =========================
+     MOBILE CONTROLS
+========================= -->
+
+<div id="mobileControls">
+
+  <button
+    class="control"
+    id="jumpButton">
+    ↑<br>
+    JUMP
+  </button>
+
+  <button
+    class="control"
+    id="duckButton">
+    ↓<br>
+    DUCK
+  </button>
+
+</div>
 
 <script>
+
+/* =====================================================
+   CANVAS
+===================================================== */
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -364,68 +573,51 @@ const ctx = canvas.getContext("2d");
 let W = innerWidth;
 let H = innerHeight;
 
-let dpr = Math.min(
-    devicePixelRatio || 1,
-    2
-);
-
 function resize() {
-
-    W = innerWidth;
-    H = innerHeight;
-
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-
-    canvas.style.width = W + "px";
-    canvas.style.height = H + "px";
-
-    ctx.setTransform(
-        dpr,
-        0,
-        0,
-        dpr,
-        0,
-        0
-    );
+  W = canvas.width = innerWidth;
+  H = canvas.height = innerHeight;
 }
 
-addEventListener("resize",resize);
+addEventListener("resize", resize);
 resize();
 
 
-// =====================================
-// PLAYER
-// =====================================
+/* =====================================================
+   PLAYER
+===================================================== */
 
 const player = {
 
-    x: 100,
-    y: 0,
+  x: 100,
 
-    w: 34,
-    h: 54,
+  y: 0,
 
-    velocity: 0,
+  w: 34,
 
-    jumpPower: 760,
-    gravity: 1900,
+  h: 54,
 
-    jumping: false,
+  velocity: 0,
 
-    // DOUBLE JUMP
-    jumpCount: 0,
-    maxJumps: 2,
+  jumpPower: 760,
 
-    ducking: false,
+  gravity: 1900,
 
-    invincible: 0
+  jumping: false,
+
+  jumpCount: 0,
+
+  maxJumps: 2,
+
+  ducking: false,
+
+  invincible: 0
+
 };
 
 
-// =====================================
-// GAME
-// =====================================
+/* =====================================================
+   GAME STATE
+===================================================== */
 
 let running = false;
 let paused = false;
@@ -433,8 +625,6 @@ let paused = false;
 let score = 0;
 let level = 1;
 let lives = 3;
-
-const MAX_LIVES = 3;
 
 let missiles = [];
 let particles = [];
@@ -450,2499 +640,905 @@ let hitFlash = 0;
 
 let lastTime = 0;
 
-
-// =====================================
-// COINS / SHOP SAVE DATA
-// =====================================
-
-let coins = Number(
-    localStorage.getItem("missileCoins") || 0
-);
-
-let purchasedItems = JSON.parse(
-    localStorage.getItem("missileShopItems") || "{}"
-);
+let lastHabitatLevel = 1;
+let habitatFlash = 0;
 
 
-// =====================================
-// CUSTOMIZATION
-// =====================================
+/* =====================================================
+   CUSTOMIZATION
+===================================================== */
 
 const customization = {
 
-    skin: "#ffd2a6",
-    shirt: "#3498db",
-    pants: "#222222",
-    hair: "#151515",
-    accessory: "none"
+  skin: "#ffd2a6",
+
+  shirt: "#3498db",
+
+  pants: "#222222",
+
+  hair: "#151515",
+
+  accessory: "none"
+
 };
 
-function loadCustomization() {
 
-    try {
+function updateCustomization() {
 
-        const saved =
-            JSON.parse(
-                localStorage.getItem(
-                    "missileCustomization"
-                )
-            );
+  customization.skin =
+    document.getElementById("skin").value;
 
-        if (saved) {
+  customization.shirt =
+    document.getElementById("shirt").value;
 
-            Object.assign(
-                customization,
-                saved
-            );
+  customization.pants =
+    document.getElementById("pants").value;
 
-            document.getElementById("skin").value =
-                customization.skin;
+  customization.hair =
+    document.getElementById("hair").value;
 
-            document.getElementById("shirt").value =
-                customization.shirt;
-
-            document.getElementById("pants").value =
-                customization.pants;
-
-            document.getElementById("hair").value =
-                customization.hair;
-
-            document.getElementById("accessory").value =
-                customization.accessory;
-        }
-
-    } catch {}
-}
-
-function saveCustomization() {
-
-    customization.skin =
-        document.getElementById("skin").value;
-
-    customization.shirt =
-        document.getElementById("shirt").value;
-
-    customization.pants =
-        document.getElementById("pants").value;
-
-    customization.hair =
-        document.getElementById("hair").value;
-
-    customization.accessory =
-        document.getElementById("accessory").value;
-
-    localStorage.setItem(
-        "missileCustomization",
-        JSON.stringify(customization)
-    );
-}
-
-document
-.querySelectorAll("#customization select")
-.forEach(select => {
-
-    select.addEventListener(
-        "change",
-        saveCustomization
-    );
-
-});
-
-loadCustomization();
-
-
-// =====================================
-// HABITATS
-// =====================================
-
-const habitats = [
-
-    {
-        name: "Emerald Forest",
-        sky1: "#42d66b",
-        sky2: "#9af7a2",
-        ground: "#245b32",
-        groundTop: "#5ee477",
-        accent: "#1f8f45",
-        type: "forest"
-    },
-
-    {
-        name: "Golden Desert",
-        sky1: "#ff9d2e",
-        sky2: "#ffe28a",
-        ground: "#c98235",
-        groundTop: "#ffd05a",
-        accent: "#e99b35",
-        type: "desert"
-    },
-
-    {
-        name: "Crystal Coast",
-        sky1: "#20c9e8",
-        sky2: "#9bf5ff",
-        ground: "#187c91",
-        groundTop: "#5de9f5",
-        accent: "#1aafc5",
-        type: "ocean"
-    },
-
-    {
-        name: "Frozen Peaks",
-        sky1: "#6eb8ff",
-        sky2: "#dff7ff",
-        ground: "#6889aa",
-        groundTop: "#e9fbff",
-        accent: "#bdeeff",
-        type: "snow"
-    },
-
-    {
-        name: "Volcano Valley",
-        sky1: "#d91e36",
-        sky2: "#ff9d00",
-        ground: "#351b1b",
-        groundTop: "#ff4d19",
-        accent: "#ff9e00",
-        type: "volcano"
-    },
-
-    {
-        name: "Tropical Jungle",
-        sky1: "#18b96f",
-        sky2: "#b8f05b",
-        ground: "#155c38",
-        groundTop: "#43d66f",
-        accent: "#a5e84d",
-        type: "jungle"
-    },
-
-    {
-        name: "Star Galaxy",
-        sky1: "#34158f",
-        sky2: "#b329d6",
-        ground: "#19134c",
-        groundTop: "#674eea",
-        accent: "#ef55ff",
-        type: "space"
-    },
-
-    {
-        name: "Neon City",
-        sky1: "#141452",
-        sky2: "#ec2b9f",
-        ground: "#151526",
-        groundTop: "#21e6ff",
-        accent: "#ff31c8",
-        type: "city"
-    },
-
-    {
-        name: "Cherry Valley",
-        sky1: "#ff76a8",
-        sky2: "#ffd2e6",
-        ground: "#6b3951",
-        groundTop: "#ff8db9",
-        accent: "#ffbad4",
-        type: "cherry"
-    },
-
-    {
-        name: "Cloud Kingdom",
-        sky1: "#58c8ff",
-        sky2: "#e8fbff",
-        ground: "#6b86e8",
-        groundTop: "#ffffff",
-        accent: "#d5f7ff",
-        type: "cloud"
-    }
-];
-
-function getHabitat() {
-
-    return habitats[
-        (level - 1) %
-        habitats.length
-    ];
+  customization.accessory =
+    document.getElementById("accessory").value;
 }
 
 
-// =====================================
-// AUDIO
-// =====================================
+/* =====================================================
+   COINS + SHOP
+===================================================== */
 
-let audioCtx = null;
+let coins =
+  Number(
+    localStorage.getItem("missileCoins") || 0
+  );
 
-function initAudio() {
+let purchasedItems;
 
-    if (!audioCtx) {
+try {
 
-        audioCtx = new (
-            window.AudioContext ||
-            window.webkitAudioContext
-        )();
-    }
+  purchasedItems =
+    JSON.parse(
+      localStorage.getItem(
+        "missileShopItems"
+      ) || "{}"
+    ) || {};
 
-    if (
-        audioCtx.state === "suspended"
-    ) {
+} catch {
 
-        audioCtx.resume();
-    }
+  purchasedItems = {};
+
 }
 
-function sound(type) {
-
-    if (!audioCtx) return;
-
-    const osc =
-        audioCtx.createOscillator();
-
-    const gain =
-        audioCtx.createGain();
-
-    osc.connect(gain);
-    gain.connect(
-        audioCtx.destination
-    );
-
-    const now =
-        audioCtx.currentTime;
-
-
-    if (type === "jump") {
-
-        osc.frequency.setValueAtTime(
-            400,
-            now
-        );
-
-        osc.frequency.exponentialRampToValueAtTime(
-            750,
-            now + .12
-        );
-
-        gain.gain.setValueAtTime(
-            .12,
-            now
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            now + .15
-        );
-
-        osc.start();
-        osc.stop(now + .15);
-    }
-
-
-    else if (type === "coin") {
-
-        osc.frequency.setValueAtTime(
-            700,
-            now
-        );
-
-        osc.frequency.exponentialRampToValueAtTime(
-            1200,
-            now + .12
-        );
-
-        gain.gain.setValueAtTime(
-            .1,
-            now
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            now + .15
-        );
-
-        osc.start();
-        osc.stop(now + .15);
-    }
-
-
-    else if (type === "hit") {
-
-        osc.frequency.setValueAtTime(
-            120,
-            now
-        );
-
-        osc.frequency.exponentialRampToValueAtTime(
-            50,
-            now + .25
-        );
-
-        gain.gain.setValueAtTime(
-            .2,
-            now
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            now + .25
-        );
-
-        osc.start();
-        osc.stop(now + .25);
-    }
-
-
-    else if (type === "score") {
-
-        osc.frequency.setValueAtTime(
-            600,
-            now
-        );
-
-        osc.frequency.exponentialRampToValueAtTime(
-            900,
-            now + .08
-        );
-
-        gain.gain.setValueAtTime(
-            .08,
-            now
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            now + .1
-        );
-
-        osc.start();
-        osc.stop(now + .1);
-    }
-
-
-    else if (type === "whoosh") {
-
-        osc.frequency.setValueAtTime(
-            900,
-            now
-        );
-
-        osc.frequency.exponentialRampToValueAtTime(
-            150,
-            now + .25
-        );
-
-        gain.gain.setValueAtTime(
-            .08,
-            now
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            now + .25
-        );
-
-        osc.start();
-        osc.stop(now + .25);
-    }
-
-
-    else if (type === "life") {
-
-        osc.frequency.setValueAtTime(
-            500,
-            now
-        );
-
-        osc.frequency.exponentialRampToValueAtTime(
-            1000,
-            now + .2
-        );
-
-        gain.gain.setValueAtTime(
-            .1,
-            now
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            now + .25
-        );
-
-        osc.start();
-        osc.stop(now + .25);
-    }
-
-
-    else if (type === "start") {
-
-        osc.frequency.setValueAtTime(
-            300,
-            now
-        );
-
-        osc.frequency.exponentialRampToValueAtTime(
-            700,
-            now + .25
-        );
-
-        gain.gain.setValueAtTime(
-            .1,
-            now
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            now + .25
-        );
-
-        osc.start();
-        osc.stop(now + .25);
-    }
-}
-
-
-// =====================================
-// DOUBLE JUMP
-// =====================================
-
-function jump() {
-
-    if (
-        !running ||
-        paused
-    ) return;
-
-    if (
-        player.jumpCount <
-        player.maxJumps
-    ) {
-
-        player.velocity =
-            -player.jumpPower;
-
-        player.jumping = true;
-
-        player.jumpCount++;
-
-        sound("jump");
-
-
-        if (
-            player.jumpCount === 2
-        ) {
-
-            for (
-                let i = 0;
-                i < 8;
-                i++
-            ) {
-
-                particles.push({
-
-                    x:
-                        player.x +
-                        player.w / 2,
-
-                    y:
-                        player.y +
-                        player.h,
-
-                    vx:
-                        (Math.random() - .5) *
-                        160,
-
-                    vy:
-                        Math.random() *
-                        80,
-
-                    life: .35,
-
-                    maxLife: .35,
-
-                    size: 4
-                });
-            }
-        }
-    }
-}
-
-
-// =====================================
-// CONTROLS
-// =====================================
-
-document.addEventListener(
-    "keydown",
-    e => {
-
-        if (
-            e.code === "Space" ||
-            e.code === "ArrowUp" ||
-            e.code === "KeyW"
-        ) {
-
-            e.preventDefault();
-
-            jump();
-        }
-
-        if (
-            e.code === "KeyP"
-        ) {
-
-            togglePause();
-        }
-
-        if (
-            e.code === "ArrowDown" ||
-            e.code === "KeyS"
-        ) {
-
-            player.ducking = true;
-        }
-    }
-);
-
-document.addEventListener(
-    "keyup",
-    e => {
-
-        if (
-            e.code === "ArrowDown" ||
-            e.code === "KeyS"
-        ) {
-
-            player.ducking = false;
-        }
-    }
-);
-
-
-const duckBtn =
-    document.getElementById(
-        "duckBtn"
-    );
-
-
-duckBtn.addEventListener(
-    "pointerdown",
-    () => {
-
-        player.ducking = true;
-    }
-);
-
-duckBtn.addEventListener(
-    "pointerup",
-    () => {
-
-        player.ducking = false;
-    }
-);
-
-duckBtn.addEventListener(
-    "pointercancel",
-    () => {
-
-        player.ducking = false;
-    }
-);
-
-
-// =====================================
-// MISSILES
-// =====================================
-
-function spawnMissile() {
-
-    const giant =
-        level >= 10 &&
-        Math.random() < .15;
-
-    const w =
-        giant ? 90 : 70;
-
-    const h =
-        giant ? 34 : 24;
-
-    const groundY =
-        H - 110;
-
-    const speed =
-        (giant ? 470 : 400) +
-        level * 22 +
-        (level >= 10 ? 180 : 0);
-
-    missiles.push({
-
-        x:
-            W + 80,
-
-        y:
-            groundY - h,
-
-        w,
-        h,
-
-        speed,
-        giant
-    });
-
-    sound("whoosh");
-}
-
-
-// =====================================
-// COINS
-// =====================================
-
-function spawnCoin() {
-
-    coinsList.push({
-
-        x:
-            W + 40,
-
-        y:
-            H - 160 -
-            Math.random() * 250,
-
-        w: 26,
-        h: 26,
-
-        speed:
-            280 + level * 8,
-
-        rotation: 0
-    });
-}
-
-
-function drawCoin(c) {
-
-    c.rotation += .08;
-
-    const squash =
-        Math.abs(
-            Math.cos(c.rotation)
-        );
-
-    ctx.save();
-
-    ctx.translate(
-        c.x + c.w / 2,
-        c.y + c.h / 2
-    );
-
-    ctx.scale(
-        .45 + squash * .55,
-        1
-    );
-
-    ctx.shadowColor =
-        "#ffd21f";
-
-    ctx.shadowBlur = 15;
-
-    ctx.fillStyle =
-        "#ffd21f";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        0,
-        0,
-        13,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-    ctx.shadowBlur = 0;
-
-    ctx.strokeStyle =
-        "#b77b00";
-
-    ctx.lineWidth = 3;
-
-    ctx.stroke();
-
-    ctx.fillStyle =
-        "#fff2a3";
-
-    ctx.font =
-        "bold 15px Arial";
-
-    ctx.textAlign =
-        "center";
-
-    ctx.textBaseline =
-        "middle";
-
-    ctx.fillText(
-        "$",
-        0,
-        1
-    );
-
-    ctx.restore();
-}
-
-
-function collectCoin(index) {
-
-    coins++;
-
-    localStorage.setItem(
-        "missileCoins",
-        coins
-    );
-
-    sound("coin");
-
-    for (
-        let i = 0;
-        i < 8;
-        i++
-    ) {
-
-        particles.push({
-
-            x:
-                coinsList[index].x +
-                13,
-
-            y:
-                coinsList[index].y +
-                13,
-
-            vx:
-                (Math.random() - .5) *
-                180,
-
-            vy:
-                -Math.random() *
-                150,
-
-            life: .4,
-
-            maxLife: .4,
-
-            size: 4
-        });
-    }
-
-    coinsList.splice(
-        index,
-        1
-    );
-
-    updateCoinHUD();
-}
-
-
-// =====================================
-// SHOP
-// =====================================
 
 const shopPrices = {
 
-    gold: 50,
-    ninja: 100,
-    robot: 150,
-    magnet: 200
+  gold: 50,
+
+  ninja: 100,
+
+  robot: 150,
+
+  magnet: 200
+
 };
+
+
+function saveShop() {
+
+  localStorage.setItem(
+    "missileShopItems",
+    JSON.stringify(purchasedItems)
+  );
+
+  localStorage.setItem(
+    "missileCoins",
+    coins
+  );
+
+}
+
+
+function updateCoinDisplays() {
+
+  document.getElementById(
+    "coins"
+  ).textContent = coins;
+
+  document.getElementById(
+    "shopCoins"
+  ).textContent = coins;
+
+}
 
 
 function openShop() {
 
-    updateShop();
+  document.getElementById(
+    "menu"
+  ).style.display = "none";
 
-    document.getElementById(
-        "shop"
-    ).style.display = "flex";
+  document.getElementById(
+    "shop"
+  ).style.display = "flex";
 
-    document.getElementById(
-        "menu"
-    ).classList.add("hidden");
+  updateCoinDisplays();
+
+  updateShopButtons();
+
 }
 
 
 function closeShop() {
 
-    document.getElementById(
-        "shop"
-    ).style.display = "none";
+  document.getElementById(
+    "shop"
+  ).style.display = "none";
 
-    document.getElementById(
-        "menu"
-    ).classList.remove("hidden");
+  document.getElementById(
+    "menu"
+  ).style.display = "flex";
+
+}
+
+
+function updateShopButtons() {
+
+  document
+    .querySelectorAll(".shopCard button")
+    .forEach((button, i) => {
+
+      const keys = [
+        "gold",
+        "ninja",
+        "robot",
+        "magnet"
+      ];
+
+      const key = keys[i];
+
+      if (purchasedItems[key]) {
+
+        button.textContent =
+          key === "magnet"
+            ? "PURCHASED"
+            : "EQUIP";
+
+      } else {
+
+        button.textContent =
+          "🪙 " + shopPrices[key];
+
+      }
+
+    });
+
 }
 
 
 function buyItem(item) {
 
-    if (
-        purchasedItems[item]
-    ) {
-
-        equipItem(item);
-
-        return;
-    }
-
-    const price =
-        shopPrices[item];
-
-    if (
-        coins < price
-    ) {
-
-        alert(
-            "You need " +
-            (price - coins) +
-            " more coins!"
-        );
-
-        return;
-    }
-
-    coins -= price;
-
-    purchasedItems[item] =
-        true;
-
-    localStorage.setItem(
-        "missileCoins",
-        coins
-    );
-
-    localStorage.setItem(
-        "missileShopItems",
-        JSON.stringify(
-            purchasedItems
-        )
-    );
+  if (purchasedItems[item]) {
 
     equipItem(item);
 
-    updateShop();
-    updateCoinHUD();
+    return;
+
+  }
+
+  if (coins < shopPrices[item]) {
+
+    sound("hit");
+
+    alert("You need more coins!");
+
+    return;
+
+  }
+
+  coins -= shopPrices[item];
+
+  purchasedItems[item] = true;
+
+  saveShop();
+
+  updateCoinDisplays();
+
+  updateShopButtons();
+
+  equipItem(item);
+
+  sound("coin");
+
 }
 
 
 function equipItem(item) {
 
-    if (
-        item === "gold"
-    ) {
+  if (item === "gold") {
 
-        customization.shirt =
-            "#ffd21f";
+    customization.shirt =
+      "#facc15";
 
-        customization.pants =
-            "#a87800";
+    customization.pants =
+      "#d97706";
 
-        customization.hair =
-            "#fff1a0";
-    }
+    customization.hair =
+      "#fff3a3";
 
-    else if (
-        item === "ninja"
-    ) {
+  }
 
-        customization.shirt =
-            "#171717";
+  if (item === "ninja") {
 
-        customization.pants =
-            "#080808";
+    customization.shirt =
+      "#111827";
 
-        customization.hair =
-            "#111111";
+    customization.pants =
+      "#030712";
 
-        customization.accessory =
-            "cap";
-    }
+    customization.hair =
+      "#111827";
 
-    else if (
-        item === "robot"
-    ) {
+  }
 
-        customization.shirt =
-            "#9da7b3";
+  if (item === "robot") {
 
-        customization.pants =
-            "#59636e";
+    customization.shirt =
+      "#94a3b8";
 
-        customization.hair =
-            "#d9e0e7";
+    customization.pants =
+      "#475569";
 
-        customization.accessory =
-            "glasses";
-    }
+    customization.hair =
+      "#e2e8f0";
 
-    saveCustomization();
+  }
 
-    updateShop();
+  document.getElementById(
+    "shirt"
+  ).value = customization.shirt;
+
+  document.getElementById(
+    "pants"
+  ).value = customization.pants;
+
+  document.getElementById(
+    "hair"
+  ).value = customization.hair;
+
 }
 
 
-function updateShop() {
+/* =====================================================
+   HABITATS
+===================================================== */
 
-    updateCoinHUD();
+const habitats = [
 
-    const items = [
-        "gold",
-        "ninja",
-        "robot",
-        "magnet"
-    ];
+  {
+    name: "Emerald Forest",
+    skyTop: "#42bdf5",
+    skyBottom: "#c8f7b5",
+    ground: "#328443",
+    groundTop: "#76d65c",
+    accent: "#155e2b",
+    type: "forest"
+  },
 
-    items.forEach(item => {
+  {
+    name: "Golden Desert",
+    skyTop: "#ff9952",
+    skyBottom: "#ffe7a0",
+    ground: "#c9953c",
+    groundTop: "#f3c768",
+    accent: "#8d5a24",
+    type: "desert"
+  },
 
-        const button =
-            document.getElementById(
-                item + "Button"
-            );
+  {
+    name: "Ocean Coast",
+    skyTop: "#21bdf3",
+    skyBottom: "#b9f6ff",
+    ground: "#287a8f",
+    groundTop: "#60e0d0",
+    accent: "#075985",
+    type: "ocean"
+  },
 
-        if (
-            purchasedItems[item]
-        ) {
+  {
+    name: "Frozen Peaks",
+    skyTop: "#74b9ff",
+    skyBottom: "#edfaff",
+    ground: "#91bfd3",
+    groundTop: "#f3ffff",
+    accent: "#47789e",
+    type: "snow"
+  },
 
-            button.textContent =
-                item === "magnet"
-                    ? "OWNED"
-                    : "EQUIP";
+  {
+    name: "Volcano Valley",
+    skyTop: "#321044",
+    skyBottom: "#ff5b3e",
+    ground: "#321d23",
+    groundTop: "#ff7138",
+    accent: "#a52a1c",
+    type: "volcano"
+  },
 
-            button.disabled = false;
+  {
+    name: "Tropical Jungle",
+    skyTop: "#20c99a",
+    skyBottom: "#dcff79",
+    ground: "#1d743e",
+    groundTop: "#61c94c",
+    accent: "#14532d",
+    type: "jungle"
+  },
 
-        } else {
+  {
+    name: "Starry Space",
+    skyTop: "#08042b",
+    skyBottom: "#421478",
+    ground: "#251a45",
+    groundTop: "#7655ba",
+    accent: "#d8b4fe",
+    type: "space"
+  },
 
-            button.textContent =
-                "BUY";
+  {
+    name: "Neon City",
+    skyTop: "#11052c",
+    skyBottom: "#36085b",
+    ground: "#151329",
+    groundTop: "#ff3bd4",
+    accent: "#00e5ff",
+    type: "city"
+  },
 
-            button.disabled =
-                coins <
-                shopPrices[item];
-        }
-    });
+  {
+    name: "Blossom Valley",
+    skyTop: "#ffb4d5",
+    skyBottom: "#fff0f7",
+    ground: "#63a34e",
+    groundTop: "#9bd56b",
+    accent: "#ff62a8",
+    type: "blossom"
+  },
+
+  {
+    name: "Cloud Kingdom",
+    skyTop: "#6687ff",
+    skyBottom: "#eaf5ff",
+    ground: "#d1e1ff",
+    groundTop: "#ffffff",
+    accent: "#7565e8",
+    type: "cloud"
+  }
+
+];
+
+
+function getHabitat() {
+
+  return habitats[
+    (level - 1) %
+    habitats.length
+  ];
+
 }
 
 
-// =====================================
-// HUD
-// =====================================
+/* =====================================================
+   AUDIO
+===================================================== */
 
-function updateCoinHUD() {
+let audioCtx = null;
 
-    document.getElementById(
-        "coins"
-    ).textContent =
-        coins;
 
-    document.getElementById(
-        "shopCoins"
-    ).textContent =
-        coins;
+function sound(type) {
+
+  try {
+
+    if (!audioCtx) {
+
+      audioCtx =
+        new (
+          window.AudioContext ||
+          window.webkitAudioContext
+        )();
+
+    }
+
+    const osc =
+      audioCtx.createOscillator();
+
+    const gain =
+      audioCtx.createGain();
+
+    osc.connect(gain);
+
+    gain.connect(
+      audioCtx.destination
+    );
+
+    let frequency = 300;
+    let duration = .1;
+
+    if (type === "jump") {
+
+      frequency = 500;
+      duration = .12;
+
+    }
+
+    if (type === "hit") {
+
+      frequency = 100;
+      duration = .2;
+
+    }
+
+    if (type === "score") {
+
+      frequency = 700;
+      duration = .1;
+
+    }
+
+    if (type === "gameover") {
+
+      frequency = 80;
+      duration = .5;
+
+    }
+
+    if (type === "coin") {
+
+      frequency = 900;
+      duration = .1;
+
+    }
+
+    if (type === "life") {
+
+      frequency = 1000;
+      duration = .15;
+
+    }
+
+    osc.frequency.value =
+      frequency;
+
+    osc.type =
+      type === "hit"
+        ? "sawtooth"
+        : "square";
+
+    gain.gain.setValueAtTime(
+      .08,
+      audioCtx.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      .001,
+      audioCtx.currentTime +
+      duration
+    );
+
+    osc.start();
+
+    osc.stop(
+      audioCtx.currentTime +
+      duration
+    );
+
+  } catch {}
+
 }
 
 
-function updateHUD() {
+/* =====================================================
+   JUMP
+===================================================== */
 
-    let hearts = "";
+function jump() {
 
-    for (
-        let i = 0;
-        i < lives;
-        i++
-    ) {
+  if (!running || paused)
+    return;
 
-        hearts += "❤️";
-    }
+  if (
+    player.jumpCount <
+    player.maxJumps
+  ) {
 
-    for (
-        let i = lives;
-        i < MAX_LIVES;
-        i++
-    ) {
+    player.velocity =
+      -player.jumpPower;
 
-        hearts += "🖤";
-    }
+    player.jumping = true;
 
-    const habitat =
-        getHabitat();
+    player.jumpCount++;
 
-    document.getElementById(
-        "hud"
-    ).innerHTML =
+    sound("jump");
 
-        hearts +
+  }
 
-        " | Score: " +
-        score +
-
-        " | Level: " +
-        level +
-
-        " | 🪙 " +
-        coins +
-
-        " | 🌎 " +
-        habitat.name;
 }
 
 
-// =====================================
-// MISSILE DRAWING
-// =====================================
+/* =====================================================
+   DUCK
+===================================================== */
 
-function drawMissile(m) {
+function duckStart() {
 
-    ctx.save();
+  if (!running || paused)
+    return;
 
-    ctx.translate(
-        m.x + m.w / 2,
-        0
-    );
+  player.ducking = true;
 
-    ctx.scale(
-        -1,
-        1
-    );
-
-    ctx.translate(
-        -(m.x + m.w / 2),
-        0
-    );
-
-    const x = m.x;
-    const y = m.y;
-
-
-    // Flame
-
-    ctx.fillStyle =
-        "#ff7b00";
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x + 5,
-        y + m.h / 2
-    );
-
-    ctx.lineTo(
-        x - 25,
-        y + 5
-    );
-
-    ctx.lineTo(
-        x - 15,
-        y + m.h / 2
-    );
-
-    ctx.lineTo(
-        x - 25,
-        y + m.h - 5
-    );
-
-    ctx.closePath();
-
-    ctx.fill();
-
-
-    ctx.fillStyle =
-        "#ffe44d";
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x + 5,
-        y + m.h / 2
-    );
-
-    ctx.lineTo(
-        x - 13,
-        y + 9
-    );
-
-    ctx.lineTo(
-        x - 8,
-        y + m.h / 2
-    );
-
-    ctx.lineTo(
-        x - 13,
-        y + m.h - 9
-    );
-
-    ctx.closePath();
-
-    ctx.fill();
-
-
-    // Body
-
-    const gradient =
-        ctx.createLinearGradient(
-            x,
-            y,
-            x,
-            y + m.h
-        );
-
-    gradient.addColorStop(
-        0,
-        "#e8edf2"
-    );
-
-    gradient.addColorStop(
-        .5,
-        "#78828e"
-    );
-
-    gradient.addColorStop(
-        1,
-        "#303740"
-    );
-
-    ctx.fillStyle =
-        gradient;
-
-    ctx.beginPath();
-
-    ctx.roundRect(
-        x + 8,
-        y + 4,
-        m.w - 20,
-        m.h - 8,
-        8
-    );
-
-    ctx.fill();
-
-
-    // Nose
-
-    ctx.fillStyle =
-        "#b8bec7";
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x + m.w - 15,
-        y + m.h / 2
-    );
-
-    ctx.lineTo(
-        x + m.w,
-        y
-    );
-
-    ctx.lineTo(
-        x + m.w,
-        y + m.h
-    );
-
-    ctx.closePath();
-
-    ctx.fill();
-
-
-    // Stripe
-
-    ctx.fillStyle =
-        "#e5b300";
-
-    ctx.fillRect(
-        x + m.w * .48,
-        y + 3,
-        7,
-        m.h - 6
-    );
-
-
-    // Fins
-
-    ctx.fillStyle =
-        "#39424c";
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x + 20,
-        y + 3
-    );
-
-    ctx.lineTo(
-        x + 7,
-        y - 16
-    );
-
-    ctx.lineTo(
-        x + 32,
-        y + 6
-    );
-
-    ctx.closePath();
-
-    ctx.fill();
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x + 20,
-        y + m.h - 3
-    );
-
-    ctx.lineTo(
-        x + 7,
-        y + m.h + 16
-    );
-
-    ctx.lineTo(
-        x + 32,
-        y + m.h - 6
-    );
-
-    ctx.closePath();
-
-    ctx.fill();
-
-    ctx.restore();
 }
 
 
-// =====================================
-// PLAYER DRAW
-// =====================================
+function duckStop() {
 
-function drawPlayer() {
+  player.ducking = false;
 
-    const x =
-        player.x;
-
-    const groundY =
-        H - 110;
-
-    let y =
-        player.y;
-
-    let h =
-        player.ducking
-            ? 34
-            : player.h;
-
-
-    if (
-        player.ducking
-    ) {
-
-        y =
-            groundY - h;
-    }
-
-
-    // Shadow
-
-    ctx.fillStyle =
-        "rgba(0,0,0,.3)";
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-        x + player.w / 2,
-        groundY + 3,
-        player.ducking ? 20 : 18,
-        6,
-        0,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-
-    // Legs
-
-    ctx.fillStyle =
-        customization.pants;
-
-    if (
-        player.ducking
-    ) {
-
-        ctx.fillRect(
-            x + 4,
-            y + 25,
-            26,
-            8
-        );
-
-    } else {
-
-        ctx.fillRect(
-            x + 6,
-            y + 34,
-            9,
-            20
-        );
-
-        ctx.fillRect(
-            x + 20,
-            y + 34,
-            9,
-            20
-        );
-    }
-
-
-    // Body
-
-    ctx.fillStyle =
-        customization.shirt;
-
-    if (
-        player.ducking
-    ) {
-
-        ctx.fillRect(
-            x + 3,
-            y + 9,
-            29,
-            19
-        );
-
-    } else {
-
-        ctx.fillRect(
-            x + 5,
-            y + 15,
-            25,
-            25
-        );
-    }
-
-
-    // Head
-
-    ctx.fillStyle =
-        customization.skin;
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x + player.w / 2,
-        y + 8,
-        12,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-
-    // Hair
-
-    ctx.fillStyle =
-        customization.hair;
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x + player.w / 2,
-        y + 4,
-        11,
-        Math.PI,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-
-    // Cap
-
-    if (
-        customization.accessory ===
-        "cap"
-    ) {
-
-        ctx.fillStyle =
-            "#222";
-
-        ctx.fillRect(
-            x + 5,
-            y,
-            23,
-            5
-        );
-
-        ctx.fillRect(
-            x + 18,
-            y + 4,
-            12,
-            3
-        );
-    }
-
-
-    // Glasses
-
-    if (
-        customization.accessory ===
-        "glasses"
-    ) {
-
-        ctx.strokeStyle =
-            "#111";
-
-        ctx.lineWidth = 2;
-
-        ctx.strokeRect(
-            x + 7,
-            y + 5,
-            8,
-            6
-        );
-
-        ctx.strokeRect(
-            x + 19,
-            y + 5,
-            8,
-            6
-        );
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            x + 15,
-            y + 8
-        );
-
-        ctx.lineTo(
-            x + 19,
-            y + 8
-        );
-
-        ctx.stroke();
-    }
 }
 
 
-// =====================================
-// HABITAT BACKGROUNDS
-// =====================================
+/* =====================================================
+   MISSILE SPAWNING
+   MISSILES ONLY COME FROM RIGHT
+===================================================== */
 
-function drawHabitat() {
+function spawnMissile() {
 
-    const habitat =
-        getHabitat();
+  const giant =
+    level >= 10 &&
+    Math.random() < 0.15;
 
+  const speed =
+    (giant ? 470 : 400) +
+    level * 22 +
+    (level >= 10 ? 180 : 0);
 
-    const gradient =
-        ctx.createLinearGradient(
-            0,
-            0,
-            0,
-            H
-        );
+  missiles.push({
 
+    // ALWAYS starts on right
+    x: W + 80,
 
-    gradient.addColorStop(
-        0,
-        habitat.sky1
-    );
+    // Random height
+    y:
+      H -
+      110 -
+      Math.random() * 250,
 
-    gradient.addColorStop(
-        1,
-        habitat.sky2
-    );
+    w:
+      giant ? 90 : 65,
 
+    h:
+      giant ? 34 : 23,
 
-    ctx.fillStyle =
-        gradient;
+    speedX:
+      -speed,
 
-    ctx.fillRect(
-        -50,
-        -50,
-        W + 100,
-        H + 100
-    );
+    speedY: 0,
 
+    angle: Math.PI,
 
-    const type =
-        habitat.type;
+    giant,
 
+    passed: false
 
-    // -------------------------
-    // FOREST
-    // -------------------------
+  });
 
-    if (
-        type === "forest"
-    ) {
-
-        drawTrees("#176b3a");
-
-        drawTrees("#27994c");
-    }
-
-
-    // -------------------------
-    // DESERT
-    // -------------------------
-
-    else if (
-        type === "desert"
-    ) {
-
-        ctx.fillStyle =
-            "rgba(255,230,120,.7)";
-
-        ctx.beginPath();
-
-        ctx.arc(
-            W - 120,
-            100,
-            55,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-
-        for (
-            let i = 0;
-            i < 8;
-            i++
-        ) {
-
-            drawCactus(
-                50 + i * 150,
-                H - 155
-            );
-        }
-    }
-
-
-    // -------------------------
-    // OCEAN
-    // -------------------------
-
-    else if (
-        type === "ocean"
-    ) {
-
-        for (
-            let i = 0;
-            i < 8;
-            i++
-        ) {
-
-            ctx.strokeStyle =
-                "rgba(255,255,255,.5)";
-
-            ctx.lineWidth = 3;
-
-            ctx.beginPath();
-
-            ctx.arc(
-                i * 170,
-                H - 160,
-                40,
-                0,
-                Math.PI
-            );
-
-            ctx.stroke();
-        }
-
-        drawClouds();
-    }
-
-
-    // -------------------------
-    // SNOW
-    // -------------------------
-
-    else if (
-        type === "snow"
-    ) {
-
-        drawMountain(
-            W * .15,
-            H - 110,
-            280,
-            260
-        );
-
-        drawMountain(
-            W * .65,
-            H - 110,
-            350,
-            320
-        );
-
-        drawSnowflakes();
-    }
-
-
-    // -------------------------
-    // VOLCANO
-    // -------------------------
-
-    else if (
-        type === "volcano"
-    ) {
-
-        drawVolcano(
-            W * .65,
-            H - 110
-        );
-
-        ctx.fillStyle =
-            "rgba(255,180,30,.7)";
-
-        for (
-            let i = 0;
-            i < 8;
-            i++
-        ) {
-
-            ctx.beginPath();
-
-            ctx.arc(
-                60 + i * 150,
-                100 + (i % 3) * 50,
-                4,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fill();
-        }
-    }
-
-
-    // -------------------------
-    // JUNGLE
-    // -------------------------
-
-    else if (
-        type === "jungle"
-    ) {
-
-        drawTrees("#086b42");
-
-        for (
-            let i = 0;
-            i < 10;
-            i++
-        ) {
-
-            ctx.fillStyle =
-                "#4de34d";
-
-            ctx.beginPath();
-
-            ctx.ellipse(
-                i * 130,
-                H - 140,
-                40,
-                16,
-                -0.4,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fill();
-        }
-    }
-
-
-    // -------------------------
-    // SPACE
-    // -------------------------
-
-    else if (
-        type === "space"
-    ) {
-
-        drawStars();
-
-        ctx.fillStyle =
-            "#ff65ff";
-
-        ctx.beginPath();
-
-        ctx.arc(
-            W - 130,
-            110,
-            50,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-
-        ctx.fillStyle =
-            "rgba(255,255,255,.7)";
-
-        ctx.beginPath();
-
-        ctx.arc(
-            130,
-            130,
-            35,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-    }
-
-
-    // -------------------------
-    // CITY
-    // -------------------------
-
-    else if (
-        type === "city"
-    ) {
-
-        drawCity();
-
-        drawNeonLines();
-    }
-
-
-    // -------------------------
-    // CHERRY
-    // -------------------------
-
-    else if (
-        type === "cherry"
-    ) {
-
-        for (
-            let i = 0;
-            i < 8;
-            i++
-        ) {
-
-            drawCherryTree(
-                40 + i * 150,
-                H - 120
-            );
-        }
-    }
-
-
-    // -------------------------
-    // CLOUD
-    // -------------------------
-
-    else if (
-        type === "cloud"
-    ) {
-
-        drawClouds();
-
-        drawClouds();
-    }
 }
 
 
-// =====================================
-// BACKGROUND HELPERS
-// =====================================
+/* =====================================================
+   POWERUPS
+===================================================== */
 
-function drawTrees(color) {
+function spawnPowerup() {
 
-    ctx.fillStyle =
-        color;
+  powerups.push({
 
-    for (
-        let i = 0;
-        i < 8;
-        i++
-    ) {
+    x: W + 30,
 
-        const x =
-            i * 160 + 20;
+    y:
+      H -
+      150 -
+      Math.random() * 180,
 
-        const h =
-            100 + (i % 3) * 40;
+    w: 25,
 
-        ctx.fillRect(
-            x,
-            H - 110 - h,
-            25,
-            h
-        );
+    h: 25,
 
-        ctx.beginPath();
+    speed: 220
 
-        ctx.arc(
-            x + 12,
-            H - 110 - h,
-            55,
-            0,
-            Math.PI * 2
-        );
+  });
 
-        ctx.fill();
-    }
 }
 
 
-function drawCactus(x,y) {
+/* =====================================================
+   COINS
+===================================================== */
 
-    ctx.fillStyle =
-        "#2e9d45";
+function spawnCoin() {
 
-    ctx.fillRect(
-        x,
-        y - 65,
-        18,
-        65
-    );
+  coinsList.push({
 
-    ctx.fillRect(
-        x - 18,
-        y - 48,
-        18,
-        12
-    );
+    x: W + 30,
 
-    ctx.fillRect(
-        x - 18,
-        y - 60,
-        10,
-        24
-    );
+    y:
+      H -
+      150 -
+      Math.random() * 200,
 
-    ctx.fillRect(
-        x + 18,
-        y - 35,
-        18,
-        12
-    );
+    r: 10,
 
-    ctx.fillRect(
-        x + 26,
-        y - 47,
-        10,
-        24
-    );
+    speed: 230
+
+  });
+
 }
 
 
-function drawClouds() {
+/* =====================================================
+   COLLISION
+===================================================== */
 
-    ctx.fillStyle =
-        "rgba(255,255,255,.75)";
+function collision(a, b) {
 
-    for (
-        let i = 0;
-        i < 6;
-        i++
-    ) {
+  return (
 
-        const x =
-            70 + i * 190;
+    a.x <
+      b.x + b.w &&
 
-        const y =
-            100 + (i % 2) * 80;
+    a.x + a.w >
+      b.x &&
 
-        ctx.beginPath();
+    a.y <
+      b.y + b.h &&
 
-        ctx.arc(
-            x,
-            y,
-            28,
-            0,
-            Math.PI * 2
-        );
+    a.y + a.h >
+      b.y
 
-        ctx.arc(
-            x + 35,
-            y - 12,
-            35,
-            0,
-            Math.PI * 2
-        );
+  );
 
-        ctx.arc(
-            x + 75,
-            y,
-            27,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-    }
 }
 
 
-function drawMountain(
-    x,
-    ground,
-    width,
-    height
-) {
-
-    ctx.fillStyle =
-        "#53789c";
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x - width / 2,
-        ground
-    );
-
-    ctx.lineTo(
-        x,
-        ground - height
-    );
-
-    ctx.lineTo(
-        x + width / 2,
-        ground
-    );
-
-    ctx.closePath();
-
-    ctx.fill();
-
-    ctx.fillStyle =
-        "#f5ffff";
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x,
-        ground - height
-    );
-
-    ctx.lineTo(
-        x - 55,
-        ground - height + 70
-    );
-
-    ctx.lineTo(
-        x + 55,
-        ground - height + 70
-    );
-
-    ctx.closePath();
-
-    ctx.fill();
-}
-
-
-function drawSnowflakes() {
-
-    ctx.fillStyle =
-        "rgba(255,255,255,.8)";
-
-    for (
-        let i = 0;
-        i < 50;
-        i++
-    ) {
-
-        const x =
-            (i * 137) % W;
-
-        const y =
-            (i * 83) % (H - 130);
-
-        ctx.fillRect(
-            x,
-            y,
-            4,
-            4
-        );
-    }
-}
-
-
-function drawVolcano(x,ground) {
-
-    ctx.fillStyle =
-        "#542323";
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x - 220,
-        ground
-    );
-
-    ctx.lineTo(
-        x - 60,
-        ground - 220
-    );
-
-    ctx.lineTo(
-        x + 70,
-        ground
-    );
-
-    ctx.closePath();
-
-    ctx.fill();
-
-    ctx.fillStyle =
-        "#ff5a16";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x - 5,
-        ground - 190,
-        28,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-}
-
-
-function drawStars() {
-
-    ctx.fillStyle =
-        "rgba(255,255,255,.9)";
-
-    for (
-        let i = 0;
-        i < 100;
-        i++
-    ) {
-
-        const x =
-            (i * 137) % W;
-
-        const y =
-            (i * 83) % (H - 120);
-
-        ctx.fillRect(
-            x,
-            y,
-            2,
-            2
-        );
-    }
-}
-
-
-function drawCity() {
-
-    for (
-        let i = 0;
-        i < 12;
-        i++
-    ) {
-
-        const x =
-            i * 100;
-
-        const height =
-            100 +
-            (i % 5) * 45;
-
-        ctx.fillStyle =
-            i % 2
-                ? "#24245d"
-                : "#351d55";
-
-        ctx.fillRect(
-            x,
-            H - 110 - height,
-            80,
-            height
-        );
-
-
-        for (
-            let j = 0;
-            j < 5;
-            j++
-        ) {
-
-            ctx.fillStyle =
-                j % 2
-                    ? "#fff04a"
-                    : "#3de8ff";
-
-            ctx.fillRect(
-                x + 12,
-                H - 90 -
-                height +
-                j * 25,
-                10,
-                8
-            );
-
-            ctx.fillRect(
-                x + 42,
-                H - 90 -
-                height +
-                j * 25,
-                10,
-                8
-            );
-        }
-    }
-}
-
-
-function drawNeonLines() {
-
-    ctx.strokeStyle =
-        "#ff35df";
-
-    ctx.lineWidth = 3;
-
-    for (
-        let i = 0;
-        i < 6;
-        i++
-    ) {
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            0,
-            H - 130 -
-            i * 20
-        );
-
-        ctx.lineTo(
-            W,
-            H - 130 -
-            i * 20
-        );
-
-        ctx.stroke();
-    }
-}
-
-
-function drawCherryTree(x,ground) {
-
-    ctx.fillStyle =
-        "#5c3b36";
-
-    ctx.fillRect(
-        x,
-        ground - 130,
-        18,
-        130
-    );
-
-    ctx.fillStyle =
-        "#ff82b3";
-
-    for (
-        let i = 0;
-        i < 5;
-        i++
-    ) {
-
-        ctx.beginPath();
-
-        ctx.arc(
-            x - 30 + i * 18,
-            ground - 140 -
-            (i % 2) * 20,
-            32,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-    }
-}
-
-
-// =====================================
-// LIFE POWERUPS
-// =====================================
-
-function spawnLife() {
-
-    if (
-        lives >= MAX_LIVES
-    ) return;
-
-    powerups.push({
-
-        x:
-            W + 40,
-
-        y:
-            H - 180 -
-            Math.random() * 100,
-
-        w: 30,
-
-        h: 30,
-
-        speed: 260
-    });
-}
-
-
-function drawLife(p) {
-
-    const bob =
-        Math.sin(
-            performance.now() / 180
-        ) * 4;
-
-    ctx.save();
-
-    ctx.translate(
-        p.x + p.w / 2,
-        p.y + p.h / 2 + bob
-    );
-
-    ctx.fillStyle =
-        "#ff304f";
-
-    ctx.beginPath();
-
-    ctx.moveTo(0,12);
-
-    ctx.bezierCurveTo(
-        -28,-5,
-        -13,-22,
-        0,-10
-    );
-
-    ctx.bezierCurveTo(
-        13,-22,
-        28,-5,
-        0,12
-    );
-
-    ctx.fill();
-
-    ctx.fillStyle =
-        "white";
-
-    ctx.fillRect(
-        -3,-9,6,18
-    );
-
-    ctx.fillRect(
-        -9,-3,18,6
-    );
-
-    ctx.restore();
-}
-
-
-// =====================================
-// COLLISION
-// =====================================
-
-function missileHitsPlayer(m) {
-
-    if (
-        player.invincible > 0
-    ) return false;
-
-
-    const px =
-        player.x;
-
-    const py =
-        player.y;
-
-    const pw =
-        player.w;
-
-    const ph =
-        player.ducking
-            ? 34
-            : player.h;
-
-
-    // Being above a missile is safe
-
-    if (
-        py + ph <
-        m.y + 5
-    ) {
-
-        return false;
-    }
-
-
-    return (
-
-        px <
-        m.x + m.w &&
-
-        px + pw >
-        m.x &&
-
-        py <
-        m.y + m.h &&
-
-        py + ph >
-        m.y
-    );
-}
-
-
-// =====================================
-// HIT PLAYER
-// =====================================
+/* =====================================================
+   HIT PLAYER
+===================================================== */
 
 function hitPlayer() {
 
-    if (
-        player.invincible > 0
-    ) return;
+  if (player.invincible > 0)
+    return;
 
-    lives--;
+  lives--;
 
-    player.invincible =
-        1.2;
+  player.invincible = 1.5;
 
-    shake = 18;
+  shake = 18;
 
-    hitFlash = .25;
+  hitFlash = .35;
 
-    sound("hit");
+  sound("hit");
 
+  for (let i = 0; i < 18; i++) {
 
-    for (
-        let i = 0;
-        i < 20;
-        i++
-    ) {
+    particles.push({
 
-        particles.push({
+      x:
+        player.x +
+        player.w / 2,
 
-            x:
-                player.x +
-                player.w / 2,
+      y:
+        player.y +
+        player.h / 2,
 
-            y:
-                player.y +
-                player.h / 2,
+      vx:
+        (Math.random() - .5) *
+        500,
 
-            vx:
-                (Math.random() - .5) *
-                350,
+      vy:
+        (Math.random() - .5) *
+        500,
 
-            vy:
-                (Math.random() - .5) *
-                350,
+      life: .6,
 
-            life: .5,
+      size:
+        3 +
+        Math.random() * 5
 
-            maxLife: .5,
+    });
 
-            size:
-                Math.random() * 5 + 2
-        });
-    }
+  }
 
+  if (lives <= 0) {
 
-    updateHUD();
+    gameOver();
 
+  }
 
-    if (
-        lives <= 0
-    ) {
-
-        gameOver();
-    }
 }
 
 
-// =====================================
-// PAUSE
-// =====================================
+/* =====================================================
+   GAME OVER
+===================================================== */
 
-function togglePause() {
+function gameOver() {
 
-    if (
-        !running
-    ) return;
+  running = false;
 
-    paused =
-        !paused;
+  sound("gameover");
 
-    document.getElementById(
-        "pauseBtn"
-    ).textContent =
-        paused
-            ? "RESUME"
-            : "PAUSE";
+  document.getElementById(
+    "menu"
+  ).style.display = "flex";
 
-    if (
-        !paused
-    ) {
+  document.querySelector(
+    "#menu h2"
+  ).textContent =
+    "💥 GAME OVER";
 
-        lastTime =
-            performance.now();
-    }
+  document.querySelector(
+    "#menu p"
+  ).innerHTML =
+
+    "Final Score: <b>" +
+    Math.floor(score) +
+    "</b><br>" +
+
+    "Level: <b>" +
+    level +
+    "</b><br><br>" +
+
+    "Try again!";
+
+  document.getElementById(
+    "startButton"
+  ).textContent =
+    "🔄 PLAY AGAIN";
+
 }
 
 
-// =====================================
-// START GAME
-// =====================================
+/* =====================================================
+   START GAME
+===================================================== */
 
 function startGame() {
 
-    initAudio();
+  updateCustomization();
 
-    saveCustomization();
+  running = true;
+  paused = false;
 
-    running = true;
+  score = 0;
+  level = 1;
+  lives = 3;
 
-    paused = false;
+  missiles = [];
+  particles = [];
+  powerups = [];
+  coinsList = [];
 
-    score = 0;
+  missileTimer = .8;
+  powerupTimer = 7;
+  coinTimer = 2;
 
-    level = 1;
+  shake = 0;
+  hitFlash = 0;
 
-    lives = 3;
+  player.x = 100;
 
-    missiles = [];
+  player.y =
+    H - 110 - player.h;
 
-    particles = [];
+  player.velocity = 0;
 
-    powerups = [];
+  player.jumping = false;
 
-    coinsList = [];
+  player.jumpCount = 0;
 
-    missileTimer = 1;
+  player.ducking = false;
 
-    powerupTimer = 7;
+  player.invincible = 0;
 
-    coinTimer = 2;
+  document.getElementById(
+    "menu"
+  ).style.display = "none";
 
-    shake = 0;
+  document.querySelector(
+    "#menu h2"
+  ).textContent =
+    "🚀 2D EDITION";
 
-    hitFlash = 0;
+  document.querySelector(
+    "#menu p"
+  ).innerHTML =
+    "Jump over the missiles!<br>" +
+    "Survive as long as possible!";
+
+  document.getElementById(
+    "startButton"
+  ).textContent =
+    "🚀 START GAME";
+
+  lastTime =
+    performance.now();
+
+  sound("score");
+
+}
 
 
-    player.x = 100;
+/* =====================================================
+   PAUSE
+===================================================== */
+
+function togglePause() {
+
+  if (!running)
+    return;
+
+  paused = !paused;
+
+  document.getElementById(
+    "pauseButton"
+  ).textContent =
+    paused
+      ? "▶️"
+      : "⏸️";
+
+  if (!paused) {
+
+    lastTime =
+      performance.now();
+
+  }
+
+}
+
+
+/* =====================================================
+   UPDATE
+===================================================== */
+
+function update(dt) {
+
+  if (!running || paused)
+    return;
+
+  /* PLAYER */
+
+  const groundY =
+    H - 110;
+
+  player.velocity +=
+    player.gravity * dt;
+
+  player.y +=
+    player.velocity * dt;
+
+  const playerHeight =
+    player.ducking
+      ? 30
+      : 54;
+
+  if (
+    player.y +
+    playerHeight >=
+    groundY
+  ) {
 
     player.y =
-        H - 110;
+      groundY -
+      playerHeight;
 
     player.velocity = 0;
 
@@ -2950,689 +1546,1634 @@ function startGame() {
 
     player.jumpCount = 0;
 
-    player.ducking = false;
+  }
 
-    player.invincible = 0;
-
-
-    document.getElementById(
-        "menu"
-    ).classList.add(
-        "hidden"
+  player.invincible =
+    Math.max(
+      0,
+      player.invincible - dt
     );
 
-    updateHUD();
 
-    updateCoinHUD();
+  /* LEVEL */
 
-    document.getElementById(
-        "pauseBtn"
-    ).textContent =
-        "PAUSE";
+  const newLevel =
+    Math.floor(
+      score / 10
+    ) + 1;
 
-    sound("start");
+  if (newLevel !== level) {
 
-    lastTime =
-        performance.now();
-}
+    level = newLevel;
 
+    habitatFlash = 1;
 
-// =====================================
-// GAME OVER
-// =====================================
+    lastHabitatLevel = level;
 
-function gameOver() {
+    sound("score");
 
-    running = false;
+    showHabitat();
 
-    setTimeout(
-        () => {
-
-            document.getElementById(
-                "menu"
-            ).classList.remove(
-                "hidden"
-            );
-
-            document.getElementById(
-                "menuMessage"
-            ).textContent =
-                "Game Over! Score: " +
-                score +
-                " • Coins: " +
-                coins;
-
-        },
-        500
-    );
-}
+  }
 
 
-// =====================================
-// UPDATE
-// =====================================
+  /* SCORE */
 
-function update(dt) {
-
-    if (
-        !running ||
-        paused
-    ) return;
+  score +=
+    dt * .7;
 
 
-    // PLAYER PHYSICS
+  /* MISSILE TIMER */
 
-    player.velocity +=
-        player.gravity * dt;
+  missileTimer -= dt;
 
-    player.y +=
-        player.velocity * dt;
+  if (missileTimer <= 0) {
+
+    spawnMissile();
+
+    missileTimer =
+      Math.max(
+        .35,
+        1.1 -
+        level * .035
+      ) +
+      Math.random() * .6;
+
+  }
 
 
-    const groundY =
-        H - 110;
+  /* MISSILES */
+
+  for (
+    let i = missiles.length - 1;
+    i >= 0;
+    i--
+  ) {
+
+    const m =
+      missiles[i];
+
+    // Move left from right side
+    m.x +=
+      m.speedX * dt;
+
+    m.y +=
+      m.speedY * dt;
 
 
     if (
-        player.y >= groundY
+      collision(
+        player,
+        m
+      )
     ) {
 
-        player.y =
-            groundY;
+      hitPlayer();
 
-        player.velocity = 0;
+      missiles.splice(
+        i,
+        1
+      );
 
-        player.jumping = false;
+      continue;
 
-        // Reset double jump
-
-        player.jumpCount = 0;
     }
 
 
     if (
-        player.invincible > 0
+      !m.passed &&
+      m.x + m.w <
+      player.x
     ) {
 
-        player.invincible -= dt;
+      m.passed = true;
+
     }
-
-
-    // MISSILE SPAWNING
-
-    missileTimer -= dt;
 
 
     if (
-        missileTimer <= 0
+      m.x + m.w <
+      -150
     ) {
 
-        spawnMissile();
+      missiles.splice(
+        i,
+        1
+      );
 
-        missileTimer =
-            Math.max(
-                .35,
-                1.15 -
-                level * .035
-            );
     }
 
-
-    // MISSILES
-
-    for (
-        let i = missiles.length - 1;
-        i >= 0;
-        i--
-    ) {
-
-        const m =
-            missiles[i];
-
-        m.x -=
-            m.speed * dt;
+  }
 
 
-        if (
-            missileHitsPlayer(m)
-        ) {
+  /* POWERUPS */
 
-            hitPlayer();
-        }
+  powerupTimer -= dt;
 
+  if (powerupTimer <= 0) {
 
-        if (
-            m.x + m.w < 0
-        ) {
+    spawnPowerup();
 
-            missiles.splice(
-                i,
-                1
-            );
+    powerupTimer =
+      8 +
+      Math.random() * 5;
+
+  }
 
 
-            score++;
+  for (
+    let i =
+      powerups.length - 1;
+    i >= 0;
+    i--
+  ) {
 
+    const p =
+      powerups[i];
 
-            const oldLevel =
-                level;
-
-
-            level =
-                Math.floor(
-                    score / 10
-                ) + 1;
-
-
-            sound("score");
-
-
-            // LEVEL CHANGED
-
-            if (
-                level !== oldLevel
-            ) {
-
-                shake = 8;
-            }
-
-
-            updateHUD();
-        }
-    }
-
-
-    // COINS
-
-    coinTimer -= dt;
+    p.x -=
+      p.speed * dt;
 
 
     if (
-        coinTimer <= 0
+      collision(
+        player,
+        p
+      )
     ) {
 
-        spawnCoin();
+      if (lives < 3) {
 
-        coinTimer =
-            1.8 +
-            Math.random() * 2.5;
+        lives++;
+
+        sound("life");
+
+      }
+
+      powerups.splice(
+        i,
+        1
+      );
+
+      continue;
+
     }
 
 
-    const magnetOwned =
-        purchasedItems.magnet;
+    if (p.x < -50) {
 
+      powerups.splice(
+        i,
+        1
+      );
 
-    for (
-        let i = coinsList.length - 1;
-        i >= 0;
-        i--
-    ) {
-
-        const c =
-            coinsList[i];
-
-
-        c.x -=
-            c.speed * dt;
-
-
-        // Magnet
-
-        if (
-            magnetOwned
-        ) {
-
-            const dx =
-                player.x +
-                player.w / 2 -
-                (c.x + c.w / 2);
-
-            const dy =
-                player.y +
-                player.h / 2 -
-                (c.y + c.h / 2);
-
-            const distance =
-                Math.sqrt(
-                    dx * dx +
-                    dy * dy
-                );
-
-
-            if (
-                distance < 180
-            ) {
-
-                c.x +=
-                    dx * dt * 4;
-
-                c.y +=
-                    dy * dt * 4;
-            }
-        }
-
-
-        if (
-
-            player.x <
-            c.x + c.w &&
-
-            player.x +
-            player.w >
-            c.x &&
-
-            player.y <
-            c.y + c.h &&
-
-            player.y +
-            player.h >
-            c.y
-
-        ) {
-
-            collectCoin(i);
-
-            continue;
-        }
-
-
-        if (
-            c.x + c.w < 0
-        ) {
-
-            coinsList.splice(
-                i,
-                1
-            );
-        }
     }
 
+  }
 
-    // LIVES
 
-    powerupTimer -= dt;
+  /* COINS */
 
+  coinTimer -= dt;
+
+  if (coinTimer <= 0) {
+
+    spawnCoin();
+
+    coinTimer =
+      2 +
+      Math.random() * 2;
+
+  }
+
+
+  for (
+    let i =
+      coinsList.length - 1;
+    i >= 0;
+    i--
+  ) {
+
+    const c =
+      coinsList[i];
+
+    c.x -=
+      c.speed * dt;
+
+
+    /* MAGNET */
 
     if (
-        powerupTimer <= 0 &&
-        lives < MAX_LIVES
+      purchasedItems.magnet
     ) {
 
-        spawnLife();
+      const dx =
+        player.x +
+        player.w / 2 -
+        c.x;
 
-        powerupTimer =
-            12 +
-            Math.random() * 8;
-    }
+      const dy =
+        player.y +
+        player.h / 2 -
+        c.y;
 
-
-    for (
-        let i = powerups.length - 1;
-        i >= 0;
-        i--
-    ) {
-
-        const p =
-            powerups[i];
-
-        p.x -=
-            p.speed * dt;
-
-
-        if (
-
-            player.x <
-            p.x + p.w &&
-
-            player.x +
-            player.w >
-            p.x &&
-
-            player.y <
-            p.y + p.h &&
-
-            player.y +
-            player.h >
-            p.y
-
-        ) {
-
-            lives =
-                Math.min(
-                    MAX_LIVES,
-                    lives + 1
-                );
-
-            sound("life");
-
-            updateHUD();
-
-            powerups.splice(
-                i,
-                1
-            );
-
-            continue;
-        }
-
-
-        if (
-            p.x + p.w < 0
-        ) {
-
-            powerups.splice(
-                i,
-                1
-            );
-        }
-    }
-
-
-    // PARTICLES
-
-    for (
-        let i = particles.length - 1;
-        i >= 0;
-        i--
-    ) {
-
-        const p =
-            particles[i];
-
-        p.x +=
-            p.vx * dt;
-
-        p.y +=
-            p.vy * dt;
-
-        p.vy +=
-            700 * dt;
-
-        p.life -= dt;
-
-
-        if (
-            p.life <= 0
-        ) {
-
-            particles.splice(
-                i,
-                1
-            );
-        }
-    }
-
-
-    shake *=
-        Math.pow(
-            .001,
-            dt
+      const distance =
+        Math.sqrt(
+          dx * dx +
+          dy * dy
         );
 
+      if (
+        distance < 180
+      ) {
 
-    if (
-        shake < .1
-    ) {
+        c.x +=
+          dx * dt * 5;
 
-        shake = 0;
+        c.y +=
+          dy * dt * 5;
+
+      }
+
     }
 
 
-    hitFlash -= dt;
+    const coinBox = {
+
+      x:
+        c.x - c.r,
+
+      y:
+        c.y - c.r,
+
+      w:
+        c.r * 2,
+
+      h:
+        c.r * 2
+
+    };
 
 
     if (
-        hitFlash < 0
+      collision(
+        player,
+        coinBox
+      )
     ) {
 
-        hitFlash = 0;
+      coins++;
+
+      saveShop();
+
+      sound("coin");
+
+      coinsList.splice(
+        i,
+        1
+      );
+
+      continue;
+
     }
+
+
+    if (
+      c.x < -30
+    ) {
+
+      coinsList.splice(
+        i,
+        1
+      );
+
+    }
+
+  }
+
+
+  /* PARTICLES */
+
+  for (
+    let i =
+      particles.length - 1;
+    i >= 0;
+    i--
+  ) {
+
+    const p =
+      particles[i];
+
+    p.x +=
+      p.vx * dt;
+
+    p.y +=
+      p.vy * dt;
+
+    p.vy +=
+      700 * dt;
+
+    p.life -=
+      dt;
+
+    if (p.life <= 0) {
+
+      particles.splice(
+        i,
+        1
+      );
+
+    }
+
+  }
+
+
+  shake =
+    Math.max(
+      0,
+      shake -
+      dt * 35
+    );
+
+  hitFlash =
+    Math.max(
+      0,
+      hitFlash -
+      dt
+    );
+
+  habitatFlash =
+    Math.max(
+      0,
+      habitatFlash -
+      dt * 2
+    );
+
+
+  updateUI();
+
 }
 
 
-// =====================================
-// DRAW
-// =====================================
+/* =====================================================
+   UI
+===================================================== */
+
+function updateUI() {
+
+  document.getElementById(
+    "lives"
+  ).textContent = lives;
+
+  document.getElementById(
+    "score"
+  ).textContent =
+    Math.floor(score);
+
+  document.getElementById(
+    "level"
+  ).textContent =
+    level;
+
+  updateCoinDisplays();
+
+}
+
+
+/* =====================================================
+   HABITAT MESSAGE
+===================================================== */
+
+function showHabitat() {
+
+  const h =
+    getHabitat();
+
+  const message =
+    document.getElementById(
+      "habitatMessage"
+    );
+
+  message.textContent =
+    "🌎 " + h.name;
+
+  message.classList.add(
+    "show"
+  );
+
+  setTimeout(() => {
+
+    message.classList.remove(
+      "show"
+    );
+
+  }, 1600);
+
+}
+
+
+/* =====================================================
+   DRAW BACKGROUND
+===================================================== */
+
+function drawBackground() {
+
+  const h =
+    getHabitat();
+
+  const gradient =
+    ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      H
+    );
+
+  gradient.addColorStop(
+    0,
+    h.skyTop
+  );
+
+  gradient.addColorStop(
+    1,
+    h.skyBottom
+  );
+
+  ctx.fillStyle =
+    gradient;
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  /* HABITAT DETAILS */
+
+  if (
+    h.type === "forest" ||
+    h.type === "jungle"
+  ) {
+
+    drawTrees(
+      h
+    );
+
+  }
+
+
+  if (
+    h.type === "desert"
+  ) {
+
+    drawDesert();
+
+  }
+
+
+  if (
+    h.type === "ocean"
+  ) {
+
+    drawOcean();
+
+  }
+
+
+  if (
+    h.type === "snow"
+  ) {
+
+    drawSnow();
+
+  }
+
+
+  if (
+    h.type === "volcano"
+  ) {
+
+    drawVolcano();
+
+  }
+
+
+  if (
+    h.type === "space"
+  ) {
+
+    drawStars();
+
+  }
+
+
+  if (
+    h.type === "city"
+  ) {
+
+    drawCity();
+
+  }
+
+
+  if (
+    h.type === "blossom"
+  ) {
+
+    drawBlossom();
+
+  }
+
+
+  if (
+    h.type === "cloud"
+  ) {
+
+    drawClouds();
+
+  }
+
+
+  /* GROUND */
+
+  const groundY =
+    H - 110;
+
+  ctx.fillStyle =
+    h.ground;
+
+  ctx.fillRect(
+    0,
+    groundY,
+    W,
+    110
+  );
+
+  ctx.fillStyle =
+    h.groundTop;
+
+  ctx.fillRect(
+    0,
+    groundY,
+    W,
+    12
+  );
+
+}
+
+
+/* =====================================================
+   BACKGROUND DETAILS
+===================================================== */
+
+function drawTrees(h) {
+
+  ctx.fillStyle =
+    h.accent;
+
+  for (
+    let x = 20;
+    x < W;
+    x += 90
+  ) {
+
+    const base =
+      H - 110;
+
+    ctx.fillRect(
+      x + 25,
+      base - 70,
+      12,
+      70
+    );
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x + 31,
+      base - 82,
+      30,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fill();
+
+  }
+
+}
+
+
+function drawDesert() {
+
+  ctx.fillStyle =
+    "#d99b35";
+
+  for (
+    let x = 30;
+    x < W;
+    x += 150
+  ) {
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      H - 135,
+      55,
+      Math.PI,
+      0
+    );
+
+    ctx.fill();
+
+  }
+
+}
+
+
+function drawOcean() {
+
+  ctx.fillStyle =
+    "rgba(255,255,255,.45)";
+
+  for (
+    let x = 0;
+    x < W;
+    x += 80
+  ) {
+
+    ctx.fillRect(
+      x,
+      H - 145,
+      45,
+      5
+    );
+
+  }
+
+}
+
+
+function drawSnow() {
+
+  ctx.fillStyle =
+    "rgba(255,255,255,.8)";
+
+  for (
+    let x = 0;
+    x < W;
+    x += 120
+  ) {
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      x,
+      H - 110
+    );
+
+    ctx.lineTo(
+      x + 60,
+      H - 220
+    );
+
+    ctx.lineTo(
+      x + 120,
+      H - 110
+    );
+
+    ctx.fill();
+
+  }
+
+}
+
+
+function drawVolcano() {
+
+  ctx.fillStyle =
+    "#451a1a";
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    W * .55,
+    H - 110
+  );
+
+  ctx.lineTo(
+    W * .7,
+    H - 330
+  );
+
+  ctx.lineTo(
+    W * .85,
+    H - 110
+  );
+
+  ctx.fill();
+
+  ctx.fillStyle =
+    "#ff6b35";
+
+  ctx.fillRect(
+    W * .69,
+    H - 205,
+    12,
+    80
+  );
+
+}
+
+
+function drawStars() {
+
+  ctx.fillStyle =
+    "white";
+
+  for (
+    let i = 0;
+    i < 70;
+    i++
+  ) {
+
+    const x =
+      (i * 97) % W;
+
+    const y =
+      (i * 53) %
+      (H - 150);
+
+    ctx.fillRect(
+      x,
+      y,
+      2,
+      2
+    );
+
+  }
+
+}
+
+
+function drawCity() {
+
+  for (
+    let x = 0;
+    x < W;
+    x += 75
+  ) {
+
+    const height =
+      80 +
+      ((x * 13) % 140);
+
+    ctx.fillStyle =
+      "#17162f";
+
+    ctx.fillRect(
+      x,
+      H - 110 - height,
+      65,
+      height
+    );
+
+    ctx.fillStyle =
+      "#00e5ff";
+
+    for (
+      let y =
+        H - 100 - height;
+      y < H - 120;
+      y += 25
+    ) {
+
+      ctx.fillRect(
+        x + 10,
+        y,
+        8,
+        8
+      );
+
+      ctx.fillRect(
+        x + 35,
+        y,
+        8,
+        8
+      );
+
+    }
+
+  }
+
+}
+
+
+function drawBlossom() {
+
+  ctx.fillStyle =
+    "#ff82b8";
+
+  for (
+    let x = 30;
+    x < W;
+    x += 100
+  ) {
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      H - 180,
+      28,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fill();
+
+  }
+
+}
+
+
+function drawClouds() {
+
+  ctx.fillStyle =
+    "rgba(255,255,255,.75)";
+
+  for (
+    let x = 30;
+    x < W;
+    x += 170
+  ) {
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      H - 200,
+      35,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.arc(
+      x + 40,
+      H - 210,
+      45,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.arc(
+      x + 85,
+      H - 195,
+      30,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fill();
+
+  }
+
+}
+
+
+/* =====================================================
+   DRAW PLAYER
+===================================================== */
+
+function drawPlayer() {
+
+  const h =
+    player.ducking
+      ? 30
+      : 54;
+
+  const x =
+    player.x;
+
+  const y =
+    player.y;
+
+  ctx.save();
+
+  if (
+    player.invincible > 0 &&
+    Math.floor(
+      player.invincible * 10
+    ) % 2 === 0
+  ) {
+
+    ctx.globalAlpha = .45;
+
+  }
+
+
+  /* LEGS */
+
+  ctx.fillStyle =
+    customization.pants;
+
+  if (!player.ducking) {
+
+    ctx.fillRect(
+      x + 7,
+      y + 35,
+      8,
+      19
+    );
+
+    ctx.fillRect(
+      x + 20,
+      y + 35,
+      8,
+      19
+    );
+
+  } else {
+
+    ctx.fillRect(
+      x + 5,
+      y + 20,
+      25,
+      10
+    );
+
+  }
+
+
+  /* BODY */
+
+  ctx.fillStyle =
+    customization.shirt;
+
+  ctx.fillRect(
+    x + 5,
+    y + 18,
+    25,
+    player.ducking
+      ? 15
+      : 22
+  );
+
+
+  /* HEAD */
+
+  if (!player.ducking) {
+
+    ctx.fillStyle =
+      customization.skin;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x + 17,
+      y + 10,
+      12,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    /* HAIR */
+
+    ctx.fillStyle =
+      customization.hair;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x + 17,
+      y + 5,
+      12,
+      Math.PI,
+      Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    /* ACCESSORY */
+
+    if (
+      customization.accessory ===
+      "cap"
+    ) {
+
+      ctx.fillStyle =
+        customization.shirt;
+
+      ctx.fillRect(
+        x + 4,
+        y,
+        27,
+        6
+      );
+
+      ctx.fillRect(
+        x + 19,
+        y + 5,
+        14,
+        4
+      );
+
+    }
+
+
+    if (
+      customization.accessory ===
+      "glasses"
+    ) {
+
+      ctx.fillStyle =
+        "#111";
+
+      ctx.fillRect(
+        x + 6,
+        y + 8,
+        9,
+        5
+      );
+
+      ctx.fillRect(
+        x + 19,
+        y + 8,
+        9,
+        5
+      );
+
+      ctx.fillRect(
+        x + 15,
+        y + 9,
+        4,
+        2
+      );
+
+    }
+
+  }
+
+
+  ctx.restore();
+
+}
+
+
+/* =====================================================
+   DRAW MISSILE
+===================================================== */
+
+function drawMissile(m) {
+
+  ctx.save();
+
+  ctx.translate(
+    m.x + m.w / 2,
+    m.y + m.h / 2
+  );
+
+  ctx.rotate(
+    m.angle
+  );
+
+
+  /* BODY */
+
+  ctx.fillStyle =
+    m.giant
+      ? "#9b1c1c"
+      : "#d63031";
+
+  ctx.beginPath();
+
+  ctx.roundRect(
+    -m.w / 2,
+    -m.h / 2,
+    m.w,
+    m.h,
+    8
+  );
+
+  ctx.fill();
+
+
+  /* NOSE */
+
+  ctx.fillStyle =
+    "#ff7675";
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    m.w / 2,
+    0
+  );
+
+  ctx.lineTo(
+    m.w / 2 - 15,
+    -m.h / 2
+  );
+
+  ctx.lineTo(
+    m.w / 2 - 15,
+    m.h / 2
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+
+  /* WINDOW */
+
+  ctx.fillStyle =
+    "#ffeaa7";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    5,
+    0,
+    m.giant ? 8 : 5,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fill();
+
+
+  /* FIN */
+
+  ctx.fillStyle =
+    "#6c1f1f";
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    -m.w / 2 + 12,
+    -m.h / 2
+  );
+
+  ctx.lineTo(
+    -m.w / 2 + 25,
+    -m.h / 2 - 12
+  );
+
+  ctx.lineTo(
+    -m.w / 2 + 32,
+    -m.h / 2
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+
+  /* FLAME */
+
+  ctx.fillStyle =
+    "#ff9f43";
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    -m.w / 2,
+    -7
+  );
+
+  ctx.lineTo(
+    -m.w / 2 - 25,
+    0
+  );
+
+  ctx.lineTo(
+    -m.w / 2,
+    7
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+
+  ctx.restore();
+
+}
+
+
+/* =====================================================
+   DRAW POWERUPS
+===================================================== */
+
+function drawPowerup(p) {
+
+  ctx.save();
+
+  ctx.fillStyle =
+    "#2ecc71";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    p.x + p.w / 2,
+    p.y + p.h / 2,
+    14,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fill();
+
+  ctx.fillStyle =
+    "white";
+
+  ctx.font =
+    "bold 18px Arial";
+
+  ctx.textAlign =
+    "center";
+
+  ctx.textBaseline =
+    "middle";
+
+  ctx.fillText(
+    "+",
+    p.x + p.w / 2,
+    p.y + p.h / 2
+  );
+
+  ctx.restore();
+
+}
+
+
+/* =====================================================
+   DRAW COIN
+===================================================== */
+
+function drawCoin(c) {
+
+  ctx.save();
+
+  ctx.fillStyle =
+    "#facc15";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    c.x,
+    c.y,
+    c.r,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fill();
+
+  ctx.strokeStyle =
+    "#b7791f";
+
+  ctx.lineWidth = 3;
+
+  ctx.stroke();
+
+  ctx.fillStyle =
+    "#fff7b2";
+
+  ctx.font =
+    "bold 12px Arial";
+
+  ctx.textAlign =
+    "center";
+
+  ctx.textBaseline =
+    "middle";
+
+  ctx.fillText(
+    "$",
+    c.x,
+    c.y
+  );
+
+  ctx.restore();
+
+}
+
+
+/* =====================================================
+   DRAW PARTICLES
+===================================================== */
+
+function drawParticles() {
+
+  for (
+    const p of particles
+  ) {
+
+    ctx.globalAlpha =
+      Math.max(
+        0,
+        p.life
+      );
+
+    ctx.fillStyle =
+      "#ff9f43";
+
+    ctx.fillRect(
+      p.x,
+      p.y,
+      p.size,
+      p.size
+    );
+
+  }
+
+  ctx.globalAlpha = 1;
+
+}
+
+
+/* =====================================================
+   DRAW
+===================================================== */
 
 function draw() {
 
-    ctx.save();
+  ctx.save();
 
 
-    // Screen shake
+  /* SCREEN SHAKE */
 
-    if (
-        shake > 0
-    ) {
+  if (shake > 0) {
 
-        ctx.translate(
+    ctx.translate(
+      (Math.random() - .5) *
+      shake,
 
-            (Math.random() - .5) *
-            shake,
-
-            (Math.random() - .5) *
-            shake
-        );
-    }
-
-
-    // COLORFUL HABITAT
-
-    drawHabitat();
-
-
-    // Ground
-
-    const habitat =
-        getHabitat();
-
-    const groundY =
-        H - 110;
-
-
-    ctx.fillStyle =
-        habitat.ground;
-
-    ctx.fillRect(
-        -50,
-        groundY,
-        W + 100,
-        H - groundY + 50
+      (Math.random() - .5) *
+      shake
     );
 
+  }
+
+
+  drawBackground();
+
+
+  for (
+    const c of coinsList
+  ) {
+
+    drawCoin(c);
+
+  }
+
+
+  for (
+    const p of powerups
+  ) {
+
+    drawPowerup(p);
+
+  }
+
+
+  for (
+    const m of missiles
+  ) {
+
+    drawMissile(m);
+
+  }
+
+
+  drawPlayer();
+
+  drawParticles();
+
+
+  ctx.restore();
+
+
+  /* HIT FLASH */
+
+  if (hitFlash > 0) {
 
     ctx.fillStyle =
-        habitat.groundTop;
+      `rgba(255,0,0,${hitFlash})`;
 
     ctx.fillRect(
-        -50,
-        groundY,
-        W + 100,
-        7
+      0,
+      0,
+      W,
+      H
     );
 
+  }
 
-    // Decorative ground dots
-
-    ctx.fillStyle =
-        habitat.accent;
-
-    for (
-        let i = 0;
-        i < 25;
-        i++
-    ) {
-
-        ctx.beginPath();
-
-        ctx.arc(
-            (i * 137) % W,
-            groundY + 25 +
-            (i % 4) * 22,
-            4,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-    }
-
-
-    // Missiles
-
-    for (
-        const m of missiles
-    ) {
-
-        drawMissile(m);
-    }
-
-
-    // Coins
-
-    for (
-        const c of coinsList
-    ) {
-
-        drawCoin(c);
-    }
-
-
-    // Lives
-
-    for (
-        const p of powerups
-    ) {
-
-        drawLife(p);
-    }
-
-
-    // Player
-
-    if (
-        player.invincible <= 0 ||
-        Math.floor(
-            player.invincible * 12
-        ) % 2 === 0
-    ) {
-
-        drawPlayer();
-    }
-
-
-    // Particles
-
-    for (
-        const p of particles
-    ) {
-
-        ctx.globalAlpha =
-            Math.max(
-                0,
-                p.life /
-                p.maxLife
-            );
-
-        ctx.fillStyle =
-            "#ffe033";
-
-        ctx.fillRect(
-            p.x,
-            p.y,
-            p.size,
-            p.size
-        );
-    }
-
-    ctx.globalAlpha = 1;
-
-
-    // Hit flash
-
-    if (
-        hitFlash > 0
-    ) {
-
-        ctx.fillStyle =
-            `rgba(255,80,30,${hitFlash * 2})`;
-
-        ctx.fillRect(
-            -50,
-            -50,
-            W + 100,
-            H + 100
-        );
-    }
-
-
-    // Pause overlay
-
-    if (
-        paused
-    ) {
-
-        ctx.fillStyle =
-            "rgba(0,0,0,.55)";
-
-        ctx.fillRect(
-            -50,
-            -50,
-            W + 100,
-            H + 100
-        );
-
-        ctx.fillStyle =
-            "white";
-
-        ctx.font =
-            "bold 50px Arial";
-
-        ctx.textAlign =
-            "center";
-
-        ctx.fillText(
-            "PAUSED",
-            W / 2,
-            H / 2
-        );
-    }
-
-
-    ctx.restore();
 }
 
 
-// =====================================
-// GAME LOOP
-// =====================================
+/* =====================================================
+   GAME LOOP
+===================================================== */
 
 function loop(time) {
 
-    const dt =
-        Math.min(
-            (time - lastTime) /
-            1000,
-            .033
-        );
+  const dt =
+    Math.min(
+      .033,
+      (time - lastTime) /
+      1000
+    );
 
-    lastTime =
-        time;
+  lastTime = time;
 
-    update(dt);
+  update(dt);
 
-    draw();
+  draw();
 
-    requestAnimationFrame(loop);
+  requestAnimationFrame(
+    loop
+  );
+
 }
 
 
-updateCoinHUD();
-updateShop();
-updateHUD();
+requestAnimationFrame(
+  loop
+);
 
-requestAnimationFrame(loop);
+
+/* =====================================================
+   KEYBOARD
+===================================================== */
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.code ===
+      "Space" ||
+      event.code ===
+      "ArrowUp" ||
+      event.code ===
+      "KeyW"
+    ) {
+
+      event.preventDefault();
+
+      jump();
+
+    }
+
+
+    if (
+      event.code ===
+      "ArrowDown" ||
+      event.code ===
+      "KeyS"
+    ) {
+
+      event.preventDefault();
+
+      duckStart();
+
+    }
+
+
+    if (
+      event.code ===
+      "KeyP"
+    ) {
+
+      togglePause();
+
+    }
+
+  }
+);
+
+
+document.addEventListener(
+  "keyup",
+  event => {
+
+    if (
+      event.code ===
+      "ArrowDown" ||
+      event.code ===
+      "KeyS"
+    ) {
+
+      duckStop();
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   MOBILE CONTROLS
+===================================================== */
+
+document
+  .getElementById("jumpButton")
+  .addEventListener(
+    "pointerdown",
+    event => {
+
+      event.preventDefault();
+
+      jump();
+
+    }
+  );
+
+
+const duckButton =
+  document.getElementById(
+    "duckButton"
+  );
+
+
+duckButton.addEventListener(
+  "pointerdown",
+  event => {
+
+    event.preventDefault();
+
+    duckStart();
+
+  }
+);
+
+
+duckButton.addEventListener(
+  "pointerup",
+  event => {
+
+    event.preventDefault();
+
+    duckStop();
+
+  }
+);
+
+
+duckButton.addEventListener(
+  "pointercancel",
+  duckStop
+);
+
+
+duckButton.addEventListener(
+  "pointerleave",
+  duckStop
+);
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+document
+  .getElementById("startButton")
+  .addEventListener(
+    "click",
+    startGame
+  );
+
+
+document
+  .getElementById("shopButton")
+  .addEventListener(
+    "click",
+    openShop
+  );
+
+
+document
+  .getElementById("pauseButton")
+  .addEventListener(
+    "click",
+    togglePause
+  );
+
+
+/* INITIAL UI */
+
+updateCoinDisplays();
 
 </script>
 
