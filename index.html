@@ -214,6 +214,21 @@ select{
   color:white;
 }
 
+.menuActionStack{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+.menuActionStack .menuButton{
+  margin-top:14px;
+}
+
+.rebirthMenuButton{
+  background:linear-gradient(135deg,#7c3aed,#ec4899);
+}
+
 .menuButton{
   width:100%;
   margin-top:14px;
@@ -487,13 +502,15 @@ select{
       START GAME
     </button>
 
-    <button class="menuButton secondaryButton" id="shopButton">
-      🛒 SHOP
-    </button>
+    <div class="menuActionStack" id="menuActionStack">
+      <button class="menuButton secondaryButton" id="shopButton">
+        🛒 SHOP
+      </button>
 
-    <button class="menuButton" id="rebirthButton" style="display:none;background:linear-gradient(135deg,#7c3aed,#ec4899);">
-      ♻️ REBIRTH
-    </button>
+      <button class="menuButton rebirthMenuButton" id="rebirthButton" type="button" disabled>
+        ♻️ REBIRTH — DEFEAT BOSS FIRST
+      </button>
+    </div>
 
 
   </div>
@@ -1247,10 +1264,15 @@ function sound(type){
 function updateRebirthButton(){
   const button = document.getElementById("rebirthButton");
   if(!button) return;
-  button.style.display = bossBeatenEver ? "block" : "none";
+  // The rebirth button is always visible directly under SHOP.
+  button.style.display = "block";
+  button.disabled = !bossBeatenEver;
+  button.style.opacity = bossBeatenEver ? "1" : ".5";
+  button.style.cursor = bossBeatenEver ? "pointer" : "not-allowed";
+  button.title = bossBeatenEver ? "Rebirth is ready!" : "Defeat the boss to unlock Rebirth";
   button.textContent = bossBeatenEver
     ? `♻️ REBIRTH${rebirthCount ? " #" + (rebirthCount + 1) : ""} — 2X COINS`
-    : "♻️ REBIRTH";
+    : "♻️ REBIRTH — DEFEAT BOSS FIRST";
 }
 
 function performRebirth(){
@@ -1262,9 +1284,11 @@ function performRebirth(){
 
   rebirthCount += 1;
   coinMultiplier = 2;
+  // Rebirth resets the coin balance.
+  coins = 0;
   bossBeatenEver = false;
 
-  // Give the player a fresh run while keeping permanent shop progress and coins.
+  // Give the player a fresh run while keeping permanent shop progress.
   running = false;
   paused = false;
   bossPhase = false;
@@ -1281,7 +1305,7 @@ function performRebirth(){
   document.getElementById("menu").style.display = "flex";
   document.querySelector("#menu .subtitle").textContent =
     `Rebirth ${rebirthCount}! 2X COINS is active.`;
-  alert(`Rebirth complete! You unlocked 4 new hearts in the shop and 4 new accessories. All coin earnings are now 2X.`);
+  alert(`Rebirth complete! Your coins were reset to 0. You unlocked 4 new hearts in the shop and 4 new accessories. All coin earnings are now 2X.`);
 }
 
 /* =========================================================
