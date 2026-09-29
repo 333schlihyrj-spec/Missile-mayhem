@@ -74,6 +74,34 @@ button{
   box-shadow:0 0 18px rgba(236,72,153,.35);
 }
 
+
+#pauseMenu{
+  position:fixed;
+  inset:0;
+  z-index:45;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(5,8,25,.58);
+  backdrop-filter:blur(6px);
+}
+
+#pauseMenu .pauseBox{
+  width:min(360px,88vw);
+  padding:30px;
+  border-radius:24px;
+  text-align:center;
+  background:linear-gradient(135deg,#111b4d,#32105f);
+  border:2px solid rgba(255,255,255,.18);
+  box-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+
+#pauseMenu h2{
+  margin:0 0 18px;
+  color:white;
+  font-size:34px;
+}
+
 #menu,
 #shop{
   position:fixed;
@@ -357,6 +385,15 @@ select{
 
 <button id="pauseBtn">PAUSE</button>
 
+
+<div id="pauseMenu">
+  <div class="pauseBox">
+    <h2>PAUSED</h2>
+    <button class="menuButton" id="resumeMenuButton">RESUME</button>
+    <button class="menuButton" id="pauseMenuButton">MENU</button>
+  </div>
+</div>
+
 <div id="menu">
   <div class="menuBox">
 
@@ -433,6 +470,14 @@ select{
           <option value="wizard">Wizard Hat</option>
           <option value="halo">Halo</option>
           <option value="backpack">Backpack</option>
+          <option value="dragonHorns">Dragon Horns</option>
+          <option value="wings">Angel Wings</option>
+          <option value="flameCrown">Flame Crown</option>
+          <option value="voidMask">Void Mask</option>
+          <option value="thunderCrown">Thunder Crown</option>
+          <option value="guardianShield">Guardian Shield</option>
+          <option value="starHalo">Star Halo</option>
+          <option value="mechaArm">Mecha Arm</option>
         </select>
       </label>
 
@@ -446,9 +491,10 @@ select{
       🛒 SHOP
     </button>
 
-    <button class="menuButton secondaryButton" id="deleteProgressButton" style="background:#7f1d1d;">
-      🗑️ DELETE PROGRESS
+    <button class="menuButton" id="rebirthButton" style="display:none;background:linear-gradient(135deg,#7c3aed,#ec4899);">
+      ♻️ REBIRTH
     </button>
+
 
   </div>
 </div>
@@ -478,15 +524,38 @@ select{
       <div class="shopCard"><div class="shopIcon">🧲</div><h3>Coin Magnet I</h3><p>Pull coins toward you from a short distance.</p><button data-item="magnet">🪙 200</button></div>
       <div class="shopCard"><div class="shopIcon">🧲</div><h3>Coin Magnet II</h3><p>Stronger magnet with a larger pickup range.</p><button data-item="magnet2">🪙 400</button></div>
       <div class="shopCard"><div class="shopIcon">🧲</div><h3>Coin Magnet III</h3><p>Maximum magnet strength and a huge pickup range.</p><button data-item="magnet3">🪙 600</button></div>
+      <div class="shopCard"><div class="shopIcon">💗🧲</div><h3>Heart Magnet I</h3><p>Pull extra hearts toward you from a short distance.</p><button data-item="heartMagnet">🪙 250</button></div>
+      <div class="shopCard"><div class="shopIcon">💗🧲</div><h3>Heart Magnet II</h3><p>A stronger heart magnet with a larger pickup range.</p><button data-item="heartMagnet2">🪙 500</button></div>
+      <div class="shopCard"><div class="shopIcon">💖🧲</div><h3>Heart Magnet III</h3><p>Maximum heart magnet strength and a huge pickup range.</p><button data-item="heartMagnet3">🪙 750</button></div>
 
       <div class="shopCard"><div class="shopIcon">👑</div><h3>Royal Crown</h3><p>Unlock a golden crown accessory.</p><button data-item="crown">🪙 75</button></div>
       <div class="shopCard"><div class="shopIcon">🧙</div><h3>Wizard Hat</h3><p>Unlock a magical wizard hat accessory.</p><button data-item="wizard">🪙 125</button></div>
       <div class="shopCard"><div class="shopIcon">😇</div><h3>Halo</h3><p>Unlock a glowing halo accessory.</p><button data-item="halo">🪙 175</button></div>
       <div class="shopCard"><div class="shopIcon">🎒</div><h3>Adventure Backpack</h3><p>Unlock a colorful backpack accessory.</p><button data-item="backpack">🪙 150</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">🐉</div><h3>Dragon Horns</h3><p>A rare accessory unlocked through rebirth.</p><button data-item="dragonHorns">🪙 400</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">🪽</div><h3>Angel Wings</h3><p>A special rebirth accessory.</p><button data-item="wings">🪙 600</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">🔥</div><h3>Flame Crown</h3><p>A blazing crown for reborn heroes.</p><button data-item="flameCrown">🪙 800</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">👾</div><h3>Void Mask</h3><p>A mysterious mask unlocked after rebirth.</p><button data-item="voidMask">🪙 1000</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">⚡</div><h3>Thunder Crown</h3><p>A crackling crown for reborn heroes.</p><button data-item="thunderCrown">🪙 1200</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">🛡️</div><h3>Guardian Shield</h3><p>A powerful shield accessory unlocked after rebirth.</p><button data-item="guardianShield">🪙 1400</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">🌟</div><h3>Star Halo</h3><p>A rare starry halo for reborn runners.</p><button data-item="starHalo">🪙 1600</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">🦾</div><h3>Mecha Arm</h3><p>A futuristic mechanical arm accessory.</p><button data-item="mechaArm">🪙 1800</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">🕶️</div><h3>Crimson Visor</h3><p>A high-tech visor unlocked after rebirth.</p><button data-item="crimsonVisor">🪙 2000</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">🛸</div><h3>Plasma Pack</h3><p>A glowing plasma backpack for reborn runners.</p><button data-item="plasmaPack">🪙 2200</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">👹</div><h3>Inferno Horns</h3><p>Fiery horns for your strongest runs.</p><button data-item="infernoHorns">🪙 2400</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">🌌</div><h3>Cosmic Cape</h3><p>A star-filled cape for reborn heroes.</p><button data-item="cosmicCape">🪙 2600</button></div>
 
       <div class="shopCard"><div class="shopIcon">❤️</div><h3>Heart Container I</h3><p>Permanently increase your maximum hearts by 1.</p><button data-item="heart1">🪙 100</button></div>
       <div class="shopCard"><div class="shopIcon">❤️</div><h3>Heart Container II</h3><p>Permanently increase your maximum hearts by 1.</p><button data-item="heart2">🪙 200</button></div>
       <div class="shopCard"><div class="shopIcon">💖</div><h3>Heart Container III</h3><p>Permanently increase your maximum hearts by 1.</p><button data-item="heart3">🪙 300</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">❤️</div><h3>Heart Container IV</h3><p>Rebirth heart upgrade. Permanently adds 1 maximum heart.</p><button data-item="heart4">🪙 400</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">❤️</div><h3>Heart Container V</h3><p>Rebirth heart upgrade. Permanently adds 1 maximum heart.</p><button data-item="heart5">🪙 500</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">💗</div><h3>Heart Container VI</h3><p>Rebirth heart upgrade. Permanently adds 1 maximum heart.</p><button data-item="heart6">🪙 600</button></div>
+      <div class="shopCard rebirthShopItem" data-rebirth-item="true"><div class="shopIcon">💖</div><h3>Heart Container VII</h3><p>Rebirth heart upgrade. Permanently adds 1 maximum heart.</p><button data-item="heart7">🪙 700</button></div>
+      <div class="shopCard rebirthShopItem rebirthHeart2" data-rebirth-item="true"><div class="shopIcon">❤️</div><h3>Heart Container VIII</h3><p>Second rebirth heart upgrade. Permanently adds 1 maximum heart.</p><button data-item="heart8">🪙 800</button></div>
+      <div class="shopCard rebirthShopItem rebirthHeart2" data-rebirth-item="true"><div class="shopIcon">❤️</div><h3>Heart Container IX</h3><p>Second rebirth heart upgrade. Permanently adds 1 maximum heart.</p><button data-item="heart9">🪙 900</button></div>
+      <div class="shopCard rebirthShopItem rebirthHeart2" data-rebirth-item="true"><div class="shopIcon">💗</div><h3>Heart Container X</h3><p>Second rebirth heart upgrade. Permanently adds 1 maximum heart.</p><button data-item="heart10">🪙 1000</button></div>
+      <div class="shopCard rebirthShopItem rebirthHeart2" data-rebirth-item="true"><div class="shopIcon">💖</div><h3>Heart Container XI</h3><p>Second rebirth heart upgrade. Permanently adds 1 maximum heart.</p><button data-item="heart11">🪙 1100</button></div>
 
     </div>
 
@@ -682,7 +751,7 @@ const customization = {
     e=>{
       if(id === "accessory") {
         const value = e.target.value;
-        const paidAccessory = ["crown", "wizard", "halo", "backpack"].includes(value);
+        const paidAccessory = ["crown", "wizard", "halo", "backpack", "dragonHorns", "wings", "flameCrown", "voidMask", "thunderCrown", "guardianShield", "starHalo", "mechaArm", "crimsonVisor", "plasmaPack", "infernoHorns", "cosmicCape"].includes(value) || value.startsWith("rebirthAcc_");
 
         if(paidAccessory && !purchasedItems[value]) {
           e.target.value = customization.accessory;
@@ -753,6 +822,11 @@ let coins =
 
 let purchasedItems = {};
 
+let rebirthCount = Number(localStorage.getItem("missileRebirthCount") || 0);
+let bossBeatenEver = localStorage.getItem("missileBossBeaten") === "1";
+let coinMultiplier = Number(localStorage.getItem("missileCoinMultiplier") || 1);
+if(coinMultiplier !== 2) coinMultiplier = 1;
+
 try{
   purchasedItems =
     JSON.parse(
@@ -764,9 +838,79 @@ try{
 
 const shopPrices = {
   gold:50, ninja:100, robot:150, magnet:200, magnet2:400, magnet3:600,
+  heartMagnet:250, heartMagnet2:500, heartMagnet3:750,
   crown:75, wizard:125, halo:175, backpack:150,
-  heart1:100, heart2:200, heart3:300
+  heart1:100, heart2:200, heart3:300,
+  heart4:400, heart5:500, heart6:600, heart7:700, heart8:800, heart9:900, heart10:1000, heart11:1100,
+  dragonHorns:400, wings:600, flameCrown:800, voidMask:1000,
+  thunderCrown:1200, guardianShield:1400, starHalo:1600, mechaArm:1800,
+  crimsonVisor:2000, plasmaPack:2200, infernoHorns:2400, cosmicCape:2600
 };
+
+const rebirthAccessoryTemplates = [
+  ["👑", "Shadow Crown", "A dark crown forged for reborn heroes."],
+  ["🪽", "Solar Wings", "Bright wings earned through another rebirth."],
+  ["⚔️", "Energy Blades", "A futuristic accessory for veteran runners."],
+  ["🐲", "Ancient Mask", "A powerful mask unlocked by rebirth."],
+  ["🛡️", "Titan Shield", "Heavy armor styling for the toughest runners."],
+  ["🌠", "Meteor Halo", "A blazing halo from beyond the stars."],
+  ["🤖", "Cyber Visor", "A high-tech visor built for elite runners."],
+  ["🔥", "Inferno Cape", "A fiery cape for another completed rebirth."],
+  ["🌙", "Moon Crown", "A mysterious crown for night runners."],
+  ["⚡", "Storm Wings", "Electric wings for powerful reborn heroes."],
+  ["💀", "Phantom Mask", "A spooky mask for advanced rebirths."],
+  ["💎", "Crystal Armor", "A sparkling accessory for master runners."]
+];
+
+function getRebirthHeartKeys(){
+  const keys=[];
+  for(let i=4;i<=3 + rebirthCount*4;i++) keys.push("heart"+i);
+  return keys;
+}
+
+function getRebirthAccessoryKey(rebirthIndex, slot){
+  return `rebirthAcc_${rebirthIndex}_${slot}`;
+}
+
+function ensureRebirthShopContent(){
+  const grid = document.querySelector("#shop .shopGrid");
+  const select = document.getElementById("accessory");
+  if(!grid || !select) return;
+
+  for(let r=1;r<=rebirthCount;r++){
+    for(let slot=1;slot<=4;slot++){
+      const heartNumber = 3 + (r-1)*4 + slot;
+      const heartKey = "heart" + heartNumber;
+      if(!shopPrices[heartKey]) shopPrices[heartKey] = heartNumber * 100;
+
+      if(!grid.querySelector(`[data-item=\"${heartKey}\"]`)){
+        const card=document.createElement("div");
+        card.className="shopCard rebirthShopItem";
+        card.dataset.rebirthLevel=String(r);
+        card.innerHTML=`<div class=\"shopIcon\">❤️</div><h3>Heart Container ${heartNumber}</h3><p>Rebirth ${r} heart upgrade. Permanently adds 1 maximum heart.</p><button data-item=\"${heartKey}\">🪙 ${shopPrices[heartKey]}</button>`;
+        grid.insertBefore(card, grid.querySelector("#backShopButton"));
+      }
+
+      const accKey=getRebirthAccessoryKey(r,slot);
+      if(!shopPrices[accKey]) shopPrices[accKey]=300 + (r-1)*400 + (slot-1)*200;
+      const template=rebirthAccessoryTemplates[(r*4 + slot-5) % rebirthAccessoryTemplates.length];
+      if(!grid.querySelector(`[data-item=\"${accKey}\"]`)){
+        const card=document.createElement("div");
+        card.className="shopCard rebirthShopItem";
+        card.dataset.rebirthLevel=String(r);
+        card.innerHTML=`<div class=\"shopIcon\">${template[0]}</div><h3>${template[1]} R${r}</h3><p>${template[2]}</p><button data-item=\"${accKey}\">🪙 ${shopPrices[accKey]}</button>`;
+        grid.insertBefore(card, grid.lastElementChild);
+      }
+
+      if(!select.querySelector(`option[value=\"${accKey}\"]`)){
+        const option=document.createElement("option");
+        option.value=accKey;
+        option.textContent=`${template[1]} R${r}`;
+        select.appendChild(option);
+      }
+    }
+  }
+}
 
 /* =========================================================
    DAILY QUESTS
@@ -876,7 +1020,7 @@ function updateDailyQuest(id, amount){
   if(q && dailyQuests.progress[id] >= q.target){
     dailyQuests.progress[id] = q.target;
     dailyQuests.claimed[id] = true;
-    coins += q.reward;
+    addCoins(q.reward);
     saveShop();
     sound("coin");
     alert(`Daily quest complete! You earned ${q.reward} coins.`);
@@ -895,10 +1039,11 @@ function loadDailyQuestsIfNeeded(){
 }
 
 function getMaxLives(){
-  return 3 +
-    Number(!!purchasedItems.heart1) +
-    Number(!!purchasedItems.heart2) +
-    Number(!!purchasedItems.heart3);
+  let total=3;
+  Object.keys(purchasedItems).forEach(key=>{
+    if(/^heart\d+$/.test(key) && purchasedItems[key]) total++;
+  });
+  return total;
 }
 
 function saveShop(){
@@ -911,6 +1056,9 @@ function saveShop(){
     "missileCoins",
     String(coins)
   );
+  localStorage.setItem("missileRebirthCount", String(rebirthCount));
+  localStorage.setItem("missileBossBeaten", bossBeatenEver ? "1" : "0");
+  localStorage.setItem("missileCoinMultiplier", String(coinMultiplier));
 }
 
 function updateCoinDisplays(){
@@ -923,6 +1071,9 @@ function updateCoinDisplays(){
 
 function openShop(){
   document.getElementById("menu").style.display =
+    "none";
+
+  document.getElementById("pauseMenu").style.display =
     "none";
 
   document.getElementById("shop").style.display =
@@ -941,6 +1092,11 @@ function closeShop(){
 }
 
 function updateShopButtons(){
+  ensureRebirthShopContent();
+  document.querySelectorAll(".rebirthShopItem").forEach(card=>{
+    const required = Number(card.dataset.rebirthLevel || 1);
+    card.style.display = rebirthCount >= required ? "block" : "none";
+  });
   document.querySelectorAll(".shopCard button[data-item]").forEach(button=>{
     const key = button.dataset.item;
     if(purchasedItems[key]){
@@ -974,10 +1130,10 @@ function buyItem(item){
   updateCoinDisplays();
   updateShopButtons();
 
-  if(item.startsWith("heart")){
+  if(/^heart\d+$/.test(item)){
     lives = Math.min(maxLives, lives + 1);
     updateHUD();
-  }else{
+  }else if(item !== "heartMagnet" && item !== "heartMagnet2" && item !== "heartMagnet3"){
     equipItem(item);
   }
 
@@ -1004,7 +1160,10 @@ function equipItem(item){
     customization.hair = "#e2e8f0";
   }
 
-  if(item === "crown" || item === "wizard" || item === "halo" || item === "backpack"){
+  if(item === "crown" || item === "wizard" || item === "halo" || item === "backpack" ||
+     item === "dragonHorns" || item === "wings" || item === "flameCrown" || item === "voidMask" ||
+     item === "thunderCrown" || item === "guardianShield" || item === "starHalo" || item === "mechaArm" ||
+     item === "crimsonVisor" || item === "plasmaPack" || item === "infernoHorns" || item === "cosmicCape" || item.startsWith("rebirthAcc_")){
     customization.accessory = item;
   }
 
@@ -1080,6 +1239,50 @@ function sound(type){
   }catch{}
 }
 
+
+/* =========================================================
+   REBIRTH
+========================================================= */
+
+function updateRebirthButton(){
+  const button = document.getElementById("rebirthButton");
+  if(!button) return;
+  button.style.display = bossBeatenEver ? "block" : "none";
+  button.textContent = bossBeatenEver
+    ? `♻️ REBIRTH${rebirthCount ? " #" + (rebirthCount + 1) : ""} — 2X COINS`
+    : "♻️ REBIRTH";
+}
+
+function performRebirth(){
+  if(!bossBeatenEver) return;
+  const confirmed = confirm(
+    "Rebirth now? This unlocks 4 more heart containers and new accessories. Coin earnings become 2X until your next rebirth, and the next robot boss will have 3X the previous boss health."
+  );
+  if(!confirmed) return;
+
+  rebirthCount += 1;
+  coinMultiplier = 2;
+  bossBeatenEver = false;
+
+  // Give the player a fresh run while keeping permanent shop progress and coins.
+  running = false;
+  paused = false;
+  bossPhase = false;
+  bossDefeated = false;
+  boss = null;
+  bossMissiles = [];
+  bossBullets = [];
+  player.hasRobotGun = false;
+  ensureRebirthShopContent();
+  saveShop();
+  updateRebirthButton();
+  updateShopButtons();
+  updateCoinDisplays();
+  document.getElementById("menu").style.display = "flex";
+  document.querySelector("#menu .subtitle").textContent =
+    `Rebirth ${rebirthCount}! 2X COINS is active.`;
+  alert(`Rebirth complete! You unlocked 4 new hearts in the shop and 4 new accessories. All coin earnings are now 2X.`);
+}
 
 /* =========================================================
    START / RESET
@@ -1182,6 +1385,8 @@ function gameOver(){
 
     document.getElementById("pauseBtn").textContent =
       "PAUSE";
+    document.getElementById("pauseMenu").style.display =
+      "none";
 
     updateHUD();
 
@@ -1203,10 +1408,42 @@ function togglePause(){
 
   document.getElementById("pauseBtn").textContent =
     paused ? "RESUME" : "PAUSE";
+
+  document.getElementById("pauseMenu").style.display =
+    paused ? "flex" : "none";
+}
+
+function returnToMenu(){
+  running = false;
+  paused = false;
+  nukeCutscene = false;
+  nukePhase = false;
+  bossPhase = false;
+  bossDefeated = false;
+  boss = null;
+  bossMissiles = [];
+  bossBullets = [];
+  fallenHands = [];
+  nukeDrops = [];
+  nukeHoles = [];
+  player.ducking = false;
+
+  document.getElementById("pauseMenu").style.display = "none";
+  document.getElementById("pauseBtn").textContent = "PAUSE";
+  document.getElementById("menu").style.display = "flex";
+  document.querySelector("#menu .subtitle").textContent =
+    "Dodge missiles. Collect coins. Survive the chaos!";
+  updateHUD();
 }
 
 document.getElementById("pauseBtn")
   .addEventListener("click",togglePause);
+
+document.getElementById("resumeMenuButton")
+  .addEventListener("click",togglePause);
+
+document.getElementById("pauseMenuButton")
+  .addEventListener("click",returnToMenu);
 
 addEventListener("keydown",e=>{
   if(e.key.toLowerCase() === "p"){
@@ -1534,11 +1771,17 @@ function spawnCoin(){
   });
 }
 
+function addCoins(amount){
+  const finalAmount = Math.max(0, Math.floor(amount * coinMultiplier));
+  coins += finalAmount;
+  return finalAmount;
+}
+
 function collectCoin(index){
 
   const collectedValue = coinsList[index].value || 1;
-  coins += collectedValue;
-  updateDailyQuest("coins", collectedValue);
+  const earnedValue = addCoins(collectedValue);
+  updateDailyQuest("coins", earnedValue);
 
   coinsList.splice(index,1);
 
@@ -2156,8 +2399,8 @@ function startBossBattle(){
     y: H - 110 - 118,
     w: 105,
     h: 118,
-    hp: 5,
-    maxHp: 5,
+    hp: 15 * Math.pow(3, rebirthCount),
+    maxHp: 15 * Math.pow(3, rebirthCount),
     fireTimer: 1.0,
     rebuildTimer: 0,
     leftHand: true,
@@ -2219,7 +2462,8 @@ function damageBoss(amount, fromGun=false){
     bossPhase = false;
 
     // Defeating the Level 30 robot awards a huge permanent coin bonus.
-    coins += 100000;
+    addCoins(100000);
+    bossBeatenEver = true;
     saveShop();
     updateCoinDisplays();
     bossMissiles = [];
@@ -2232,6 +2476,7 @@ function damageBoss(amount, fromGun=false){
       document.getElementById('menu').style.display = 'flex';
       document.querySelector('#menu .subtitle').textContent =
         'ROBOT DEFEATED! You recovered the launcher hand!';
+      updateRebirthButton();
       updateHUD();
     }, 1800);
   }
@@ -2442,26 +2687,60 @@ function drawRobotBoss(){
 
   ctx.save();
   const x=boss.x, y=boss.y;
+  const bossTier = Math.max(0, rebirthCount);
+  const redLevels = ['#8f1d2c','#6f1221','#520b17','#3a0710','#25040a','#170207'];
+  const bodyRed = redLevels[Math.min(bossTier, redLevels.length-1)];
+  const headRed = redLevels[Math.min(bossTier + 1, redLevels.length-1)];
 
-  ctx.shadowColor = '#00e5ff';
-  ctx.shadowBlur = 18;
-  ctx.fillStyle = boss.flash > 0 ? '#ffffff' : '#46566f';
+  ctx.shadowColor = bossTier ? '#7f0018' : '#ff1f3d';
+  ctx.shadowBlur = 22 + bossTier * 4;
+  ctx.fillStyle = boss.flash > 0 ? '#ffffff' : bodyRed;
   ctx.fillRect(x+25,y+28,55,68);
   ctx.shadowBlur = 0;
 
+  // extra armor makes each rebirth boss look more intimidating
+  ctx.fillStyle = bossTier ? '#111827' : '#263447';
+  ctx.fillRect(x+18,y+38,9,48);
+  ctx.fillRect(x+79,y+38,9,48);
+  if(bossTier >= 1){
+    ctx.fillStyle = bodyRed;
+    ctx.beginPath();
+    ctx.moveTo(x+20,y+48); ctx.lineTo(x+4,y+38); ctx.lineTo(x+19,y+66); ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(x+85,y+48); ctx.lineTo(x+101,y+38); ctx.lineTo(x+86,y+66); ctx.closePath(); ctx.fill();
+  }
+  if(bossTier >= 2){
+    ctx.strokeStyle = '#ff334f';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(x+33,y+88); ctx.lineTo(x+22,y+104);
+    ctx.moveTo(x+72,y+88); ctx.lineTo(x+83,y+104);
+    ctx.stroke();
+  }
+
   // head
-  ctx.fillStyle = '#6b7d96';
+  ctx.fillStyle = boss.flash > 0 ? '#ffffff' : headRed;
   ctx.fillRect(x+22,y,61,48);
+  ctx.fillStyle = '#5b0b19';
+  ctx.fillRect(x+17,y+4,8,39);
+  ctx.fillRect(x+80,y+4,8,39);
   ctx.fillStyle = '#101827';
   ctx.fillRect(x+31,y+14,43,18);
-  ctx.fillStyle = '#ff334f';
+  ctx.fillStyle = bossTier >= 1 ? '#ff1638' : '#ff334f';
   ctx.fillRect(x+38,y+19,8,6);
   ctx.fillRect(x+58,y+19,8,6);
+  if(bossTier >= 1){
+    ctx.fillStyle = headRed;
+    ctx.beginPath();
+    ctx.moveTo(x+28,y+5); ctx.lineTo(x+18,y-14); ctx.lineTo(x+39,y+4); ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(x+77,y+5); ctx.lineTo(x+87,y-14); ctx.lineTo(x+66,y+4); ctx.closePath(); ctx.fill();
+  }
 
   // chest core
-  ctx.fillStyle = '#00e5ff';
+  ctx.fillStyle = bossTier >= 2 ? '#ff002b' : '#ff1f3d';
   ctx.beginPath();
-  ctx.arc(x+52,y+61,11,0,Math.PI*2);
+  ctx.arc(x+52,y+61,13 + Math.min(5,bossTier*1.5),0,Math.PI*2);
   ctx.fill();
   ctx.fillStyle = '#0b1220';
   ctx.beginPath();
@@ -2489,7 +2768,7 @@ function drawRobotBoss(){
   ctx.fillStyle='#fff';
   ctx.font='bold 14px Arial';
   ctx.textAlign='center';
-  ctx.fillText('ROBOT BOSS',W/2,34);
+  ctx.fillText(`RED ROBOT BOSS${rebirthCount ? ' — REBIRTH '+rebirthCount : ''} — ${boss.hp}/${boss.maxHp}`,W/2,34);
   ctx.textAlign='left';
 
   if(bossMessageTimer > 0){
@@ -2706,9 +2985,10 @@ function update(dt){
       score += 1;
       updateDailyQuest("stomps", 1);
 
-      // Jumping on a missile/bomb awards 5 permanent coins.
-      coins += 5;
-      updateDailyQuest("coins", 5);
+      // Normal missiles award 5 coins; Level 10+ giant missiles award 50.
+      const stompCoinReward = m.giant ? 50 : 5;
+      const earnedStompCoins = addCoins(stompCoinReward);
+      updateDailyQuest("coins", earnedStompCoins);
       saveShop();
       updateCoinDisplays();
 
@@ -2809,11 +3089,14 @@ function update(dt){
         Math.sqrt(dx*dx + dy*dy);
 
       const ranges = [0, 180, 300, 450];
-      const strengths = [0, 4, 7, 11];
+      // Stronger pull so coins reliably move toward the player instead of
+      // drifting past the player before the magnet can grab them.
+      const strengths = [0, 8, 13, 19];
 
       if(distance < ranges[magnetLevel]){
-        c.x += dx * dt * strengths[magnetLevel];
-        c.y += dy * dt * strengths[magnetLevel];
+        const pull = Math.min(1, dt * strengths[magnetLevel]);
+        c.x += dx * pull;
+        c.y += dy * pull;
       }
     }
 
@@ -2824,8 +3107,23 @@ function update(dt){
       continue;
     }
 
-    if(c.x+c.w < -50){
+    // Coins are never allowed to travel behind the player.
+    // With a magnet, the pull above gets a chance to bring them back first.
+    const magnetRange = magnetLevel > 0 ? [0, 180, 300, 450][magnetLevel] : 0;
+    const coinCenterX = c.x + c.w/2;
+    const playerCenterX = player.x + player.w/2;
+    const distanceToPlayer = Math.hypot(
+      playerCenterX - coinCenterX,
+      player.y + player.h/2 - (c.y + c.h/2)
+    );
 
+    if(coinCenterX < playerCenterX - 12 &&
+       (magnetLevel === 0 || distanceToPlayer > magnetRange)){
+      coinsList.splice(i,1);
+      continue;
+    }
+
+    if(c.x+c.w < -50){
       coinsList.splice(i,1);
     }
   }
@@ -2854,6 +3152,26 @@ function update(dt){
 
     p.x -=
       p.speed * dt;
+
+    /* heart magnet upgrades */
+    const heartMagnetLevel =
+      purchasedItems.heartMagnet3 ? 3 :
+      purchasedItems.heartMagnet2 ? 2 :
+      purchasedItems.heartMagnet ? 1 : 0;
+
+    if(heartMagnetLevel > 0){
+      const dx = player.x + player.w/2 - (p.x + p.w/2);
+      const dy = player.y + player.h/2 - (p.y + p.h/2);
+      const distance = Math.hypot(dx, dy);
+      const ranges = [0, 170, 290, 430];
+      const strengths = [0, 7, 12, 18];
+
+      if(distance < ranges[heartMagnetLevel]){
+        const pull = Math.min(1, dt * strengths[heartMagnetLevel]);
+        p.x += dx * pull;
+        p.y += dy * pull;
+      }
+    }
 
     if(collision(player,p)){
 
@@ -4033,6 +4351,71 @@ function drawPlayer(){
     ctx.fillRect(x+30,y+23,9,22);
   }
 
+  if(customization.accessory === "dragonHorns"){
+    ctx.fillStyle = "#ef4444";
+    ctx.beginPath();
+    ctx.moveTo(x+5,y+7);
+    ctx.lineTo(x+2,y-9);
+    ctx.lineTo(x+12,y+1);
+    ctx.lineTo(x+22,y+1);
+    ctx.lineTo(x+32,y-9);
+    ctx.lineTo(x+29,y+7);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  if(customization.accessory === "wings"){
+    ctx.fillStyle = "#f8fafc";
+    ctx.beginPath();
+    ctx.moveTo(x+3,y+24); ctx.lineTo(x-12,y+12); ctx.lineTo(x-7,y+35); ctx.lineTo(x+4,y+42);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(x+31,y+24); ctx.lineTo(x+46,y+12); ctx.lineTo(x+41,y+35); ctx.lineTo(x+30,y+42);
+    ctx.closePath(); ctx.fill();
+  }
+
+  if(customization.accessory === "flameCrown"){
+    ctx.fillStyle = "#f97316";
+    ctx.beginPath();
+    ctx.moveTo(x+4,y+6); ctx.lineTo(x+9,y-8); ctx.lineTo(x+16,y+1); ctx.lineTo(x+22,y-11); ctx.lineTo(x+27,y+1); ctx.lineTo(x+33,y-7); ctx.lineTo(x+30,y+7);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#fde047";
+    ctx.fillRect(x+7,y+3,22,4);
+  }
+
+  if(customization.accessory === "voidMask"){
+    ctx.fillStyle = "#111827";
+    ctx.beginPath();
+    ctx.arc(x+17,y+11,14,0,Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = "#a855f7";
+    ctx.fillRect(x+9,y+9,6,4);
+    ctx.fillRect(x+20,y+9,6,4);
+  }
+
+  if(customization.accessory.startsWith("rebirthAcc_")){
+    const parts = customization.accessory.split("_");
+    const slot = Number(parts[2]) || 1;
+    const r = Number(parts[1]) || 1;
+    const hue = (r*67 + slot*43) % 360;
+    ctx.save();
+    ctx.strokeStyle = `hsl(${hue} 90% 65%)`;
+    ctx.fillStyle = `hsl(${hue} 80% 50%)`;
+    ctx.lineWidth = 4;
+    if(slot === 1){
+      ctx.beginPath(); ctx.moveTo(x+4,y+5); ctx.lineTo(x+10,y-8); ctx.lineTo(x+17,y+1); ctx.lineTo(x+24,y-9); ctx.lineTo(x+31,y+5); ctx.closePath(); ctx.fill();
+    }else if(slot === 2){
+      ctx.beginPath(); ctx.moveTo(x+3,y+24); ctx.lineTo(x-12,y+8); ctx.lineTo(x-6,y+35); ctx.lineTo(x+3,y+41); ctx.moveTo(x+31,y+24); ctx.lineTo(x+46,y+8); ctx.lineTo(x+40,y+35); ctx.lineTo(x+31,y+41); ctx.stroke();
+    }else if(slot === 3){
+      ctx.strokeRect(x+5,y+1,24,10);
+      ctx.fillRect(x+9,y+4,6,4); ctx.fillRect(x+20,y+4,6,4);
+    }else{
+      ctx.beginPath(); ctx.arc(x+17,y+12,15,0,Math.PI*2); ctx.stroke();
+      ctx.fillRect(x+8,y+9,6,4); ctx.fillRect(x+21,y+9,6,4);
+    }
+    ctx.restore();
+  }
+
   if(player.hasRobotGun && bossPhase){
     ctx.save();
     ctx.translate(x+17,y+31);
@@ -4517,39 +4900,8 @@ document.getElementById("shopButton")
     openShop
   );
 
-document.getElementById("deleteProgressButton")
-  .addEventListener(
-    "click",
-    ()=>{
-      const confirmed = confirm(
-        "Delete ALL Missile Mayhem progress? This will erase your coins, shop purchases, heart containers, and unlocked accessories."
-      );
-
-      if(!confirmed) return;
-
-      localStorage.removeItem("missileCoins");
-      localStorage.removeItem("missileShopItems");
-      localStorage.removeItem("missileDailyQuests");
-
-      coins = 0;
-      purchasedItems = {};
-      maxLives = 3;
-      lives = 3;
-
-      customization.skin = "#ffd2a6";
-      customization.shirt = "#3498db";
-      customization.pants = "#222222";
-      customization.hair = "#151515";
-      customization.accessory = "none";
-
-      updateCoinDisplays();
-      updateShopButtons();
-      updateCustomizationUI();
-      updateHUD();
-
-      alert("Progress deleted. Your game has been reset.");
-    }
-  );
+document.getElementById("rebirthButton")
+  .addEventListener("click", performRebirth);
 
 document.getElementById("backShopButton")
   .addEventListener(
