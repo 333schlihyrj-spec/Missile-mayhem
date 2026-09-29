@@ -431,7 +431,9 @@ select{
       <div class="shopCard"><div class="shopIcon">👑</div><h3>Golden Outfit</h3><p>Turn your character into a shiny golden hero.</p><button data-item="gold">🪙 50</button></div>
       <div class="shopCard"><div class="shopIcon">🥷</div><h3>Ninja Outfit</h3><p>A stealthy dark outfit for your runner.</p><button data-item="ninja">🪙 100</button></div>
       <div class="shopCard"><div class="shopIcon">🤖</div><h3>Robot Outfit</h3><p>Become a colorful robot runner.</p><button data-item="robot">🪙 150</button></div>
-      <div class="shopCard"><div class="shopIcon">🧲</div><h3>Coin Magnet</h3><p>Pull nearby coins toward you automatically.</p><button data-item="magnet">🪙 200</button></div>
+      <div class="shopCard"><div class="shopIcon">🧲</div><h3>Coin Magnet I</h3><p>Pull coins toward you from a short distance.</p><button data-item="magnet">🪙 200</button></div>
+      <div class="shopCard"><div class="shopIcon">🧲</div><h3>Coin Magnet II</h3><p>Stronger magnet with a larger pickup range.</p><button data-item="magnet2">🪙 400</button></div>
+      <div class="shopCard"><div class="shopIcon">🧲</div><h3>Coin Magnet III</h3><p>Maximum magnet strength and a huge pickup range.</p><button data-item="magnet3">🪙 600</button></div>
 
       <div class="shopCard"><div class="shopIcon">👑</div><h3>Royal Crown</h3><p>Unlock a golden crown accessory.</p><button data-item="crown">🪙 75</button></div>
       <div class="shopCard"><div class="shopIcon">🧙</div><h3>Wizard Hat</h3><p>Unlock a magical wizard hat accessory.</p><button data-item="wizard">🪙 125</button></div>
@@ -717,7 +719,7 @@ try{
 }
 
 const shopPrices = {
-  gold:50, ninja:100, robot:150, magnet:200,
+  gold:50, ninja:100, robot:150, magnet:200, magnet2:400, magnet3:600,
   crown:75, wizard:125, halo:175, backpack:150,
   heart1:100, heart2:200, heart3:300
 };
@@ -772,7 +774,7 @@ function updateShopButtons(){
   document.querySelectorAll(".shopCard button[data-item]").forEach(button=>{
     const key = button.dataset.item;
     if(purchasedItems[key]){
-      button.textContent = key.startsWith("heart") ? "PURCHASED" : "EQUIP";
+      button.textContent = key.startsWith("heart") || key.startsWith("magnet") ? "PURCHASED" : "EQUIP";
     }else{
       button.textContent = "🪙 " + shopPrices[key];
     }
@@ -2599,9 +2601,14 @@ function update(dt){
     c.rotation +=
       dt * 8;
 
-    /* magnet */
+    /* coin magnet upgrades */
 
-    if(purchasedItems.magnet){
+    const magnetLevel =
+      purchasedItems.magnet3 ? 3 :
+      purchasedItems.magnet2 ? 2 :
+      purchasedItems.magnet ? 1 : 0;
+
+    if(magnetLevel > 0){
 
       const dx =
         player.x +
@@ -2614,18 +2621,14 @@ function update(dt){
         (c.y+c.h/2);
 
       const distance =
-        Math.sqrt(
-          dx*dx +
-          dy*dy
-        );
+        Math.sqrt(dx*dx + dy*dy);
 
-      if(distance < 180){
+      const ranges = [0, 180, 300, 450];
+      const strengths = [0, 4, 7, 11];
 
-        c.x +=
-          dx * dt * 4;
-
-        c.y +=
-          dy * dt * 4;
+      if(distance < ranges[magnetLevel]){
+        c.x += dx * dt * strengths[magnetLevel];
+        c.y += dy * dt * strengths[magnetLevel];
       }
     }
 
