@@ -1239,6 +1239,17 @@ function updateShopButtons(){
   });
   document.querySelectorAll(".shopCard button[data-item]").forEach(button=>{
     const key = button.dataset.item;
+
+    // Dynamic rebirth shop cards are created after the initial page load,
+    // so make sure their buttons receive the same handler as the static shop.
+    if(!button.dataset.buyHandler){
+      button.dataset.buyHandler = "true";
+      button.addEventListener("click", event=>{
+        event.preventDefault();
+        buyItem(key);
+      });
+    }
+
     if(purchasedItems[key]){
       button.textContent = key.startsWith("heart") || key.startsWith("magnet") ? "PURCHASED" : "EQUIP";
     }else{
@@ -5602,15 +5613,8 @@ document.getElementById("deleteProgressButton")
 
 const rebirthButton = document.getElementById("rebirthButton");
 
-// Activate Rebirth with the LEFT mouse button.
-rebirthButton.addEventListener("mousedown", function(event){
-  if(event.button !== 0) return;
-  if(coins < 100000) return;
-  event.preventDefault();
-  performRebirth();
-});
-
-// Keep normal clicks working too (including touch/click input).
+// A normal click is the left-mouse action and also supports keyboard/touch activation.
+// Use only one handler so Rebirth can never fire twice from mousedown + click.
 rebirthButton.addEventListener("click", function(event){
   event.preventDefault();
   if(coins >= 100000) performRebirth();
@@ -5621,22 +5625,6 @@ document.getElementById("backShopButton")
     "click",
     closeShop
   );
-
-document.querySelectorAll(
-  ".shopCard button"
-).forEach(button=>{
-
-  button.addEventListener(
-    "click",
-    ()=>{
-      buyItem(
-        button.dataset.item
-      );
-    }
-  );
-
-});
-
 
 /* =========================================================
    PREVENT MOBILE LONG-PRESS MENU
