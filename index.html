@@ -814,6 +814,21 @@ const player = {
   invincible:0
 };
 
+function getMaxJumpsForRebirth(){
+  // Normal: double jump. Rebirth 1: triple jump. Rebirth 2+: four jumps.
+  // Jump upgrades stop after the second rebirth.
+  if(rebirthCount >= 2) return 4;
+  if(rebirthCount >= 1) return 3;
+  return 2;
+}
+
+function updateJumpUpgrade(){
+  player.maxJumps = getMaxJumpsForRebirth();
+  if(player.jumpCount > player.maxJumps){
+    player.jumpCount = player.maxJumps;
+  }
+}
+
 
 /* =========================================================
    CUSTOMIZATION
@@ -911,6 +926,7 @@ let coins =
 let purchasedItems = {};
 
 let rebirthCount = Number(localStorage.getItem("missileRebirthCount") || 0);
+updateJumpUpgrade();
 let bossBeatenEver = localStorage.getItem("missileBossBeaten") === "1";
 let coinMultiplier = Number(localStorage.getItem("missileCoinMultiplier") || 1);
 if(coinMultiplier !== 2) coinMultiplier = 1;
@@ -1452,6 +1468,7 @@ function deleteAllProgress(){
   coins = 0;
   purchasedItems = {};
   rebirthCount = 0;
+  updateJumpUpgrade();
   bossBeatenEver = false;
   coinMultiplier = 1;
   dailyQuests = createRandomDailyQuests(getDailyDate());
@@ -1510,6 +1527,7 @@ function performRebirth(){
   if(!confirmed) return;
 
   rebirthCount += 1;
+  updateJumpUpgrade();
   coinMultiplier = 2;
   // Rebirth costs 100,000 coins and resets the shop purchase list.
   coins -= 100000;
@@ -2018,8 +2036,8 @@ function spawnMissile(){
     missiles.push({
       x: spreadX,
       y: spreadY,
-      w: hazardType === "nuke" ? 58 : (isVoid ? 68 : 48),
-      h: hazardType === "nuke" ? 72 : (isVoid ? 68 : 48),
+      w: hazardType === "nuke" ? 58 : (isVoid ? 34 : 48),
+      h: hazardType === "nuke" ? 72 : (isVoid ? 34 : 48),
       speed: (isVoid ? 300 : 260) + level * 8 + rebirthCount * 10,
       giant: hazardType === "nuke",
       specialType: hazardType,
@@ -3240,13 +3258,13 @@ function createElementalImpact(m){
   const x = Math.max(0, Math.min(W, m.x + m.w/2));
 
   if(m.specialType === "void"){
-    const width = 125 + Math.random()*65;
-    // A large, visible black hole that opens in the ground where the void missile lands.
+    const width = 31.25 + Math.random()*16.25;
+    // Void holes are half the previous size while keeping their gameplay effect.
     voidHoles.push({
       x:x-width/2,
-      y:groundY-18,
+      y:groundY-5,
       w:width,
-      h:125,
+      h:31.25,
       speed:150+level*3,
       pulse:0,
       life:10
@@ -3326,28 +3344,28 @@ function drawElementalHazards(){
   for(const h of voidHoles){
     const pulse=1+Math.sin(h.pulse*8)*.08;
     ctx.save();
-    ctx.translate(h.x+h.w/2,h.y+18);
+    ctx.translate(h.x+h.w/2,h.y+9);
     ctx.scale(pulse,1);
 
     // Deep opening in the ground.
     ctx.fillStyle="#000000";
-    ctx.shadowColor="#7c3aed"; ctx.shadowBlur=35;
-    ctx.beginPath(); ctx.ellipse(0,18,h.w/2,30,0,0,Math.PI*2); ctx.fill();
+    ctx.shadowColor="#7c3aed"; ctx.shadowBlur=18;
+    ctx.beginPath(); ctx.ellipse(0,5,h.w/2,7.5,0,0,Math.PI*2); ctx.fill();
     ctx.shadowBlur=0;
 
     // Purple gravitational rim.
-    ctx.strokeStyle="#e9d5ff"; ctx.lineWidth=5;
-    ctx.beginPath(); ctx.ellipse(0,18,h.w*.44,24,0,0,Math.PI*2); ctx.stroke();
-    ctx.strokeStyle="#a855f7"; ctx.lineWidth=3;
-    ctx.beginPath(); ctx.ellipse(0,18,h.w*.34,17,0,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle="#e9d5ff"; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.ellipse(0,5,h.w*.44,6,0,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle="#a855f7"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(0,5,h.w*.34,4.25,0,0,Math.PI*2); ctx.stroke();
 
     // Falling/inward particles make the hole easy to see.
     for(let k=0;k<6;k++){
       const a=h.pulse*2.5+k;
-      const r=h.w*.28 + Math.sin(h.pulse*5+k)*8;
+      const r=h.w*.28 + Math.sin(h.pulse*5+k)*4;
       ctx.fillStyle="#c084fc";
       ctx.beginPath();
-      ctx.arc(Math.cos(a)*r,18+Math.sin(a)*r*.32,3,0,Math.PI*2);
+      ctx.arc(Math.cos(a)*r,5+Math.sin(a)*r*.32,1.5,0,Math.PI*2);
       ctx.fill();
     }
     ctx.restore();
@@ -5030,7 +5048,7 @@ function drawMissile(m){
 
     if(type==='void'){
       // Void missile: bright purple/black core with a long visible falling trail.
-      const trail = Math.max(70, Math.min(220, (m.y + m.h + 360) * .32));
+      const trail = Math.max(35, Math.min(110, (m.y + m.h + 360) * .16));
       ctx.save();
       ctx.globalAlpha=.22;
       ctx.strokeStyle='#a855f7';
