@@ -2062,12 +2062,22 @@ function spawnMissile(){
     groundY - h - missileRowOffset + rowJitter
   );
 
+  // Every normal/big missile is still launched from the RIGHT side,
+  // but its flight angle is randomized so missiles can travel diagonally.
+  // The horizontal component always points left, so they never launch
+  // from another side of the screen.
+  const randomAngle = (Math.random() - 0.5) * (Math.PI * 0.62);
+  const velocityX = -Math.cos(randomAngle) * speed;
+  const velocityY = Math.sin(randomAngle) * speed;
+
   missiles.push({
     x:W + 80,
     y:y,
     w:w,
     h:h,
     speed:speed,
+    vx:velocityX,
+    vy:velocityY,
     giant:giant,
     specialType:null,
     passed:false
@@ -3544,7 +3554,22 @@ function update(dt){
         continue;
       }
     }else{
-      m.x -= m.speed * dt;
+      // Normal/big missiles keep their randomized direction after being
+      // launched from the right. Keep their movement inside the play area
+      // so they remain visible instead of flying straight off the top/bottom.
+      m.x += (m.vx ?? -m.speed) * dt;
+      m.y += (m.vy ?? 0) * dt;
+
+      const topLimit = 55;
+      const bottomLimit = m.giant ? m.groundY - m.h - 8 : m.groundY - m.h - 8;
+
+      if(m.y < topLimit){
+        m.y = topLimit;
+        m.vy = Math.abs(m.vy ?? 0);
+      }else if(m.y > bottomLimit){
+        m.y = bottomLimit;
+        m.vy = -Math.abs(m.vy ?? 0);
+      }
     }
 
     if(stompMissile(m, previousPlayerBottom)){
