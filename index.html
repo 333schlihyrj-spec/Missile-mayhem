@@ -1392,13 +1392,13 @@ function updateRebirthButton(){
   button.title = canRebirth
     ? "You have enough coins to rebirth!"
     : "You need 100,000 coins to Rebirth";
-  button.textContent = `♻️ REBIRTH — COSTS 100,000 🪙`;
+  button.textContent = `♻️ REBIRTH ${rebirthCount} — COSTS 100,000 🪙`;
 }
 
 function performRebirth(){
   if(coins < 100000) return;
   const confirmed = confirm(
-    "Rebirth now? This costs 100,000 coins and resets all shop purchases. You will unlock 4 more heart containers and new accessories. Coin earnings become 2X, shop prices become 5X their original prices for each rebirth, and the next robot boss will have 2X the previous boss health."
+    "Rebirth now? This costs 100,000 coins and resets all shop purchases. You will unlock 4 more heart containers and 1 new accessory. Coin earnings become 2X, shop prices become 5X their original prices for each rebirth, and the next robot boss will have 2X the previous boss health."
   );
   if(!confirmed) return;
 
@@ -1898,11 +1898,17 @@ function spawnMissile(){
   }
 
   // Normal/big missiles still travel from the right side.
-  // Every rebirth also shifts their flight row slightly downward.
-  const missileRowShift = Math.min(rebirthCount, 5) * 45;
+  // Each rebirth moves them DOWN to the next clearly visible row.
+  // The old random 250px range made the row change hard to notice.
+  const maxRows = 6;
+  const row = Math.min(rebirthCount, maxRows - 1);
+  const rowSpacing = 55;
+  const topRowOffset = 250;
+  const rowJitter = (Math.random() - 0.5) * 10;
+  const missileRowOffset = Math.max(0, topRowOffset - row * rowSpacing);
   const y = Math.min(
     groundY - h,
-    groundY - Math.random() * 250 + missileRowShift
+    groundY - h - missileRowOffset + rowJitter
   );
 
   missiles.push({
@@ -2108,8 +2114,37 @@ let fireZones = [];
 let elementalImpactTimer = 0;
 
 function getRebirthHazardType(){
-  const types = ["normal","big","nuke","void","fire","ice","lightning","rock","water","wind","plasma"];
-  return types[Math.min(rebirthCount, types.length - 1)];
+  // Each rebirth shifts the 10-level hazard cycle forward by one:
+  // Rebirth 1: Big -> Nuke -> Void
+  // Rebirth 2: Nuke -> Void -> Fire
+  // Rebirth 3: Void -> Fire -> Ice
+  // ...and so on.
+  // The first 10 levels use the first hazard, the next 10 use the next, etc.
+  const types = [
+    "normal",
+    "big",
+    "nuke",
+    "void",
+    "fire",
+    "ice",
+    "lightning",
+    "rock",
+    "water",
+    "wind",
+    "plasma"
+  ];
+
+  if(rebirthCount <= 0){
+    return "normal";
+  }
+
+  const tenLevelStep = Math.floor((Math.max(1, level) - 1) / 10);
+  const hazardIndex = Math.min(
+    rebirthCount + tenLevelStep,
+    types.length - 1
+  );
+
+  return types[hazardIndex];
 }
 
 function clearElementalHazards(){
