@@ -370,6 +370,44 @@ select{
   background:linear-gradient(135deg,#ef4444,#f97316);
 }
 
+.controlModePanel{
+  margin:16px 0 6px;
+}
+
+.controlModeButtons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.controlModeButton{
+  border:2px solid rgba(255,255,255,.18);
+  border-radius:14px;
+  padding:12px;
+  background:#20264d;
+  color:#fff;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+  transition:transform .12s, background .12s, border-color .12s;
+}
+
+.controlModeButton:hover{
+  transform:translateY(-1px);
+}
+
+.controlModeButton.active{
+  background:linear-gradient(135deg,#00a8ff,#7c3aed);
+  border-color:#fff;
+}
+
+.controlModeHint{
+  margin-top:8px;
+  color:#cbd5e1;
+  font-size:13px;
+  text-align:center;
+}
+
 @media(max-width:700px){
   .mobileControls{
     display:flex;
@@ -506,6 +544,15 @@ select{
 
     </div>
 
+    <div class="controlModePanel">
+      <div class="sectionTitle">CONTROL MODE</div>
+      <div class="controlModeButtons">
+        <button class="controlModeButton" id="pcModeButton" type="button">🖥️ PC</button>
+        <button class="controlModeButton" id="mobileModeButton" type="button">📱 MOBILE</button>
+      </div>
+      <div class="controlModeHint" id="controlModeHint">PC: keyboard controls</div>
+    </div>
+
     <button class="menuButton" id="startButton">
       START GAME
     </button>
@@ -600,7 +647,6 @@ select{
 <div class="mobileControls">
   <button id="duckBtn">DUCK</button>
   <button id="jumpBtn">JUMP</button>
-  <button id="fireBtn">FIRE</button>
 </div>
 
 <script>
@@ -1253,6 +1299,11 @@ function sound(type){
       frequency = 50;
       duration = .6;
     }
+    if(type === "button") {
+      frequency = 620;
+      duration = .055;
+      osc.type = "square";
+    }
 
     osc.frequency.value = frequency;
 
@@ -1693,14 +1744,6 @@ addEventListener('keydown',e=>{
     shootRobotGun();
   }
 });
-
-const fireBtn = document.getElementById('fireBtn');
-if(fireBtn){
-  fireBtn.addEventListener('pointerdown',e=>{
-    e.preventDefault();
-    shootRobotGun();
-  });
-}
 
 /* =========================================================
    PLAYER HITBOX
@@ -5022,8 +5065,52 @@ function draw(){
 
 
 /* =========================================================
+   CONTROL MODE
+========================================================= */
+
+let controlMode = localStorage.getItem("missileControlMode") ||
+  (("ontouchstart" in window || navigator.maxTouchPoints > 0) ? "mobile" : "pc");
+
+function updateControlModeUI(){
+  const pcButton = document.getElementById("pcModeButton");
+  const mobileButton = document.getElementById("mobileModeButton");
+  const hint = document.getElementById("controlModeHint");
+  const controls = document.querySelector(".mobileControls");
+  if(!pcButton || !mobileButton || !hint || !controls) return;
+
+  pcButton.classList.toggle("active", controlMode === "pc");
+  mobileButton.classList.toggle("active", controlMode === "mobile");
+  controls.style.display = controlMode === "mobile" ? "flex" : "none";
+  hint.textContent = controlMode === "pc"
+    ? "PC: Arrow keys, W, Space, and mouse controls"
+    : "Mobile: JUMP and DUCK buttons";
+}
+
+function setControlMode(mode){
+  controlMode = mode === "mobile" ? "mobile" : "pc";
+  localStorage.setItem("missileControlMode", controlMode);
+  updateControlModeUI();
+}
+
+
+/* =========================================================
    BUTTONS
 ========================================================= */
+
+// Give every normal UI button a short keyboard-style click sound.
+// Gameplay buttons that already make their own sounds are excluded.
+document.querySelectorAll("button").forEach(button=>{
+  if(button.id === "jumpBtn" || button.id === "duckBtn") return;
+  button.addEventListener("pointerdown", ()=>sound("button"), {passive:true});
+});
+
+document.getElementById("pcModeButton")
+  .addEventListener("click", ()=>setControlMode("pc"));
+
+document.getElementById("mobileModeButton")
+  .addEventListener("click", ()=>setControlMode("mobile"));
+
+updateControlModeUI();
 
 document.getElementById("startButton")
   .addEventListener(
