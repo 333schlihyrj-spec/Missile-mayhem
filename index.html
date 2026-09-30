@@ -168,7 +168,7 @@ h1{
   margin-bottom:10px;
 }
 .dailyQuestHeader strong{color:#ffd166;}
-.dailyQuestDate{font-size:12px;color:#94a3b8;}
+.dailyQuestDate{font-size:12px;color:#94a3b8;font-variant-numeric:tabular-nums;}
 .questItem{
   margin-top:9px;
   padding:10px 12px;
@@ -971,22 +971,26 @@ function ensureRebirthShopContent(){
         grid.insertBefore(card, grid.querySelector("#backShopButton"));
       }
 
-      const accKey=getRebirthAccessoryKey(r,slot);
-      if(!shopPrices[accKey]) shopPrices[accKey]=300 + (r-1)*400 + (slot-1)*200;
-      const template=rebirthAccessoryTemplates[(r*4 + slot-5) % rebirthAccessoryTemplates.length];
-      if(!grid.querySelector(`[data-item=\"${accKey}\"]`)){
-        const card=document.createElement("div");
-        card.className="shopCard rebirthShopItem";
-        card.dataset.rebirthLevel=String(r);
-        card.innerHTML=`<div class=\"shopIcon\">${template[0]}</div><h3>${template[1]} R${r}</h3><p>${template[2]}</p><button data-item=\"${accKey}\">🪙 ${getShopPrice(accKey)}</button>`;
-        grid.insertBefore(card, grid.lastElementChild);
-      }
+      /* Only ONE new accessory unlocks per rebirth. */
+      if(slot === 1){
+        const accKey=getRebirthAccessoryKey(r,slot);
+        if(!shopPrices[accKey]) shopPrices[accKey]=300 + (r-1)*400;
+        const template=rebirthAccessoryTemplates[(r-1) % rebirthAccessoryTemplates.length];
+        if(!grid.querySelector(`[data-item="${accKey}"]`)){
+          const card=document.createElement("div");
+          card.className="shopCard rebirthShopItem";
+          card.dataset.rebirthLevel=String(r);
+          card.dataset.rebirthAccessory="true";
+          card.innerHTML=`<div class="shopIcon">${template[0]}</div><h3>${template[1]} R${r}</h3><p>${template[2]}</p><button data-item="${accKey}">🪙 ${getShopPrice(accKey)}</button>`;
+          grid.insertBefore(card, grid.lastElementChild);
+        }
 
-      if(!select.querySelector(`option[value=\"${accKey}\"]`)){
-        const option=document.createElement("option");
-        option.value=accKey;
-        option.textContent=`${template[1]} R${r}`;
-        select.appendChild(option);
+        if(!select.querySelector(`[value="${accKey}"]`)){
+          const option=document.createElement("option");
+          option.value=accKey;
+          option.textContent=`${template[1]} R${r}`;
+          select.appendChild(option);
+        }
       }
     }
   }
@@ -1024,13 +1028,19 @@ function randomQuest(pool){
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-function createRandomDailyQuests(today){
+function createRandomDailyQuests(today, previousQuests=null){
+  function differentQuest(pool, oldQuest){
+    if(!oldQuest || pool.length < 2) return randomQuest(pool);
+    const choices = pool.filter(q => q.text !== oldQuest.text);
+    return randomQuest(choices.length ? choices : pool);
+  }
+
   return {
     date:today,
     quests:[
-      randomQuest(dailyQuestPools.coins),
-      randomQuest(dailyQuestPools.stomps),
-      randomQuest(dailyQuestPools.level)
+      differentQuest(dailyQuestPools.coins, previousQuests?.quests?.[0]),
+      differentQuest(dailyQuestPools.stomps, previousQuests?.quests?.[1]),
+      differentQuest(dailyQuestPools.level, previousQuests?.quests?.[2])
     ],
     progress:{coins:0,stomps:0,level:1},
     claimed:{coins:false,stomps:false,level:false}
@@ -1053,7 +1063,7 @@ function loadDailyQuests(){
     if(saved && saved.date === today && Array.isArray(saved.quests) && saved.quests.length === 3){
       dailyQuests = saved;
     }else{
-      dailyQuests = createRandomDailyQuests(today);
+      dailyQuests = createRandomDailyQuests(today, saved);
       saveDailyQuests();
     }
   }catch{
@@ -1067,12 +1077,42 @@ function saveDailyQuests(){
   localStorage.setItem("missileDailyQuests", JSON.stringify(dailyQuests));
 }
 
+function getNextDailyReset(){
+  const now = new Date();
+  const next = new Date(now);
+  next.setHours(24, 0, 0, 0);
+  return next;
+}
+
+function getDailyQuestCountdown(){
+  const now = new Date();
+  const next = getNextDailyReset();
+  let ms = next - now;
+  if(ms <= 0){
+    loadDailyQuests();
+    ms = getNextDailyReset() - new Date();
+  }
+
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(hours).padStart(2,"0")}h ${String(minutes).padStart(2,"0")}m ${String(seconds).padStart(2,"0")}s`;
+}
+
+function updateDailyQuestTimer(){
+  const date = document.getElementById("dailyQuestDate");
+  if(!date) return;
+  loadDailyQuestsIfNeeded();
+  date.textContent = `New quests in ${getDailyQuestCountdown()}`;
+}
+
 function renderDailyQuests(){
   const list = document.getElementById("dailyQuestList");
   const date = document.getElementById("dailyQuestDate");
   if(!list || !date) return;
 
-  date.textContent = "Resets tomorrow";
+  date.textContent = `New quests in ${getDailyQuestCountdown()}`;
   list.innerHTML = dailyQuests.quests.map(q=>{
     const value = Math.min(q.target, Number(dailyQuests.progress[q.id] || 0));
     const done = !!dailyQuests.claimed[q.id];
@@ -1175,7 +1215,11 @@ function closeShop(){
 
 function updateShopButtons(){
   ensureRebirthShopContent();
-  document.querySelectorAll(".rebirthShopItem").forEach(card=>{
+  /* Hide legacy static rebirth accessories. Only one new accessory is added per rebirth. */
+  document.querySelectorAll(".rebirthShopItem:not([data-rebirth-level])").forEach(card=>{
+    card.style.display = "none";
+  });
+  document.querySelectorAll(".rebirthShopItem[data-rebirth-level]").forEach(card=>{
     const required = Number(card.dataset.rebirthLevel || 1);
     card.style.display = rebirthCount >= required ? "block" : "none";
   });
