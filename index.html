@@ -1511,7 +1511,7 @@ function deleteAllProgress(){
 
   document.getElementById("shop").style.display = "none";
   document.getElementById("pauseMenu").style.display = "none";
-  document.getElementById("gameOver").style.display = "none";
+  // There is no separate game-over overlay; gameOver() returns to the main menu.
   document.getElementById("menu").style.display = "flex";
   document.querySelector("#menu .subtitle").textContent = "Progress deleted. Welcome back to Missile Mayhem!";
 
@@ -2290,9 +2290,9 @@ function getRebirthHazardType(){
 
   // Make level 10 the first level of the next hazard tier.
   // This means Rebirth 1 gets Nuke hazards starting at level 10.
-  const tenLevelStep = Math.floor(Math.max(1, level) / 10);
+  const hazardTier = Math.floor(Math.max(1, level) / 10);
   const hazardIndex = Math.min(
-    rebirthCount + tenLevelStep,
+    rebirthCount + hazardTier,
     types.length - 1
   );
 
@@ -3481,7 +3481,11 @@ function update(dt){
 
     }
 
-    if(level === 20){
+    // The original game starts its special nuke phase at level 20.
+    // After a rebirth, hazard tiers shift earlier, so level 20 must be
+    // allowed to spawn the next rebirth hazard instead of forcing the old
+    // nuke phase again.
+    if(level === 20 && rebirthCount === 0){
       startNukeCutscene();
       return;
     }
@@ -3497,7 +3501,7 @@ function update(dt){
   if(bossPhase){
     missiles = [];
     updateBossBattle(dt, previousPlayerBottom);
-  }else if(nukePhase){
+  }else if(nukePhase && rebirthCount === 0){
     missiles = [];
     updateNukeHazards(dt);
   }else{
