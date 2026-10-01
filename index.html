@@ -2266,11 +2266,10 @@ let elementalImpactTimer = 0;
 
 function getRebirthHazardType(){
   // Each rebirth shifts the 10-level hazard cycle forward by one:
-  // Rebirth 1: Big -> Nuke -> Void
-  // Rebirth 2: Nuke -> Void -> Fire
-  // Rebirth 3: Void -> Fire -> Ice
-  // ...and so on.
-  // The first 10 levels use the first hazard, the next 10 use the next, etc.
+  // Rebirth 1: Big through level 9, Nuke from level 10, Void from level 20.
+  // Rebirth 2: Nuke through level 9, Void from level 10, Fire from level 20.
+  // Rebirth 3: Void through level 9, Fire from level 10, Ice from level 20.
+  // ...and so on. Level 10 is the start of the next hazard tier.
   const types = [
     "normal",
     "big",
@@ -2289,7 +2288,9 @@ function getRebirthHazardType(){
     return "normal";
   }
 
-  const tenLevelStep = Math.floor((Math.max(1, level) - 1) / 10);
+  // Make level 10 the first level of the next hazard tier.
+  // This means Rebirth 1 gets Nuke hazards starting at level 10.
+  const tenLevelStep = Math.floor(Math.max(1, level) / 10);
   const hazardIndex = Math.min(
     rebirthCount + tenLevelStep,
     types.length - 1
