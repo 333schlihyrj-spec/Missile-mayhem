@@ -230,6 +230,38 @@ select{
   transition:background .15s, opacity .15s;
 }
 
+
+.progressButton{
+  background:linear-gradient(135deg,#2563eb,#06b6d4);
+}
+.progressButton:hover{
+  transform:translateY(-2px);
+}
+#progressOverlay{
+  position:fixed; inset:0; z-index:1000;
+  display:none; align-items:center; justify-content:center;
+  padding:20px; background:rgba(0,0,0,.78);
+}
+.progressBox{
+  width:min(760px,96vw); max-height:90vh; overflow:auto;
+  padding:26px; border-radius:22px;
+  background:linear-gradient(180deg,#172554,#0f172a);
+  border:2px solid rgba(255,255,255,.16);
+  box-shadow:0 20px 70px rgba(0,0,0,.5);
+}
+.progressTitle{font-size:34px;font-weight:900;text-align:center;margin-bottom:6px}
+.progressHint{text-align:center;color:#cbd5e1;margin-bottom:20px}
+.progressSlots{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.progressSlot{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:16px;min-width:0}
+.progressSlot h3{margin:0 0 8px;font-size:22px}
+.progressSlot .slotInfo{min-height:58px;color:#cbd5e1;font-size:14px;line-height:1.5}
+.progressSlot button{width:100%;margin-top:8px;min-height:44px;border:0;border-radius:10px;font-weight:800;cursor:pointer}
+.slotSave{background:#22c55e;color:#052e16}
+.slotLoad{background:#38bdf8;color:#082f49}
+.slotDelete{background:#ef4444;color:white}
+.progressClose{display:block;width:100%;margin-top:18px;min-height:46px;border:0;border-radius:12px;background:#475569;color:white;font-weight:800;cursor:pointer}
+@media(max-width:700px){.progressSlots{grid-template-columns:1fr}.progressBox{padding:18px}.progressTitle{font-size:28px}}
+
 .deleteProgressButton{
   background:linear-gradient(135deg,#991b1b,#dc2626);
   color:#fff;
@@ -370,6 +402,28 @@ select{
   background:linear-gradient(135deg,#10b981,#059669);
 }
 
+#speedBtn{
+  position:fixed;
+  left:20px;
+  bottom:20px;
+  z-index:25;
+  width:118px;
+  height:52px;
+  border:2px solid rgba(255,255,255,.28);
+  border-radius:16px;
+  color:white;
+  background:linear-gradient(135deg,#f59e0b,#ef4444);
+  font-size:15px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 8px 22px rgba(0,0,0,.25);
+}
+
+#speedBtn.active{
+  background:linear-gradient(135deg,#22c55e,#06b6d4);
+  transform:scale(.97);
+}
+
 #duckBtn.active{
   transform:scale(.95);
   filter:brightness(1.25);
@@ -422,6 +476,10 @@ select{
     display:flex;
   }
 
+  #speedBtn{
+    bottom:98px;
+  }
+
   #hud{
     font-size:14px;
     max-width:75%;
@@ -454,6 +512,7 @@ select{
 </div>
 
 <button id="pauseBtn">PAUSE</button>
+<button id="speedBtn" type="button" aria-pressed="false">⚡ SPEED ×1</button>
 
 
 <div id="pauseMenu">
@@ -575,12 +634,44 @@ select{
         ♻️ REBIRTH 0 — COSTS 100,000 🪙
       </button>
 
+      <button class="menuButton progressButton" id="progressButton" type="button">
+        💾 PROGRESS
+      </button>
+
       <button class="menuButton deleteProgressButton" id="deleteProgressButton" type="button">
         🗑️ DELETE PROGRESS
       </button>
     </div>
 
 
+  </div>
+</div>
+
+<div id="progressOverlay" role="dialog" aria-modal="true" aria-labelledby="progressTitle">
+  <div class="progressBox">
+    <div class="progressTitle" id="progressTitle">💾 PROGRESS</div>
+    <div class="progressHint">Three permanent save slots. Save, load, or delete each slot separately.</div>
+    <div class="progressSlots">
+      <div class="progressSlot" data-slot="1">
+        <h3>🟦 SLOT 1</h3><div class="slotInfo" id="slotInfo1">Empty</div>
+        <button class="slotSave" type="button" data-action="save" data-slot="1">SAVE CURRENT</button>
+        <button class="slotLoad" type="button" data-action="load" data-slot="1">LOAD</button>
+        <button class="slotDelete" type="button" data-action="delete" data-slot="1">DELETE</button>
+      </div>
+      <div class="progressSlot" data-slot="2">
+        <h3>🟩 SLOT 2</h3><div class="slotInfo" id="slotInfo2">Empty</div>
+        <button class="slotSave" type="button" data-action="save" data-slot="2">SAVE CURRENT</button>
+        <button class="slotLoad" type="button" data-action="load" data-slot="2">LOAD</button>
+        <button class="slotDelete" type="button" data-action="delete" data-slot="2">DELETE</button>
+      </div>
+      <div class="progressSlot" data-slot="3">
+        <h3>🟨 SLOT 3</h3><div class="slotInfo" id="slotInfo3">Empty</div>
+        <button class="slotSave" type="button" data-action="save" data-slot="3">SAVE CURRENT</button>
+        <button class="slotLoad" type="button" data-action="load" data-slot="3">LOAD</button>
+        <button class="slotDelete" type="button" data-action="delete" data-slot="3">DELETE</button>
+      </div>
+    </div>
+    <button class="progressClose" id="progressCloseButton" type="button">CLOSE</button>
   </div>
 </div>
 
@@ -1434,6 +1525,102 @@ function updateRebirthButton(){
     ? "You have enough coins to rebirth!"
     : "You need 100,000 coins to Rebirth";
   button.textContent = `♻️ REBIRTH ${rebirthCount} — COSTS 100,000 🪙`;
+}
+
+const SAVE_SLOT_KEYS = [
+  "missileCoins","missileShopItems","missileRebirthCount","missileBossBeaten",
+  "missileCoinMultiplier","missileDailyQuests","missileSkin","missileShirt",
+  "missilePants","missileHair","missileAccessory"
+];
+
+function getProgressSlotKey(slot){
+  return `missileProgressSlot${slot}`;
+}
+
+function readProgressSlot(slot){
+  try{
+    return JSON.parse(localStorage.getItem(getProgressSlotKey(slot)) || "null");
+  }catch(e){
+    return null;
+  }
+}
+
+function captureCurrentProgress(){
+  const data = {};
+  SAVE_SLOT_KEYS.forEach(key=>{
+    const value = localStorage.getItem(key);
+    if(value !== null) data[key] = value;
+  });
+  return {
+    version:1,
+    savedAt:new Date().toISOString(),
+    coins:Number(coins)||0,
+    rebirthCount:Number(rebirthCount)||0,
+    data:data
+  };
+}
+
+function saveProgressSlot(slot){
+  if(![1,2,3].includes(Number(slot))) return;
+  // Make sure the latest in-memory shop/rebirth state is persisted first.
+  saveShop();
+  localStorage.setItem(getProgressSlotKey(slot), JSON.stringify(captureCurrentProgress()));
+  renderProgressSlots();
+  sound("coin");
+  alert(`Progress saved to Slot ${slot}.`);
+}
+
+function loadProgressSlot(slot){
+  const save = readProgressSlot(slot);
+  if(!save){
+    alert(`Slot ${slot} is empty.`);
+    return;
+  }
+  if(!confirm(`Load Slot ${slot}? Your current unsaved progress will be replaced.`)) return;
+
+  SAVE_SLOT_KEYS.forEach(key=>localStorage.removeItem(key));
+  Object.entries(save.data || {}).forEach(([key,value])=>localStorage.setItem(key,String(value)));
+  location.reload();
+}
+
+function deleteProgressSlot(slot){
+  if(!readProgressSlot(slot)){
+    alert(`Slot ${slot} is already empty.`);
+    return;
+  }
+  if(!confirm(`Delete Slot ${slot}? This saved progress cannot be recovered.`)) return;
+  localStorage.removeItem(getProgressSlotKey(slot));
+  renderProgressSlots();
+  sound("button");
+}
+
+function renderProgressSlots(){
+  for(let slot=1;slot<=3;slot++){
+    const info=document.getElementById(`slotInfo${slot}`);
+    if(!info) continue;
+    const save=readProgressSlot(slot);
+    const loadBtn=document.querySelector(`[data-action="load"][data-slot="${slot}"]`);
+    const deleteBtn=document.querySelector(`[data-action="delete"][data-slot="${slot}"]`);
+    if(save){
+      const date=save.savedAt ? new Date(save.savedAt).toLocaleString() : "Saved";
+      info.innerHTML=`🪙 ${Number(save.coins||0).toLocaleString()} coins<br>♻️ Rebirth ${Number(save.rebirthCount||0)}<br>Saved ${date}`;
+      if(loadBtn) loadBtn.disabled=false;
+      if(deleteBtn) deleteBtn.disabled=false;
+    }else{
+      info.textContent="Empty — save your current progress here.";
+      if(loadBtn) loadBtn.disabled=true;
+      if(deleteBtn) deleteBtn.disabled=true;
+    }
+  }
+}
+
+function openProgress(){
+  renderProgressSlots();
+  document.getElementById("progressOverlay").style.display="flex";
+}
+
+function closeProgress(){
+  document.getElementById("progressOverlay").style.display="none";
 }
 
 function deleteAllProgress(){
@@ -2636,7 +2823,7 @@ function updateNukeHazards(dt){
 
   for(let i=nukeDrops.length-1;i>=0;i--){
     const n = nukeDrops[i];
-    n.y += n.speed * dt;
+    n.y += n.speed * getHazardDt(dt);
 
     if(n.y + n.h >= groundY){
       createNukeHole(n.x);
@@ -2660,7 +2847,7 @@ function updateNukeHazards(dt){
 
   for(let i=nukeHoles.length-1;i>=0;i--){
     const hole = nukeHoles[i];
-    hole.x -= hole.speed * dt;
+    hole.x -= hole.speed * getHazardDt(dt);
 
     const playerBox = getPlayerHitbox();
     const horizontalHit =
@@ -2683,8 +2870,13 @@ function updateNukeHazards(dt){
 
 function drawNukeHazards(){
   for(const hole of nukeHoles){
+    const pulse = 1 + Math.sin((hole.pulse || 0) * 8) * .05;
+    ctx.save();
+    ctx.translate(hole.x + hole.w/2, hole.y + 7);
+    ctx.scale(pulse,1);
+
     ctx.fillStyle = '#090b12';
-    ctx.fillRect(hole.x,hole.y+6,hole.w,hole.h);
+    ctx.fillRect(-hole.w/2,6,hole.w,hole.h);
 
     ctx.fillStyle = '#000';
     ctx.beginPath();
@@ -2693,8 +2885,9 @@ function drawNukeHazards(){
 
     ctx.fillStyle = 'rgba(255,91,62,.45)';
     ctx.beginPath();
-    ctx.ellipse(hole.x+hole.w/2,hole.y+8,hole.w*.28,5,0,0,Math.PI*2);
+    ctx.ellipse(0,8,hole.w*.28,5,0,0,Math.PI*2);
     ctx.fill();
+    ctx.restore();
   }
 
   for(const n of nukeDrops){
@@ -2724,9 +2917,9 @@ function drawNukeHazards(){
     ctx.strokeRect(-19,-28,38,50);
 
     ctx.fillStyle = '#ffd166';
-    ctx.font = 'bold 12px Arial';
+    ctx.font = 'bold 20px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('!',0,-5);
+    ctx.fillText('☢',0,2);
 
     ctx.fillStyle = '#ff4538';
     ctx.beginPath();
@@ -2989,7 +3182,7 @@ function updateBossBattle(dt, previousPlayerBottom){
     const m = bossMissiles[i];
 
     if(!m.reflected){
-      m.x -= m.speed * dt;
+      m.x -= m.speed * getHazardDt(dt);
       m.rotation = Math.PI;
 
       if(stompBossMissile(m, previousPlayerBottom)){
@@ -3011,8 +3204,8 @@ function updateBossBattle(dt, previousPlayerBottom){
         continue;
       }
     }else{
-      m.x += m.vx * dt;
-      m.y += m.vy * dt;
+      m.x += m.vx * getHazardDt(dt);
+      m.y += m.vy * getHazardDt(dt);
       m.rotation = 0;
 
       if(boss && collision(m,boss)){
@@ -3258,7 +3451,18 @@ function createElementalImpact(m){
   const groundY = H - 110;
   const x = Math.max(0, Math.min(W, m.x + m.w/2));
 
-  if(m.specialType === "void"){
+  if(m.specialType === "nuke"){
+    const width = 78 + Math.random()*42;
+    nukeHoles.push({
+      x:x-width/2,
+      y:groundY-6,
+      w:width,
+      h:112,
+      speed:255+level*4,
+      pulse:0
+    });
+    sound("nuke");
+  }else if(m.specialType === "void"){
     const width = 31.25 + Math.random()*16.25;
     // Void holes are half the previous size while keeping their gameplay effect.
     voidHoles.push({
@@ -3305,9 +3509,25 @@ function createElementalImpact(m){
 function updateElementalHazards(dt){
   const groundY = H - 110;
 
+  // Rebirth nuke impacts leave moving ground holes that must be jumped over.
+  for(let i=nukeHoles.length-1;i>=0;i--){
+    const hole=nukeHoles[i];
+    hole.x -= hole.speed * dt;
+    hole.pulse = (hole.pulse || 0) + dt;
+    const box=getPlayerHitbox();
+    const horizontal=box.x+box.w>hole.x && box.x<hole.x+hole.w;
+    const grounded=box.y+box.h>=groundY-8;
+    if(horizontal && grounded){
+      hitPlayer();
+      nukeHoles.splice(i,1);
+      continue;
+    }
+    if(hole.x+hole.w < -60) nukeHoles.splice(i,1);
+  }
+
   for(let i=voidHoles.length-1;i>=0;i--){
     const h = voidHoles[i];
-    h.x -= h.speed * dt;
+    h.x -= h.speed * getHazardDt(dt);
     h.pulse += dt;
     const box = getPlayerHitbox();
     const horizontal = box.x + box.w > h.x && box.x < h.x+h.w;
@@ -3327,7 +3547,7 @@ function updateElementalHazards(dt){
 
   for(let i=fireZones.length-1;i>=0;i--){
     const f=fireZones[i];
-    f.x -= f.speed * dt;
+    f.x -= f.speed * getHazardDt(dt);
     f.life -= dt;
     const box=getPlayerHitbox();
     const horizontal=box.x+box.w>f.x && box.x<f.x+f.w;
@@ -3532,7 +3752,7 @@ function update(dt){
 
     if(m.specialType){
       if(m.falling){
-        m.y += m.speed * dt;
+        m.y += m.speed * getHazardDt(dt);
         if(m.y + m.h >= m.groundY){
           m.y = m.groundY - m.h;
           m.falling = false;
@@ -3550,7 +3770,7 @@ function update(dt){
       }
     }else{
       // Normal/big missiles travel straight from right to left.
-      m.x += (m.vx ?? -m.speed) * dt;
+      m.x += (m.vx ?? -m.speed) * getHazardDt(dt);
       // Keep their spawn height fixed while they cross the screen.
       m.vy = 0;
     }
@@ -5106,6 +5326,16 @@ function drawMissile(m){
     }else{
       ctx.beginPath(); ctx.arc(0,0,Math.min(m.w,m.h)*.22,0,Math.PI*2); ctx.fill();
     }
+    if(type==='nuke'){
+      ctx.fillStyle='#ffd166';
+      ctx.font='bold 25px Arial';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.shadowColor='#000';
+      ctx.shadowBlur=5;
+      ctx.fillText('☢',0,0);
+      ctx.shadowBlur=0;
+    }
     ctx.fillStyle='#ffb000';
     ctx.beginPath(); ctx.moveTo(-m.w*.25,0); ctx.lineTo(-m.w*.52,-8); ctx.lineTo(-m.w*.40,0); ctx.lineTo(-m.w*.52,8); ctx.closePath(); ctx.fill();
     ctx.restore();
@@ -5575,6 +5805,22 @@ function draw(){
    CONTROL MODE
 ========================================================= */
 
+let bombSpeedMultiplier = 1;
+
+function getHazardDt(dt){
+  return dt * bombSpeedMultiplier;
+}
+
+function updateSpeedButton(){
+  const button = document.getElementById("speedBtn");
+  if(!button) return;
+  const fast = bombSpeedMultiplier > 1;
+  button.textContent = fast ? "⚡ SPEED ×2" : "⚡ SPEED ×1";
+  button.classList.toggle("active", fast);
+  button.setAttribute("aria-pressed", fast ? "true" : "false");
+  button.title = fast ? "Bomb speed is doubled" : "Bomb speed is normal";
+}
+
 let controlMode = localStorage.getItem("missileControlMode") ||
   (("ontouchstart" in window || navigator.maxTouchPoints > 0) ? "mobile" : "pc");
 
@@ -5617,7 +5863,15 @@ document.getElementById("pcModeButton")
 document.getElementById("mobileModeButton")
   .addEventListener("click", ()=>setControlMode("mobile"));
 
+document.getElementById("speedBtn")
+  .addEventListener("click", ()=>{
+    bombSpeedMultiplier = bombSpeedMultiplier === 1 ? 2 : 1;
+    updateSpeedButton();
+    sound("button");
+  });
+
 updateControlModeUI();
+updateSpeedButton();
 
 document.getElementById("startButton")
   .addEventListener(
@@ -5630,6 +5884,22 @@ document.getElementById("shopButton")
     "click",
     openShop
   );
+
+document.getElementById("progressButton")
+  .addEventListener("click", openProgress);
+
+document.getElementById("progressCloseButton")
+  .addEventListener("click", closeProgress);
+
+document.querySelectorAll("#progressOverlay [data-action]").forEach(button=>{
+  button.addEventListener("click", ()=>{
+    const slot=Number(button.dataset.slot);
+    const action=button.dataset.action;
+    if(action === "save") saveProgressSlot(slot);
+    if(action === "load") loadProgressSlot(slot);
+    if(action === "delete") deleteProgressSlot(slot);
+  });
+});
 
 document.getElementById("deleteProgressButton")
   .addEventListener("click", function(event){
