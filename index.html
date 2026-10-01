@@ -2051,24 +2051,14 @@ function spawnMissile(){
   // Normal/big missiles still travel from the right side.
   // Each rebirth moves them DOWN to the next clearly visible row.
   // The old random 250px range made the row change hard to notice.
-  const maxRows = 6;
-  const row = Math.min(rebirthCount, maxRows - 1);
-  const rowSpacing = 55;
-  const topRowOffset = 250;
-  const rowJitter = (Math.random() - 0.5) * 10;
-  const missileRowOffset = Math.max(0, topRowOffset - row * rowSpacing);
-  const y = Math.min(
-    groundY - h,
-    groundY - h - missileRowOffset + rowJitter
-  );
-
-  // Every normal/big missile is still launched from the RIGHT side,
-  // but its flight angle is randomized so missiles can travel diagonally.
-  // The horizontal component always points left, so they never launch
-  // from another side of the screen.
-  const randomAngle = (Math.random() - 0.5) * (Math.PI * 0.62);
-  const velocityX = -Math.cos(randomAngle) * speed;
-  const velocityY = Math.sin(randomAngle) * speed;
+  // Normal/big missiles always launch from the RIGHT and travel in a
+  // perfectly straight horizontal line. Pick a new random height for each
+  // missile, but never change that height while it crosses the screen.
+  const minY = 90;
+  const maxY = Math.max(minY, groundY - h - 20);
+  const y = minY + Math.random() * (maxY - minY);
+  const velocityX = -speed;
+  const velocityY = 0;
 
   missiles.push({
     x:W + 80,
@@ -3554,22 +3544,10 @@ function update(dt){
         continue;
       }
     }else{
-      // Normal/big missiles keep their randomized direction after being
-      // launched from the right. Keep their movement inside the play area
-      // so they remain visible instead of flying straight off the top/bottom.
+      // Normal/big missiles travel straight from right to left.
       m.x += (m.vx ?? -m.speed) * dt;
-      m.y += (m.vy ?? 0) * dt;
-
-      const topLimit = 55;
-      const bottomLimit = m.giant ? m.groundY - m.h - 8 : m.groundY - m.h - 8;
-
-      if(m.y < topLimit){
-        m.y = topLimit;
-        m.vy = Math.abs(m.vy ?? 0);
-      }else if(m.y > bottomLimit){
-        m.y = bottomLimit;
-        m.vy = -Math.abs(m.vy ?? 0);
-      }
+      // Keep their spawn height fixed while they cross the screen.
+      m.vy = 0;
     }
 
     if(stompMissile(m, previousPlayerBottom)){
