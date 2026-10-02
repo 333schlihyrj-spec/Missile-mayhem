@@ -2192,6 +2192,13 @@ function spawnMissile(){
   const groundY = H - 110;
 
   if(special){
+    // Nukes use the dedicated falling-nuke system so they are always
+    // visible, spawn from the top, and reliably create ground holes.
+    if(hazardType === "nuke") {
+      spawnNukeDrop();
+      return;
+    }
+
     // Elemental tiers fall from above. Void missiles are deliberately
     // spread across the playfield so they are easier to see and dodge.
     const isVoid = hazardType === "void";
@@ -2791,15 +2798,15 @@ function drawNuke(){
 ========================================================= */
 
 function spawnNukeDrop(){
-  // Nukes always enter from the TOP of the screen at a random X position.
-  // They then fall straight down from that position.
-  const nukeWidth = 42;
+  // Nukes always enter from the TOP at a random X position and fall straight down.
+  const nukeWidth = 58;
   nukeDrops.push({
-    x: Math.random() * Math.max(0, W - nukeWidth),
-    y: -80,
+    x: 12 + Math.random() * Math.max(1, W - nukeWidth - 24),
+    y: -105,
     w: nukeWidth,
-    h: 58,
-    speed: 650 + Math.random() * 120
+    h: 78,
+    speed: 650 + Math.random() * 120,
+    pulse: Math.random() * Math.PI * 2
   });
 }
 
@@ -2919,20 +2926,21 @@ function drawNukeHazards(){
     ctx.strokeRect(-19,-28,38,50);
 
     ctx.fillStyle = '#ffd166';
-    ctx.font = 'bold 20px Arial';
+    ctx.font = 'bold 34px "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('☢',0,2);
+    ctx.textBaseline = 'middle';
+    ctx.fillText('☢️',0,0);
 
     ctx.fillStyle = '#ff4538';
     ctx.beginPath();
-    ctx.arc(0,21,10,0,Math.PI*2);
+    ctx.arc(0,27,12,0,Math.PI*2);
     ctx.fill();
 
     ctx.fillStyle = '#ffb000';
     ctx.beginPath();
-    ctx.moveTo(-7,30);
-    ctx.lineTo(0,48 + Math.random()*8);
-    ctx.lineTo(7,30);
+    ctx.moveTo(-9,38);
+    ctx.lineTo(0,58 + Math.random()*8);
+    ctx.lineTo(9,38);
     ctx.closePath();
     ctx.fill();
 
@@ -3723,7 +3731,9 @@ function update(dt){
   if(bossPhase){
     missiles = [];
     updateBossBattle(dt, previousPlayerBottom);
-  }else if(nukePhase && rebirthCount === 0){
+  }else if(nukePhase || getRebirthHazardType() === "nuke"){
+    // Use the dedicated nuke system for both the original level-20 phase
+    // and Rebirth nuke tiers. This guarantees visible falling nukes and holes.
     missiles = [];
     updateNukeHazards(dt);
   }else{
