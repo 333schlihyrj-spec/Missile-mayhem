@@ -2799,12 +2799,12 @@ function drawNuke(){
 
 function spawnNukeDrop(){
   // Nukes always enter from the TOP at a random X position and fall straight down.
-  const nukeWidth = 58;
+  const nukeWidth = 72;
   nukeDrops.push({
     x: 12 + Math.random() * Math.max(1, W - nukeWidth - 24),
     y: -105,
     w: nukeWidth,
-    h: 78,
+    h: 88,
     speed: 650 + Math.random() * 120,
     pulse: Math.random() * Math.PI * 2
   });
@@ -2926,7 +2926,7 @@ function drawNukeHazards(){
     ctx.strokeRect(-19,-28,38,50);
 
     ctx.fillStyle = '#ffd166';
-    ctx.font = 'bold 34px "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif';
+    ctx.font = 'bold 42px "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('☢️',0,0);
@@ -5284,7 +5284,9 @@ function drawMissile(m){
     ctx.translate(m.x+m.w/2,m.y+m.h/2);
     const type=m.specialType;
     const colors={nuke:'#ff4538',void:'#a855f7',fire:'#ff6b00',ice:'#67e8f9',lightning:'#facc15',rock:'#78716c',water:'#38bdf8',wind:'#e5e7eb',plasma:'#ec4899'};
+    const symbols={nuke:'☢',void:'◉',fire:'🔥',ice:'❄',lightning:'⚡',rock:'◆',water:'💧',wind:'≋',plasma:'⚛'};
     const c=colors[type] || '#fff';
+    const symbol=symbols[type] || '✦';
 
     if(type==='void'){
       // Void missile: bright purple/black core with a long visible falling trail.
@@ -5373,16 +5375,21 @@ function drawMissile(m){
     }else{
       ctx.beginPath(); ctx.arc(0,0,Math.min(m.w,m.h)*.22,0,Math.PI*2); ctx.fill();
     }
-    if(type==='nuke'){
-      ctx.fillStyle='#ffd166';
-      ctx.font='bold 25px Arial';
-      ctx.textAlign='center';
-      ctx.textBaseline='middle';
-      ctx.shadowColor='#000';
-      ctx.shadowBlur=5;
-      ctx.fillText('☢',0,0);
-      ctx.shadowBlur=0;
-    }
+
+    // Every elemental projectile gets a large, high-contrast symbol so
+    // the hazard type is readable before it reaches the player.
+    ctx.save();
+    ctx.fillStyle='#ffffff';
+    ctx.font='bold 25px "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.lineWidth=4;
+    ctx.strokeStyle='rgba(0,0,0,.85)';
+    ctx.shadowColor='#000';
+    ctx.shadowBlur=7;
+    ctx.strokeText(symbol,0,0);
+    ctx.fillText(symbol,0,0);
+    ctx.restore();
     ctx.fillStyle='#ffb000';
     ctx.beginPath(); ctx.moveTo(-m.w*.25,0); ctx.lineTo(-m.w*.52,-8); ctx.lineTo(-m.w*.40,0); ctx.lineTo(-m.w*.52,8); ctx.closePath(); ctx.fill();
     ctx.restore();
