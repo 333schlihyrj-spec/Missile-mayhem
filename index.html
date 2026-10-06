@@ -2799,13 +2799,13 @@ function drawNuke(){
 
 function spawnNukeDrop(){
   // Nukes always enter from the TOP at a random X position and fall straight down.
-  const nukeWidth = 72;
+  const nukeWidth = 92;
   nukeDrops.push({
     x: 12 + Math.random() * Math.max(1, W - nukeWidth - 24),
-    y: -105,
+    y: -125,
     w: nukeWidth,
-    h: 88,
-    speed: 650 + Math.random() * 120,
+    h: 108,
+    speed: 210 + Math.random() * 70,
     pulse: Math.random() * Math.PI * 2
   });
 }
@@ -2827,7 +2827,7 @@ function updateNukeHazards(dt){
   nukeDropTimer -= dt;
   if(nukeDropTimer <= 0){
     spawnNukeDrop();
-    nukeDropTimer = 1.8 + Math.random() * 1.4;
+    nukeDropTimer = 1.15 + Math.random() * 0.85;
   }
 
   for(let i=nukeDrops.length-1;i>=0;i--){
@@ -2903,44 +2903,48 @@ function drawNukeHazards(){
     ctx.save();
     ctx.translate(n.x,n.y);
 
-    ctx.strokeStyle = 'rgba(255,255,255,.35)';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(0,-28);
-    ctx.lineTo(0,-70);
-    ctx.stroke();
-
-    // Bright warning glow makes the falling nuke easy to see.
+    // Very large warning trail so the nuke is visible before it reaches the player.
     ctx.shadowColor = '#ff4538';
-    ctx.shadowBlur = 18;
+    ctx.shadowBlur = 24;
+    ctx.fillStyle = 'rgba(255,69,56,.75)';
+    ctx.beginPath();
+    ctx.moveTo(-16,-38);
+    ctx.lineTo(0,-105);
+    ctx.lineTo(16,-38);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
 
+    // Large, high-contrast nuke body.
+    ctx.shadowColor = '#ff4538';
+    ctx.shadowBlur = 28;
     ctx.fillStyle = '#202936';
     ctx.beginPath();
-    ctx.roundRect(-19,-28,38,50,10);
+    ctx.roundRect(-40,-42,80,86,16);
     ctx.fill();
-
     ctx.shadowBlur = 0;
 
     ctx.strokeStyle = '#ffd166';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(-19,-28,38,50);
+    ctx.lineWidth = 6;
+    ctx.strokeRect(-40,-42,80,86);
 
-    ctx.fillStyle = '#ffd166';
-    ctx.font = 'bold 42px "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif';
+    // Bright radiation symbol on the front.
+    ctx.fillStyle = '#ffe066';
+    ctx.font = 'bold 64px "Segoe UI Symbol", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('☢️',0,0);
+    ctx.fillText('☢',0,0);
 
+    // Bright red engine/flame.
     ctx.fillStyle = '#ff4538';
     ctx.beginPath();
-    ctx.arc(0,27,12,0,Math.PI*2);
+    ctx.arc(0,52,18,0,Math.PI*2);
     ctx.fill();
-
     ctx.fillStyle = '#ffb000';
     ctx.beginPath();
-    ctx.moveTo(-9,38);
-    ctx.lineTo(0,58 + Math.random()*8);
-    ctx.lineTo(9,38);
+    ctx.moveTo(-14,58);
+    ctx.lineTo(0,92 + Math.random()*10);
+    ctx.lineTo(14,58);
     ctx.closePath();
     ctx.fill();
 
