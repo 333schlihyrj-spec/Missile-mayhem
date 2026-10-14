@@ -1,650 +1,876 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Picture Vault</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --bg:#0b1020; --panel:#151e32; --panel2:#202d48;
-  --border:#30405f; --text:#f0f4ff; --muted:#a5b2cc;
-  --accent:#8064ff; --green:#1bb99c; --red:#dc4668;
-}
-* {box-sizing:border-box}
-body {margin:0;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
-button,input {font:inherit}
-button {
-  padding:10px 14px;border:0;border-radius:9px;
-  background:var(--accent);color:white;cursor:pointer
-}
-button:hover {filter:brightness(1.12)}
-button:disabled {opacity:.5;cursor:wait}
-.secondary {background:var(--panel2);border:1px solid var(--border)}
-.green {background:#087e70}
-.red {background:#922c48}
-input {
-  display:block;width:100%;padding:12px;margin:8px 0 14px;
-  background:#0b1426;color:white;border:1px solid var(--border);
-  border-radius:9px
-}
-header {padding:17px 22px;border-bottom:1px solid var(--border);background:#11192b}
-.header-inner {
-  max-width:1200px;margin:auto;display:flex;justify-content:space-between;
-  align-items:center;gap:12px;flex-wrap:wrap
-}
-.logo {font-size:23px;font-weight:bold}
-.logo span {color:var(--green)}
-main {max-width:1200px;margin:auto;padding:22px}
-.muted {color:var(--muted);line-height:1.5}
-.panel {
-  padding:20px;margin-bottom:18px;background:var(--panel);
-  border:1px solid var(--border);border-radius:14px
-}
-.auth-panel {max-width:450px;margin:45px auto}
-.row {display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.tabs {display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
-.tab-btn.active {background:var(--green);color:#061a18;font-weight:bold}
-.tab {display:none}
-.tab.active {display:block}
-.gallery {display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
-.card {background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;min-width:0}
-.card img {display:block;width:100%;height:175px;object-fit:cover;background:#060a13;cursor:pointer}
-.card-body {padding:11px}
-.card-name {font-weight:bold;overflow-wrap:anywhere;margin-bottom:7px}
-.card-date {color:var(--muted);font-size:12px;margin-bottom:10px}
-.card-actions {display:flex;gap:6px;flex-wrap:wrap}
-.card-actions button {padding:8px;font-size:12px}
-.empty {padding:30px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);text-align:center}
-.drop-area {border:2px dashed #53658b;border-radius:12px;padding:30px;text-align:center;cursor:pointer}
-.drop-area.dragging {border-color:var(--green)}
-.status {color:var(--muted);margin:10px 0;overflow-wrap:anywhere}
-.ai-layout {display:grid;grid-template-columns:1fr 1fr;gap:18px}
-#aiPreview {width:100%;max-height:470px;object-fit:contain;border-radius:10px;background:#070b14}
-.viewer {display:none;position:fixed;z-index:10;inset:0;padding:20px;background:#000d;align-items:center;justify-content:center}
-.viewer.open {display:flex}
-.viewer-inner {width:min(900px,100%);max-height:95vh;overflow:auto;padding:15px;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
-#viewerImage {display:block;width:100%;max-height:72vh;object-fit:contain;margin:12px 0}
-footer {padding:25px;text-align:center;color:var(--muted);font-size:12px}
-@media(max-width:700px) {
-  main {padding:13px}
-  .ai-layout {grid-template-columns:1fr}
-  .gallery {grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}
-  .card img {height:145px}
+:root{--bg:#0b1020;--panel:#151d31;--panel2:#202c45;--text:#f4f6ff;--muted:#a5b0c8;--accent:#7968ff;--border:#303b55;--red:#a52e48}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+button,input{font:inherit}
+button{border:0;border-radius:10px;padding:11px 15px;background:var(--accent);color:white;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}
+button:hover{filter:brightness(1.12)}
+input{width:100%;padding:12px;border:1px solid var(--border);border-radius:9px;background:#0d1425;color:white}
+label{display:block;margin:13px 0 6px;color:var(--muted);font-size:14px}
+.hidden{display:none!important}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 5%;background:#10172a;border-bottom:1px solid var(--border)}
+.brand{font-size:23px;font-weight:bold}.brand span{color:#a99dff}
+main{max-width:1150px;margin:auto;padding:24px 16px 50px}
+.panel{padding:22px;background:var(--panel);border:1px solid var(--border);border-radius:16px;margin-bottom:20px}
+.auth{max-width:450px;margin:45px auto}
+h1,h2{margin-top:0}
+.muted{color:var(--muted)}.small{font-size:13px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:15px}
+.row input{flex:1;min-width:150px}
+.secondary{background:var(--panel2);border:1px solid var(--border)}
+.danger{background:var(--red)}
+.wide{width:100%;margin-top:18px}
+.message{margin-top:13px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
+.error{color:#ff9bab}.success{color:#8be5b0}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.nav button.active{background:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:15px}
+.picture{border:1px solid var(--border);background:var(--panel);border-radius:13px;overflow:hidden;min-width:0}
+.picture img{width:100%;height:185px;object-fit:cover;background:#080c17;cursor:pointer;display:block}
+.info{padding:12px}.name{font-weight:bold;overflow-wrap:anywhere;margin-bottom:10px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.actions button{padding:8px;font-size:12px}
+.empty{grid-column:1/-1;text-align:center;padding:40px 10px;color:var(--muted)}
+.filelabel{display:inline-block;padding:12px 15px;border-radius:10px;background:var(--accent);cursor:pointer;font-weight:bold}
+.filelabel input{display:none}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:520px){
+  main{padding:14px 10px}
+  .panel{padding:16px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .picture img{height:135px}
+  .actions{gap:4px}
+  .actions button{padding:7px 6px}
 }
 </style>
 </head>
 <body>
+
 <header>
-  <div class="header-inner">
-    <div class="logo">🖼️ Picture <span>Vault</span></div>
-    <div id="accountArea" class="row" style="display:none">
-      <span id="accountEmail" class="muted"></span>
-      <button id="logoutBtn" class="secondary">Log Out</button>
-    </div>
+  <div class="brand">🔐 Picture <span>Vault</span></div>
+  <div id="account-bar" class="hidden">
+    <span id="account-email" class="muted small"></span>
+    <button id="logout-btn" class="secondary" type="button">Log out</button>
   </div>
 </header>
 
 <main>
-<section id="authScreen">
-  <div class="panel auth-panel">
+  <section id="auth-screen" class="auth panel">
     <h1>Welcome to Picture Vault</h1>
-    <p class="muted">Sign in to access your pictures on different devices.</p>
-    <div class="tabs">
-      <button id="loginTabBtn" class="tab-btn active">Log In</button>
-      <button id="signupTabBtn" class="tab-btn">Create Account</button>
+    <p class="muted">Create an account to save your pictures across devices.</p>
+
+    <div class="row">
+      <button type="button" id="show-login" class="secondary">Log in</button>
+      <button type="button" id="show-signup">Create account</button>
     </div>
-    <form id="authForm">
-      <label for="email">Email address</label>
-      <input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
-      <label for="password">Password</label>
-      <input id="password" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters">
-      <button id="authSubmit" type="submit" style="width:100%">Log In</button>
+
+    <form id="signup-form">
+      <h2>Create Account</h2>
+
+      <label for="signup-email">Email</label>
+      <input id="signup-email" type="email" autocomplete="email"
+             placeholder="you@example.com" required>
+
+      <label for="signup-password">Password</label>
+      <input id="signup-password" type="password" autocomplete="new-password"
+             minlength="6" placeholder="At least 6 characters" required>
+
+      <label for="signup-confirm">Confirm password</label>
+      <input id="signup-confirm" type="password" autocomplete="new-password"
+             minlength="6" placeholder="Enter password again" required>
+
+      <button id="create-account-btn" class="wide" type="submit">Create Account</button>
     </form>
-    <p id="authStatus" class="status" role="status"></p>
-    <p class="muted">Create an account once, then use the same email and password on your other devices.</p>
-  </div>
-</section>
 
-<section id="appScreen" style="display:none">
-  <h1>Your Picture Vault</h1>
-  <p class="muted">Your pictures are stored in your cloud account.</p>
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="galleryTab">🖼️ Gallery</button>
-    <button class="tab-btn" data-tab="uploadTab">⬆️ Upload</button>
-    <button class="tab-btn" data-tab="aiTab">✨ AI Creator</button>
-    <button class="tab-btn" data-tab="secretTab">🔒 Secret Vault</button>
-  </div>
+    <form id="login-form" class="hidden">
+      <h2>Log In</h2>
 
-  <section id="galleryTab" class="tab active">
-    <div class="panel">
-      <h2>My Pictures</h2>
-      <input id="searchInput" type="search" placeholder="Search pictures...">
-      <button id="refreshBtn" class="secondary">Refresh Gallery</button>
-      <p id="galleryStatus" class="status" role="status"></p>
-    </div>
-    <div id="gallery" class="gallery"></div>
-    <div id="galleryEmpty" class="empty" style="display:none">No pictures yet.</div>
+      <label for="login-email">Email</label>
+      <input id="login-email" type="email" autocomplete="email" required>
+
+      <label for="login-password">Password</label>
+      <input id="login-password" type="password" autocomplete="current-password" required>
+
+      <button id="login-btn" class="wide" type="submit">Log In</button>
+    </form>
+
+    <div id="auth-message" class="message" role="status" aria-live="polite"></div>
   </section>
 
-  <section id="uploadTab" class="tab">
+  <section id="app-screen" class="hidden">
     <div class="panel">
-      <h2>Upload Pictures</h2>
-      <p class="muted">Uploads are saved to your private cloud account.</p>
-      <div id="dropArea" class="drop-area">
-        <h3>Drop images here</h3>
-        <p class="muted">Or choose images from your device.</p>
-        <button id="chooseBtn" type="button">Choose Pictures</button>
-        <input id="fileInput" type="file" accept="image/*" multiple hidden>
+      <h1>Your Picture Vault</h1>
+      <p class="muted">Upload, search, download, and organize your pictures.</p>
+
+      <div class="row">
+        <label class="filelabel">＋ Upload pictures
+          <input id="upload-input" type="file" accept="image/*" multiple>
+        </label>
+        <button id="refresh-btn" type="button" class="secondary">Refresh</button>
       </div>
-      <p id="uploadStatus" class="status" role="status"></p>
-    </div>
-  </section>
 
-  <section id="aiTab" class="tab">
-    <div class="panel">
-      <h2>✨ AI Photo Creator</h2>
-      <div class="ai-layout">
-        <div>
-          <label for="aiPrompt">Describe your picture</label>
-          <input id="aiPrompt" placeholder="A fox in a magical forest at night">
-          <button id="generateBtn">Generate Image</button>
-          <button id="saveAIBtn" class="green" disabled>Save to Cloud</button>
-          <p id="aiStatus" class="status" role="status"></p>
-          <p class="muted">AI generation uses an external service. If that service is unavailable, generation may fail.</p>
-        </div>
-        <div>
-          <img id="aiPreview" alt="Generated image" style="display:none">
-          <div id="aiPlaceholder" class="empty">Your image will appear here.</div>
-        </div>
+      <div id="upload-message" class="message" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="nav">
+      <button type="button" data-view="gallery" class="active">🖼️ Gallery</button>
+      <button type="button" data-view="secret">🔒 Secret Vault</button>
+    </div>
+
+    <section id="gallery-view">
+      <div class="row">
+        <input id="search-input" type="search" placeholder="Search your pictures...">
       </div>
-    </div>
-  </section>
+      <div id="gallery-grid" class="grid">
+        <div class="empty">Your pictures will appear here.</div>
+      </div>
+    </section>
 
-  <section id="secretTab" class="tab">
-    <div class="panel">
-      <h2>🔒 Secret Vault</h2>
-      <p class="muted">Hidden pictures are excluded from the main gallery. This hides them from the gallery but does not separately encrypt them.</p>
-      <p id="secretStatus" class="status"></p>
-      <div id="secretGallery" class="gallery"></div>
-      <div id="secretEmpty" class="empty" style="display:none">No hidden pictures.</div>
-    </div>
+    <section id="secret-view" class="hidden">
+      <div class="panel">
+        <h2>🔒 Secret Vault</h2>
+        <p class="muted">Pictures marked secret appear here. This is a filtered gallery, not a separate encrypted vault.</p>
+        <input id="secret-search" type="search" placeholder="Search secret pictures...">
+      </div>
+      <div id="secret-grid" class="grid"></div>
+    </section>
   </section>
-</section>
 </main>
 
-<div id="viewer" class="viewer">
-  <div class="viewer-inner">
-    <div class="row" style="justify-content:space-between">
-      <strong id="viewerTitle">Picture</strong>
-      <button id="closeViewer" class="secondary">Close</button>
-    </div>
-    <img id="viewerImage" alt="Picture">
-    <div class="row">
-      <button id="viewerDownload">Download</button>
-      <button id="viewerHide" class="secondary">Hide Picture</button>
-      <button id="viewerDelete" class="red">Delete Picture</button>
-    </div>
-    <p id="viewerStatus" class="status"></p>
-  </div>
-</div>
-<footer>Picture Vault · Account-based cloud storage</footer>
+<footer>Picture Vault · Your pictures, in one place</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
 
-/* Add these from Supabase -> Project Settings -> API.
-   Use the project URL and publishable/anon key only.
-   NEVER put a service_role or secret key in browser code. */
-const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE";
-const SUPABASE_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY_HERE";
+/* ==========================================
+   1. SUPABASE CONFIGURATION
+   Replace both values with your project details.
+   ========================================== */
+
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_KEY = "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY";
 const BUCKET = "pictures";
 
-let db = null;
-let currentUser = null;
-let pictures = [];
-let authMode = "login";
-let viewerId = null;
-let aiUrl = null;
-let aiRequest = 0;
-
 const $ = id => document.getElementById(id);
-const status = (id, text) => { $(id).textContent = text || ""; };
 
-function safeFilename(name) {
-  return String(name || "picture")
-    .replace(/[^\w.\-() ]/g, "_").slice(-120) || "picture";
+let db = null;
+let user = null;
+let pictures = [];
+let activeView = "gallery";
+let signingUp = false;
+let loggingIn = false;
+let rendering = false;
+
+
+/* ==========================================
+   2. MESSAGES AND ERROR HANDLING
+   ========================================== */
+
+function message(id, text, type = "") {
+  const el = $(id);
+  el.textContent = text;
+  el.className = "message" + (type ? " " + type : "");
 }
 
-function showAuthMode(mode) {
-  authMode = mode;
-  $("loginTabBtn").classList.toggle("active", mode === "login");
-  $("signupTabBtn").classList.toggle("active", mode === "signup");
-  $("authSubmit").textContent = mode === "login" ? "Log In" : "Create Account";
-  $("password").autocomplete = mode === "login" ? "current-password" : "new-password";
-  status("authStatus", "");
+function friendlyError(err) {
+  const msg = err?.message || String(err || "Unknown error");
+
+  if (/user already registered/i.test(msg))
+    return "This email already has an account. Try logging in.";
+
+  if (/invalid login credentials/i.test(msg))
+    return "Email or password is incorrect.";
+
+  if (/email not confirmed/i.test(msg))
+    return "Confirm your email using the link Supabase sent you.";
+
+  if (/invalid api key|invalid jwt/i.test(msg))
+    return "Your Supabase key may be incorrect. Check your project settings.";
+
+  if (/failed to fetch|networkerror/i.test(msg))
+    return "Could not connect to Supabase. Check your project URL and internet connection.";
+
+  if (/row-level security|permission denied|not allowed/i.test(msg))
+    return "Supabase blocked this action. Check your database and Storage policies.";
+
+  if (/payload too large|entity too large/i.test(msg))
+    return "The file is too large.";
+
+  return msg;
 }
 
-function showApp(signedIn) {
-  $("authScreen").style.display = signedIn ? "none" : "block";
-  $("appScreen").style.display = signedIn ? "block" : "none";
-  $("accountArea").style.display = signedIn ? "flex" : "none";
-  $("accountEmail").textContent = currentUser?.email || "";
+function checkConfig() {
+  if (
+    !SUPABASE_URL.startsWith("https://") ||
+    SUPABASE_URL.includes("YOUR_SUPABASE") ||
+    !SUPABASE_KEY ||
+    SUPABASE_KEY.includes("YOUR_SUPABASE")
+  ) {
+    throw new Error(
+      "Setup needed: replace SUPABASE_URL and SUPABASE_KEY in this HTML file."
+    );
+  }
+
+  if (!window.supabase?.createClient) {
+    throw new Error(
+      "Supabase did not load. Check your internet connection and reload the page."
+    );
+  }
 }
 
-function activateTab(id) {
-  document.querySelectorAll(".tab-btn[data-tab]").forEach(b =>
-    b.classList.toggle("active", b.dataset.tab === id));
-  document.querySelectorAll(".tab").forEach(t =>
-    t.classList.toggle("active", t.id === id));
-  if (id === "secretTab") renderGallery(true);
+function setButton(button, busy, text) {
+  if (busy) {
+    if (!button.disabled) button.dataset.oldText = button.textContent;
+    button.disabled = true;
+    button.textContent = text;
+  } else {
+    button.disabled = false;
+    button.textContent = button.dataset.oldText || text;
+    delete button.dataset.oldText;
+  }
 }
 
-/* AUTH */
-$("loginTabBtn").onclick = () => showAuthMode("login");
-$("signupTabBtn").onclick = () => showAuthMode("signup");
 
-$("authForm").addEventListener("submit", async event => {
+/* ==========================================
+   3. AUTHENTICATION SCREEN
+   ========================================== */
+
+function showForm(which) {
+  const signup = which === "signup";
+
+  $("signup-form").classList.toggle("hidden", !signup);
+  $("login-form").classList.toggle("hidden", signup);
+  $("auth-message").textContent = "";
+}
+
+function showApp(signedInUser) {
+  user = signedInUser;
+
+  $("auth-screen").classList.add("hidden");
+  $("app-screen").classList.remove("hidden");
+  $("account-bar").classList.remove("hidden");
+  $("account-email").textContent = user.email || "Signed in";
+
+  loadPictures();
+}
+
+function showAuth() {
+  user = null;
+  pictures = [];
+
+  $("app-screen").classList.add("hidden");
+  $("account-bar").classList.add("hidden");
+  $("auth-screen").classList.remove("hidden");
+
+  $("gallery-grid").innerHTML =
+    '<div class="empty">Log in to see your pictures.</div>';
+  $("secret-grid").innerHTML = "";
+
+  showForm("login");
+}
+
+$("show-signup").addEventListener("click", () => showForm("signup"));
+$("show-login").addEventListener("click", () => showForm("login"));
+
+
+/* ==========================================
+   4. CREATE ACCOUNT
+   ========================================== */
+
+$("signup-form").addEventListener("submit", async event => {
   event.preventDefault();
-  if (!db) {
-    status("authStatus", "Set up your Supabase URL and key in the code first.");
+  if (signingUp) return;
+
+  const button = $("create-account-btn");
+  const email = $("signup-email").value.trim();
+  const password = $("signup-password").value;
+  const confirmPassword = $("signup-confirm").value;
+
+  if (!email) {
+    message("auth-message", "Enter your email address.", "error");
     return;
   }
 
-  const email = $("email").value.trim();
-  const password = $("password").value;
-  $("authSubmit").disabled = true;
-  status("authStatus", authMode === "login" ? "Signing in..." : "Creating account...");
+  if (password.length < 6) {
+    message("auth-message", "Your password must be at least 6 characters.", "error");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    message("auth-message", "The passwords do not match.", "error");
+    return;
+  }
+
+  signingUp = true;
+  setButton(button, true, "Creating account...");
+  message("auth-message", "Creating your account...");
 
   try {
-    if (authMode === "signup") {
-      const { data, error } = await db.auth.signUp({ email, password });
-      if (error) throw error;
-      if (!data.session) {
-        status("authStatus", "Account created. Confirm your email, then log in.");
-      } else {
-        status("authStatus", "Account created.");
-      }
+    checkConfig();
+    if (!db) db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const { data, error } = await db.auth.signUp({ email, password });
+    if (error) throw error;
+
+    $("signup-form").reset();
+
+    if (data.session && data.user) {
+      message("auth-message", "Account created successfully!", "success");
+      showApp(data.user);
     } else {
-      const { error } = await db.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      message(
+        "auth-message",
+        "Signup successful. Check your email for a confirmation link. After confirming, log in here.",
+        "success"
+      );
+      showForm("login");
+      message(
+        "auth-message",
+        "Signup successful. If email confirmation is enabled, check your inbox before logging in.",
+        "success"
+      );
     }
-  } catch (e) {
-    status("authStatus", e.message || "Authentication failed.");
+  } catch (err) {
+    console.error("Create Account failed:", err);
+    message("auth-message", friendlyError(err), "error");
   } finally {
-    $("authSubmit").disabled = false;
+    signingUp = false;
+    setButton(button, false, "Create Account");
   }
 });
 
-$("logoutBtn").onclick = async () => {
-  const { error } = await db.auth.signOut();
-  if (error) return alert(error.message);
-  currentUser = null;
-  pictures = [];
-  showApp(false);
-  $("gallery").replaceChildren();
-  $("secretGallery").replaceChildren();
-};
 
-async function handleSession(session) {
-  currentUser = session?.user || null;
-  showApp(!!currentUser);
-  if (currentUser) await loadPictures();
-  else {
-    pictures = [];
-    $("gallery").replaceChildren();
-    $("secretGallery").replaceChildren();
+/* ==========================================
+   5. LOG IN
+   ========================================== */
+
+$("login-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (loggingIn) return;
+
+  const button = $("login-btn");
+
+  loggingIn = true;
+  setButton(button, true, "Logging in...");
+  message("auth-message", "Signing in...");
+
+  try {
+    checkConfig();
+    if (!db) db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const { data, error } = await db.auth.signInWithPassword({
+      email: $("login-email").value.trim(),
+      password: $("login-password").value
+    });
+
+    if (error) throw error;
+
+    $("login-form").reset();
+    message("auth-message", "Logged in successfully!", "success");
+    showApp(data.user);
+  } catch (err) {
+    console.error("Login failed:", err);
+    message("auth-message", friendlyError(err), "error");
+  } finally {
+    loggingIn = false;
+    setButton(button, false, "Log In");
   }
-}
+});
 
-/* PRIVATE CLOUD STORAGE */
-async function loadPictures() {
-  if (!currentUser || !db) return;
-  status("galleryStatus", "Loading pictures...");
-  const { data, error } = await db.from("pictures")
-    .select("*").order("created_at", { ascending: false });
-  if (error) {
-    status("galleryStatus", "Could not load pictures: " + error.message);
-    return;
+
+/* ==========================================
+   6. LOG OUT
+   ========================================== */
+
+$("logout-btn").addEventListener("click", async () => {
+  try {
+    if (!db) throw new Error("Supabase is not initialized.");
+
+    const { error } = await db.auth.signOut();
+    if (error) throw error;
+
+    showAuth();
+  } catch (err) {
+    alert("Logout failed: " + friendlyError(err));
   }
-  pictures = data || [];
-  await renderGallery(false);
-  status("galleryStatus", pictures.length + " picture(s) in your account.");
-}
+});
 
-async function uploadToCloud(file, options = {}) {
-  if (!currentUser) throw new Error("Please log in first.");
-  if (!file?.type?.startsWith("image/")) throw new Error("Choose a valid image.");
 
-  const path = currentUser.id + "/" + crypto.randomUUID() + "-" +
-    safeFilename(file.name || "picture.png");
+/* ==========================================
+   7. NAVIGATION
+   ========================================== */
 
-  const { error: storageError } = await db.storage.from(BUCKET)
-    .upload(path, file, { contentType: file.type, upsert: false });
-  if (storageError) throw storageError;
+document.querySelectorAll("[data-view]").forEach(button => {
+  button.addEventListener("click", () => {
+    activeView = button.dataset.view;
 
-  const { error: rowError } = await db.from("pictures").insert({
-    user_id: currentUser.id,
-    name: options.name || file.name || "Picture",
-    storage_path: path,
-    hidden: !!options.hidden,
-    prompt: options.prompt || null
+    document.querySelectorAll("[data-view]").forEach(b => {
+      b.classList.toggle("active", b === button);
+    });
+
+    $("gallery-view").classList.toggle("hidden", activeView !== "gallery");
+    $("secret-view").classList.toggle("hidden", activeView !== "secret");
+
+    renderGallery();
   });
+});
 
-  if (rowError) {
-    await db.storage.from(BUCKET).remove([path]);
-    throw rowError;
-  }
-}
 
-async function signedUrl(path) {
-  const { data, error } = await db.storage.from(BUCKET).createSignedUrl(path, 300);
+/* ==========================================
+   8. PRIVATE IMAGE URL
+   Signed URLs expire after one hour.
+   ========================================== */
+
+async function pictureUrl(path) {
+  const { data, error } = await db.storage
+    .from(BUCKET)
+    .createSignedUrl(path, 3600);
+
   if (error) throw error;
   return data.signedUrl;
 }
 
-async function changeHidden(picture, hidden) {
-  const { error } = await db.from("pictures")
-    .update({ hidden })
-    .eq("id", picture.id)
-    .eq("user_id", currentUser.id);
-  if (error) throw error;
-  await loadPictures();
-}
 
-async function deletePicture(picture) {
-  const { error: storageError } = await db.storage.from(BUCKET)
-    .remove([picture.storage_path]);
-  if (storageError) throw storageError;
+/* ==========================================
+   9. LOAD PICTURES FROM SUPABASE
+   ========================================== */
 
-  const { error } = await db.from("pictures").delete()
-    .eq("id", picture.id).eq("user_id", currentUser.id);
-  if (error) throw error;
-  await loadPictures();
-}
+async function loadPictures() {
+  if (!user || !db) return;
 
-/* GALLERY */
-async function renderGallery(hiddenMode = false) {
-  const gallery = hiddenMode ? $("secretGallery") : $("gallery");
-  const empty = hiddenMode ? $("secretEmpty") : $("galleryEmpty");
-  gallery.replaceChildren();
+  $("gallery-grid").innerHTML =
+    '<div class="empty">Loading pictures...</div>';
 
-  if (!currentUser) return;
+  $("secret-grid").innerHTML =
+    '<div class="empty">Loading pictures...</div>';
 
-  const query = hiddenMode ? "" : $("searchInput").value.trim().toLowerCase();
-  const list = pictures.filter(p => !!p.hidden === hiddenMode &&
-    (!query || (p.name || "").toLowerCase().includes(query)));
+  try {
+    const { data, error } = await db
+      .from("pictures")
+      .select("id,user_id,name,storage_path,is_secret,created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
-  empty.style.display = list.length ? "none" : "block";
+    if (error) throw error;
 
-  for (const p of list) {
-    const card = document.createElement("article");
-    card.className = "card";
-    const img = document.createElement("img");
-    img.alt = p.name;
-    img.loading = "lazy";
-    img.onclick = () => openViewer(p.id);
+    pictures = data || [];
+    await renderGallery();
+  } catch (err) {
+    console.error("Load pictures failed:", err);
 
-    const body = document.createElement("div");
-    body.className = "card-body";
-    const name = document.createElement("div");
-    name.className = "card-name";
-    name.textContent = p.name;
-    const date = document.createElement("div");
-    date.className = "card-date";
-    date.textContent = new Date(p.created_at).toLocaleString();
-    const actions = document.createElement("div");
-    actions.className = "card-actions";
+    const text = "Could not load pictures: " + friendlyError(err);
 
-    function action(label, cls, fn) {
-      const b = document.createElement("button");
-      b.textContent = label;
-      if (cls) b.className = cls;
-      b.onclick = fn;
-      actions.append(b);
+    $("gallery-grid").innerHTML = "";
+    $("secret-grid").innerHTML = "";
+
+    for (const grid of [$("gallery-grid"), $("secret-grid")]) {
+      const el = document.createElement("div");
+      el.className = "empty";
+      el.textContent = text;
+      grid.appendChild(el);
     }
-
-    action("View", "", () => openViewer(p.id));
-    action("Download", "secondary", () => downloadPicture(p));
-    action(hiddenMode ? "Unhide" : "Hide", "secondary", async () => {
-      try { await changeHidden(p, !hiddenMode); }
-      catch (e) { alert(e.message); }
-    });
-    action("Delete", "red", async () => {
-      if (!confirm("Permanently delete " + p.name + "?")) return;
-      try { await deletePicture(p); }
-      catch (e) { alert(e.message); }
-    });
-
-    body.append(name, date, actions);
-    card.append(img, body);
-    gallery.append(card);
-
-    try { img.src = await signedUrl(p.storage_path); }
-    catch (e) { img.alt = "Could not load image"; console.error(e); }
   }
 }
 
-async function downloadPicture(p) {
+
+/* ==========================================
+   10. RENDER GALLERY AND SECRET VAULT
+   ========================================== */
+
+async function renderGallery() {
+  if (!user || !db || rendering) return;
+
+  rendering = true;
+
   try {
-    const url = await signedUrl(p.storage_path);
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Download failed.");
-    const blob = await response.blob();
-    const objectUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = objectUrl;
-    a.download = safeFilename(p.name);
-    document.body.append(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
-  } catch (e) {
-    alert("Download failed: " + e.message);
-  }
-}
+    const secret = activeView === "secret";
+    const grid = secret ? $("secret-grid") : $("gallery-grid");
 
-$("searchInput").addEventListener("input", () => renderGallery(false));
-$("refreshBtn").onclick = loadPictures;
+    const term = (
+      secret ? $("secret-search").value : $("search-input").value
+    ).trim().toLowerCase();
 
-/* IMAGE VIEWER */
-async function openViewer(id) {
-  const p = pictures.find(x => x.id === id);
-  if (!p) return;
-  viewerId = id;
-  $("viewerTitle").textContent = p.name;
-  $("viewerImage").removeAttribute("src");
-  $("viewerHide").textContent = p.hidden ? "Unhide Picture" : "Hide Picture";
-  status("viewerStatus", "Loading image...");
-  $("viewer").classList.add("open");
-  try {
-    $("viewerImage").src = await signedUrl(p.storage_path);
-    status("viewerStatus", "");
-  } catch (e) {
-    status("viewerStatus", e.message);
-  }
-}
+    grid.innerHTML = "";
 
-function closeViewer() {
-  $("viewer").classList.remove("open");
-  $("viewerImage").removeAttribute("src");
-  viewerId = null;
-}
-$("closeViewer").onclick = closeViewer;
-$("viewer").onclick = e => { if (e.target === $("viewer")) closeViewer(); };
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeViewer(); });
+    const list = pictures.filter(p =>
+      Boolean(p.is_secret) === secret &&
+      (p.name || "").toLowerCase().includes(term)
+    );
 
-$("viewerDownload").onclick = async () => {
-  const p = pictures.find(x => x.id === viewerId);
-  if (p) await downloadPicture(p);
-};
-$("viewerHide").onclick = async () => {
-  const p = pictures.find(x => x.id === viewerId);
-  if (!p) return;
-  try { await changeHidden(p, !p.hidden); closeViewer(); }
-  catch (e) { status("viewerStatus", e.message); }
-};
-$("viewerDelete").onclick = async () => {
-  const p = pictures.find(x => x.id === viewerId);
-  if (!p || !confirm("Permanently delete this picture?")) return;
-  try { await deletePicture(p); closeViewer(); }
-  catch (e) { status("viewerStatus", e.message); }
-};
+    if (!list.length) {
+      const el = document.createElement("div");
+      el.className = "empty";
+      el.textContent = secret
+        ? "No secret pictures yet."
+        : "Your gallery is empty. Upload a picture to get started.";
 
-/* UPLOADS */
-$("chooseBtn").onclick = () => $("fileInput").click();
-$("dropArea").onclick = e => {
-  if (e.target.id !== "chooseBtn") $("fileInput").click();
-};
-["dragenter", "dragover"].forEach(type => $("dropArea").addEventListener(type, e => {
-  e.preventDefault();
-  $("dropArea").classList.add("dragging");
-}));
-["dragleave", "drop"].forEach(type => $("dropArea").addEventListener(type, e => {
-  e.preventDefault();
-  $("dropArea").classList.remove("dragging");
-}));
-$("fileInput").onchange = async e => {
-  await handleFiles(e.target.files);
-  e.target.value = "";
-};
-$("dropArea").ondrop = e => handleFiles(e.dataTransfer.files);
-
-async function handleFiles(fileList) {
-  if (!currentUser) return;
-  const files = Array.from(fileList).filter(f => f.type.startsWith("image/"));
-  if (!files.length) return status("uploadStatus", "Select image files first.");
-
-  let count = 0;
-  for (const file of files) {
-    status("uploadStatus", "Uploading " + (count + 1) + " of " + files.length + "...");
-    try {
-      await uploadToCloud(file);
-      count++;
-    } catch (e) {
-      status("uploadStatus", "Upload failed: " + e.message);
-      await loadPictures();
+      grid.appendChild(el);
       return;
     }
-  }
-  await loadPictures();
-  status("uploadStatus", "Uploaded " + count + " picture(s).");
-}
 
-/* AI CREATOR
-   This uses a third-party image endpoint. It is not guaranteed to be
-   available, and browser downloads can be blocked by CORS. */
-$("generateBtn").onclick = generateAI;
-$("aiPrompt").addEventListener("keydown", e => {
-  if (e.key === "Enter") generateAI();
-});
-$("saveAIBtn").onclick = saveAIToCloud;
+    for (const p of list) {
+      const card = document.createElement("article");
+      card.className = "picture";
 
-function generateAI() {
-  const prompt = $("aiPrompt").value.trim();
-  if (!prompt) return status("aiStatus", "Describe the picture first.");
+      const img = document.createElement("img");
+      img.alt = p.name || "Saved picture";
+      img.loading = "lazy";
 
-  const requestId = ++aiRequest;
-  const seed = Math.floor(Math.random() * 1000000000);
-  const url = "https://image.pollinations.ai/prompt/" +
-    encodeURIComponent(prompt) +
-    "?width=1024&height=1024&seed=" + seed + "&nologo=true";
+      const info = document.createElement("div");
+      info.className = "info";
 
-  aiUrl = url;
-  $("generateBtn").disabled = true;
-  $("saveAIBtn").disabled = true;
-  $("aiPreview").style.display = "none";
-  $("aiPlaceholder").style.display = "block";
-  $("aiPlaceholder").textContent = "Generating image...";
-  status("aiStatus", "Requesting your image...");
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = p.name || "Untitled";
 
-  const image = new Image();
-  image.onload = () => {
-    if (requestId !== aiRequest) return;
-    $("aiPreview").src = url;
-    $("aiPreview").style.display = "block";
-    $("aiPlaceholder").style.display = "none";
-    $("generateBtn").disabled = false;
-    $("saveAIBtn").disabled = false;
-    status("aiStatus", "Image ready. Save it to your cloud gallery.");
-  };
-  image.onerror = () => {
-    if (requestId !== aiRequest) return;
-    $("generateBtn").disabled = false;
-    $("saveAIBtn").disabled = true;
-    $("aiPlaceholder").textContent = "Image generation failed.";
-    status("aiStatus", "The image service may be unavailable. Try again later.");
-  };
-  image.src = url;
-}
+      const actions = document.createElement("div");
+      actions.className = "actions";
 
-async function saveAIToCloud() {
-  if (!aiUrl || !currentUser) return;
-  $("saveAIBtn").disabled = true;
-  status("aiStatus", "Downloading generated image...");
-  try {
-    const response = await fetch(aiUrl);
-    if (!response.ok) throw new Error("Image download failed.");
-    const blob = await response.blob();
-    if (!blob.type.startsWith("image/")) throw new Error("The service did not return an image.");
+      const toggle = document.createElement("button");
+      toggle.className = "secondary";
+      toggle.textContent = secret ? "Unhide" : "Make secret";
+      toggle.addEventListener("click", () => {
+        toggleSecret(p, !Boolean(p.is_secret));
+      });
 
-    const file = new File([blob], "AI-" + Date.now() + ".png", {
-      type: blob.type || "image/png"
-    });
-    const prompt = $("aiPrompt").value.trim();
-    await uploadToCloud(file, {
-      name: "AI - " + prompt.slice(0, 70),
-      prompt
-    });
-    await loadPictures();
-    status("aiStatus", "Image saved to your cloud gallery!");
-  } catch (e) {
-    console.error(e);
-    status("aiStatus", "Could not save image. The AI service may block browser downloads; a backend proxy may be needed.");
-  } finally {
-    $("saveAIBtn").disabled = false;
-  }
-}
+      const download = document.createElement("button");
+      download.className = "secondary";
+      download.textContent = "Download";
 
-/* STARTUP */
-document.querySelectorAll(".tab-btn[data-tab]").forEach(b =>
-  b.addEventListener("click", () => activateTab(b.dataset.tab)));
+      download.addEventListener("click", async () => {
+        try {
+          const url = await pictureUrl(p.storage_path);
+          const a = document.createElement("a");
 
-async function start() {
-  if (SUPABASE_URL.includes("PASTE_YOUR_") || SUPABASE_KEY.includes("PASTE_YOUR_")) {
-    showApp(false);
-    showAuthMode("login");
-    status("authStatus", "Setup required: add your Supabase project URL and publishable/anon key in the code.");
-    return;
-  }
+          a.href = url;
+          a.download = p.name || "picture";
+          a.target = "_blank";
+          a.rel = "noopener";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        } catch (err) {
+          alert("Download failed: " + friendlyError(err));
+        }
+      });
 
-  if (!window.supabase?.createClient) {
-    status("authStatus", "Could not load Supabase. Check your internet connection.");
-    return;
-  }
+      const remove = document.createElement("button");
+      remove.className = "danger";
+      remove.textContent = "Delete";
+      remove.addEventListener("click", () => deletePicture(p));
 
-  try {
-    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
+      actions.append(toggle, download, remove);
+      info.append(name, actions);
+      card.append(img, info);
+      grid.appendChild(card);
+
+      try {
+        const url = await pictureUrl(p.storage_path);
+        img.src = url;
+
+        img.addEventListener("click", () => {
+          window.open(url, "_blank", "noopener,noreferrer");
+        });
+      } catch (err) {
+        img.alt = "Image unavailable";
       }
-    });
+    }
+  } finally {
+    rendering = false;
+  }
+}
+
+$("search-input").addEventListener("input", renderGallery);
+$("secret-search").addEventListener("input", renderGallery);
+$("refresh-btn").addEventListener("click", loadPictures);
+
+
+/* ==========================================
+   11. UPLOAD PICTURES
+   Storage path starts with the user's ID.
+   ========================================== */
+
+$("upload-input").addEventListener("change", async event => {
+  const files = Array.from(event.target.files || []);
+  event.target.value = "";
+
+  if (!files.length || !user || !db) return;
+
+  const button = event.target;
+  button.disabled = true;
+
+  message("upload-message", "Uploading pictures...");
+
+  let count = 0;
+  const failures = [];
+
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) {
+      failures.push(file.name + ": not an image.");
+      continue;
+    }
+
+    if (file.size > 20 * 1024 * 1024) {
+      failures.push(file.name + ": maximum size is 20 MB.");
+      continue;
+    }
+
+    const safeName = file.name.replace(/[^\w.\-() ]/g, "_");
+    const path = user.id + "/" + crypto.randomUUID() + "-" + safeName;
+
+    try {
+      const { error: uploadError } = await db.storage
+        .from(BUCKET)
+        .upload(path, file, {
+          contentType: file.type,
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { error: insertError } = await db.from("pictures").insert({
+        user_id: user.id,
+        name: file.name,
+        storage_path: path,
+        is_secret: false
+      });
+
+      if (insertError) {
+        await db.storage.from(BUCKET).remove([path]);
+        throw insertError;
+      }
+
+      count++;
+    } catch (err) {
+      failures.push(file.name + ": " + friendlyError(err));
+    }
+  }
+
+  button.disabled = false;
+
+  message(
+    "upload-message",
+    failures.length
+      ? count + " uploaded.\n" + failures.join("\n")
+      : count + " picture(s) uploaded!",
+    failures.length && count === 0 ? "error" : "success"
+  );
+
+  await loadPictures();
+});
+
+
+/* ==========================================
+   12. MARK OR UNMARK SECRET
+   ========================================== */
+
+async function toggleSecret(p, makeSecret) {
+  try {
+    const { error } = await db
+      .from("pictures")
+      .update({ is_secret: makeSecret })
+      .eq("id", p.id)
+      .eq("user_id", user.id);
+
+    if (error) throw error;
+
+    p.is_secret = makeSecret;
+    await renderGallery();
+  } catch (err) {
+    alert("Could not update picture: " + friendlyError(err));
+  }
+}
+
+
+/* ==========================================
+   13. DELETE PICTURE AND STORAGE FILE
+   ========================================== */
+
+async function deletePicture(p) {
+  if (!confirm('Permanently delete "' + p.name + '"?')) return;
+
+  try {
+    const { error: storageError } = await db.storage
+      .from(BUCKET)
+      .remove([p.storage_path]);
+
+    if (storageError) throw storageError;
+
+    const { error } = await db
+      .from("pictures")
+      .delete()
+      .eq("id", p.id)
+      .eq("user_id", user.id);
+
+    if (error) throw error;
+
+    pictures = pictures.filter(item => item.id !== p.id);
+    await renderGallery();
+  } catch (err) {
+    alert("Delete failed: " + friendlyError(err));
+    await loadPictures();
+  }
+}
+
+
+/* ==========================================
+   14. INITIALIZATION AND SESSION RESTORE
+   ========================================== */
+
+async function initialize() {
+  try {
+    checkConfig();
+
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const { data, error } = await db.auth.getSession();
     if (error) throw error;
-    await handleSession(data.session);
 
-    db.auth.onAuthStateChange((_event, session) => {
-      // Run session/database work after the auth callback returns.
-      setTimeout(() => handleSession(session), 0);
+    db.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        showAuth();
+      } else if (event === "SIGNED_IN" && session?.user) {
+        user = session.user;
+        $("auth-screen").classList.add("hidden");
+        $("app-screen").classList.remove("hidden");
+        $("account-bar").classList.remove("hidden");
+        $("account-email").textContent = user.email || "Signed in";
+        loadPictures();
+      }
     });
-  } catch (e) {
-    status("authStatus", "Startup failed: " + e.message);
+
+    if (data.session?.user) {
+      showApp(data.session.user);
+    } else {
+      showForm("signup");
+    }
+  } catch (err) {
+    console.error("Startup error:", err);
+    showForm("signup");
+    message("auth-message", friendlyError(err), "error");
   }
 }
-start();
+
+initialize();
 </script>
 </body>
 </html>
+
+-- ============================================
+-- 1. CREATE PICTURES TABLE
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS public.pictures (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    storage_path TEXT NOT NULL,
+    is_secret BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+
+-- ============================================
+-- 2. ENABLE ROW LEVEL SECURITY
+-- ============================================
+
+ALTER TABLE public.pictures ENABLE ROW LEVEL SECURITY;
+
+
+-- ============================================
+-- 3. DATABASE SECURITY POLICIES
+-- ============================================
+
+DROP POLICY IF EXISTS "Users can view own pictures"
+ON public.pictures;
+
+CREATE POLICY "Users can view own pictures"
+ON public.pictures
+FOR SELECT TO authenticated
+USING (auth.uid() = user_id);
+
+
+DROP POLICY IF EXISTS "Users can add own pictures"
+ON public.pictures;
+
+CREATE POLICY "Users can add own pictures"
+ON public.pictures
+FOR INSERT TO authenticated
+WITH CHECK (auth.uid() = user_id);
+
+
+DROP POLICY IF EXISTS "Users can update own pictures"
+ON public.pictures;
+
+CREATE POLICY "Users can update own pictures"
+ON public.pictures
+FOR UPDATE TO authenticated
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+
+DROP POLICY IF EXISTS "Users can delete own pictures"
+ON public.pictures;
+
+CREATE POLICY "Users can delete own pictures"
+ON public.pictures
+FOR DELETE TO authenticated
+USING (auth.uid() = user_id);
+
+
+-- ============================================
+-- 4. CREATE PRIVATE STORAGE BUCKET
+-- ============================================
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('pictures', 'pictures', FALSE)
+ON CONFLICT (id) DO NOTHING;
+
+
+-- ============================================
+-- 5. STORAGE SECURITY POLICIES
+-- ============================================
+
+DROP POLICY IF EXISTS "Users can view own picture files"
+ON storage.objects;
+
+CREATE POLICY "Users can view own picture files"
+ON storage.objects
+FOR SELECT TO authenticated
+USING (
+    bucket_id = 'pictures'
+    AND (storage.foldername(name))[1] = auth.uid()::TEXT
+);
+
+
+DROP POLICY IF EXISTS "Users can upload own picture files"
+ON storage.objects;
+
+CREATE POLICY "Users can upload own picture files"
+ON storage.objects
+FOR INSERT TO authenticated
+WITH CHECK (
+    bucket_id = 'pictures'
+    AND (storage.foldername(name))[1] = auth.uid()::TEXT
+);
+
+
+DROP POLICY IF EXISTS "Users can delete own picture files"
+ON storage.objects;
+
+CREATE POLICY "Users can delete own picture files"
+ON storage.objects
+FOR DELETE TO authenticated
+USING (
+    bucket_id = 'pictures'
+    AND (storage.foldername(name))[1] = auth.uid()::TEXT
+);
