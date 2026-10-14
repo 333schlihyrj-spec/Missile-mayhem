@@ -1,1326 +1,650 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Picture Vault</title>
-
 <style>
 :root {
-    --bg: #0b1020;
-    --panel: #141c30;
-    --panel2: #1b2740;
-    --text: #eef3ff;
-    --muted: #9aa8c4;
-    --accent: #7c5cff;
-    --accent2: #27d7b5;
-    --danger: #ff5577;
-    --border: #2b3855;
+  --bg:#0b1020; --panel:#151e32; --panel2:#202d48;
+  --border:#30405f; --text:#f0f4ff; --muted:#a5b2cc;
+  --accent:#8064ff; --green:#1bb99c; --red:#dc4668;
 }
-
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-button, input {
-    font: inherit;
-}
-
+* {box-sizing:border-box}
+body {margin:0;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
+button,input {font:inherit}
 button {
-    border: 0;
-    border-radius: 10px;
-    padding: 10px 14px;
-    color: white;
-    background: var(--accent);
-    cursor: pointer;
-    transition: 0.15s;
+  padding:10px 14px;border:0;border-radius:9px;
+  background:var(--accent);color:white;cursor:pointer
 }
-
-button:hover {
-    filter: brightness(1.15);
-}
-
-button:disabled {
-    opacity: 0.55;
-    cursor: wait;
-}
-
-button.secondary {
-    background: var(--panel2);
-    border: 1px solid var(--border);
-}
-
-button.danger {
-    background: #8e2943;
-}
-
-button.green {
-    background: #087e70;
-}
-
+button:hover {filter:brightness(1.12)}
+button:disabled {opacity:.5;cursor:wait}
+.secondary {background:var(--panel2);border:1px solid var(--border)}
+.green {background:#087e70}
+.red {background:#922c48}
 input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    background: #0d1425;
-    border: 1px solid var(--border);
-    color: white;
-    outline: none;
+  display:block;width:100%;padding:12px;margin:8px 0 14px;
+  background:#0b1426;color:white;border:1px solid var(--border);
+  border-radius:9px
 }
-
-input:focus {
-    border-color: var(--accent);
-}
-
-header {
-    padding: 20px;
-    border-bottom: 1px solid var(--border);
-    background: #10182b;
-    position: sticky;
-    top: 0;
-    z-index: 5;
-}
-
+header {padding:17px 22px;border-bottom:1px solid var(--border);background:#11192b}
 .header-inner {
-    max-width: 1250px;
-    margin: auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    flex-wrap: wrap;
+  max-width:1200px;margin:auto;display:flex;justify-content:space-between;
+  align-items:center;gap:12px;flex-wrap:wrap
 }
-
-.logo {
-    font-size: 23px;
-    font-weight: 800;
-}
-
-.logo span {
-    color: var(--accent2);
-}
-
-main {
-    max-width: 1250px;
-    margin: auto;
-    padding: 22px;
-}
-
-h1, h2, h3 {
-    margin-top: 0;
-}
-
-.subtitle {
-    color: var(--muted);
-    line-height: 1.5;
-}
-
-.tabs {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin: 22px 0;
-}
-
-.tab-button.active {
-    background: var(--accent2);
-    color: #061b1b;
-    font-weight: bold;
-}
-
-.tab {
-    display: none;
-}
-
-.tab.active {
-    display: block;
-}
-
+.logo {font-size:23px;font-weight:bold}
+.logo span {color:var(--green)}
+main {max-width:1200px;margin:auto;padding:22px}
+.muted {color:var(--muted);line-height:1.5}
 .panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
+  padding:20px;margin-bottom:18px;background:var(--panel);
+  border:1px solid var(--border);border-radius:14px
 }
-
-.upload-area {
-    border: 2px dashed #45547a;
-    padding: 35px 15px;
-    border-radius: 14px;
-    text-align: center;
-    cursor: pointer;
-    background: #10192c;
-}
-
-.upload-area.dragging {
-    border-color: var(--accent2);
-    background: #132d34;
-}
-
-.upload-area p {
-    color: var(--muted);
-}
-
-.row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.row > input {
-    flex: 1;
-    min-width: 180px;
-}
-
-.searchbar {
-    margin-bottom: 18px;
-}
-
-.gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-    gap: 15px;
-}
-
-.image-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 13px;
-    overflow: hidden;
-    min-width: 0;
-}
-
-.image-card img {
-    width: 100%;
-    height: 175px;
-    display: block;
-    object-fit: cover;
-    background: #080c16;
-    cursor: pointer;
-}
-
-.image-info {
-    padding: 12px;
-}
-
-.image-name {
-    font-weight: bold;
-    overflow-wrap: anywhere;
-    margin-bottom: 6px;
-}
-
-.image-date {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 10px;
-}
-
-.card-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.card-actions button {
-    font-size: 12px;
-    padding: 8px 9px;
-}
-
-.empty {
-    text-align: center;
-    padding: 35px;
-    color: var(--muted);
-    border: 1px dashed var(--border);
-    border-radius: 14px;
-}
-
-.status {
-    margin-top: 12px;
-    color: var(--muted);
-    min-height: 20px;
-    overflow-wrap: anywhere;
-}
-
-.ai-layout {
-    display: grid;
-    grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr);
-    gap: 20px;
-}
-
-.ai-preview {
-    width: 100%;
-    min-height: 240px;
-    max-height: 520px;
-    object-fit: contain;
-    background: #080c16;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    display: none;
-}
-
-.preview-placeholder {
-    min-height: 240px;
-    display: grid;
-    place-items: center;
-    text-align: center;
-    color: var(--muted);
-    border: 1px dashed var(--border);
-    border-radius: 12px;
-    padding: 20px;
-}
-
-.small {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.5;
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.88);
-    z-index: 20;
-    padding: 20px;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal.open {
-    display: flex;
-}
-
-.modal-content {
-    width: min(1000px, 100%);
-    max-height: 95vh;
-    overflow: auto;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 15px;
-    padding: 15px;
-}
-
-.modal-image {
-    width: 100%;
-    max-height: 75vh;
-    object-fit: contain;
-    display: block;
-    margin-bottom: 12px;
-}
-
-.modal-top {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-#toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #243451;
-    border: 1px solid #506184;
-    padding: 12px 18px;
-    border-radius: 12px;
-    z-index: 50;
-    display: none;
-    max-width: calc(100% - 30px);
-    text-align: center;
-}
-
-footer {
-    text-align: center;
-    color: var(--muted);
-    padding: 25px;
-    font-size: 12px;
-}
-
-@media (max-width: 720px) {
-    main {
-        padding: 14px;
-    }
-
-    .ai-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .gallery {
-        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-    }
-
-    .image-card img {
-        height: 145px;
-    }
+.auth-panel {max-width:450px;margin:45px auto}
+.row {display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tabs {display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+.tab-btn.active {background:var(--green);color:#061a18;font-weight:bold}
+.tab {display:none}
+.tab.active {display:block}
+.gallery {display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.card {background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;min-width:0}
+.card img {display:block;width:100%;height:175px;object-fit:cover;background:#060a13;cursor:pointer}
+.card-body {padding:11px}
+.card-name {font-weight:bold;overflow-wrap:anywhere;margin-bottom:7px}
+.card-date {color:var(--muted);font-size:12px;margin-bottom:10px}
+.card-actions {display:flex;gap:6px;flex-wrap:wrap}
+.card-actions button {padding:8px;font-size:12px}
+.empty {padding:30px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);text-align:center}
+.drop-area {border:2px dashed #53658b;border-radius:12px;padding:30px;text-align:center;cursor:pointer}
+.drop-area.dragging {border-color:var(--green)}
+.status {color:var(--muted);margin:10px 0;overflow-wrap:anywhere}
+.ai-layout {display:grid;grid-template-columns:1fr 1fr;gap:18px}
+#aiPreview {width:100%;max-height:470px;object-fit:contain;border-radius:10px;background:#070b14}
+.viewer {display:none;position:fixed;z-index:10;inset:0;padding:20px;background:#000d;align-items:center;justify-content:center}
+.viewer.open {display:flex}
+.viewer-inner {width:min(900px,100%);max-height:95vh;overflow:auto;padding:15px;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
+#viewerImage {display:block;width:100%;max-height:72vh;object-fit:contain;margin:12px 0}
+footer {padding:25px;text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:700px) {
+  main {padding:13px}
+  .ai-layout {grid-template-columns:1fr}
+  .gallery {grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}
+  .card img {height:145px}
 }
 </style>
 </head>
-
 <body>
-
 <header>
-    <div class="header-inner">
-        <div class="logo">🖼️ Picture <span>Vault</span></div>
-        <div id="imageCount" class="subtitle">0 pictures</div>
+  <div class="header-inner">
+    <div class="logo">🖼️ Picture <span>Vault</span></div>
+    <div id="accountArea" class="row" style="display:none">
+      <span id="accountEmail" class="muted"></span>
+      <button id="logoutBtn" class="secondary">Log Out</button>
     </div>
+  </div>
 </header>
 
 <main>
-    <h1>Your personal picture vault</h1>
-    <p class="subtitle">
-        Upload pictures, create AI images, and organize your private collection.
-    </p>
-
+<section id="authScreen">
+  <div class="panel auth-panel">
+    <h1>Welcome to Picture Vault</h1>
+    <p class="muted">Sign in to access your pictures on different devices.</p>
     <div class="tabs">
-        <button class="tab-button active" data-tab="galleryTab">🖼️ Gallery</button>
-        <button class="tab-button" data-tab="uploadTab">⬆️ Upload</button>
-        <button class="tab-button" data-tab="aiTab">✨ AI Creator</button>
-        <button class="tab-button" data-tab="secretTab">🔒 Secret Vault</button>
+      <button id="loginTabBtn" class="tab-btn active">Log In</button>
+      <button id="signupTabBtn" class="tab-btn">Create Account</button>
     </div>
+    <form id="authForm">
+      <label for="email">Email address</label>
+      <input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters">
+      <button id="authSubmit" type="submit" style="width:100%">Log In</button>
+    </form>
+    <p id="authStatus" class="status" role="status"></p>
+    <p class="muted">Create an account once, then use the same email and password on your other devices.</p>
+  </div>
+</section>
 
-    <!-- GALLERY -->
-    <section id="galleryTab" class="tab active">
-        <div class="panel">
-            <h2>Your Pictures</h2>
-            <input
-                id="searchInput"
-                class="searchbar"
-                type="search"
-                placeholder="Search your pictures..."
-            >
+<section id="appScreen" style="display:none">
+  <h1>Your Picture Vault</h1>
+  <p class="muted">Your pictures are stored in your cloud account.</p>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="galleryTab">🖼️ Gallery</button>
+    <button class="tab-btn" data-tab="uploadTab">⬆️ Upload</button>
+    <button class="tab-btn" data-tab="aiTab">✨ AI Creator</button>
+    <button class="tab-btn" data-tab="secretTab">🔒 Secret Vault</button>
+  </div>
 
-            <div class="row">
-                <button class="secondary" id="showAllBtn">Show All</button>
-                <button class="secondary" id="showHiddenBtn">Show Hidden</button>
-            </div>
+  <section id="galleryTab" class="tab active">
+    <div class="panel">
+      <h2>My Pictures</h2>
+      <input id="searchInput" type="search" placeholder="Search pictures...">
+      <button id="refreshBtn" class="secondary">Refresh Gallery</button>
+      <p id="galleryStatus" class="status" role="status"></p>
+    </div>
+    <div id="gallery" class="gallery"></div>
+    <div id="galleryEmpty" class="empty" style="display:none">No pictures yet.</div>
+  </section>
+
+  <section id="uploadTab" class="tab">
+    <div class="panel">
+      <h2>Upload Pictures</h2>
+      <p class="muted">Uploads are saved to your private cloud account.</p>
+      <div id="dropArea" class="drop-area">
+        <h3>Drop images here</h3>
+        <p class="muted">Or choose images from your device.</p>
+        <button id="chooseBtn" type="button">Choose Pictures</button>
+        <input id="fileInput" type="file" accept="image/*" multiple hidden>
+      </div>
+      <p id="uploadStatus" class="status" role="status"></p>
+    </div>
+  </section>
+
+  <section id="aiTab" class="tab">
+    <div class="panel">
+      <h2>✨ AI Photo Creator</h2>
+      <div class="ai-layout">
+        <div>
+          <label for="aiPrompt">Describe your picture</label>
+          <input id="aiPrompt" placeholder="A fox in a magical forest at night">
+          <button id="generateBtn">Generate Image</button>
+          <button id="saveAIBtn" class="green" disabled>Save to Cloud</button>
+          <p id="aiStatus" class="status" role="status"></p>
+          <p class="muted">AI generation uses an external service. If that service is unavailable, generation may fail.</p>
         </div>
-
-        <div id="gallery" class="gallery"></div>
-        <div id="galleryEmpty" class="empty" style="display:none;">
-            No pictures found. Upload a picture or create one with the AI Creator.
+        <div>
+          <img id="aiPreview" alt="Generated image" style="display:none">
+          <div id="aiPlaceholder" class="empty">Your image will appear here.</div>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- UPLOAD -->
-    <section id="uploadTab" class="tab">
-        <div class="panel">
-            <h2>Upload Pictures</h2>
-            <p class="subtitle">Choose images or drag them into the area below.</p>
-
-            <div id="dropArea" class="upload-area">
-                <h3>📁 Drop pictures here</h3>
-                <p>Or click here to select files from your computer.</p>
-                <button type="button" id="chooseFilesBtn">Choose Pictures</button>
-                <input
-                    id="fileInput"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    hidden
-                >
-            </div>
-
-            <div id="uploadStatus" class="status"></div>
-        </div>
-    </section>
-
-    <!-- AI CREATOR -->
-    <section id="aiTab" class="tab">
-        <div class="panel">
-            <h2>✨ AI Photo Creator</h2>
-            <p class="subtitle">
-                Describe an image and generate a picture from your prompt.
-            </p>
-
-            <div class="ai-layout">
-                <div>
-                    <label for="aiPrompt">What picture do you want?</label>
-                    <input
-                        id="aiPrompt"
-                        type="text"
-                        placeholder="A futuristic city at sunset..."
-                    >
-
-                    <div style="height:12px"></div>
-
-                    <button id="generateAI" type="button">
-                        ✨ Generate Image
-                    </button>
-
-                    <button id="saveAI" type="button" class="green" disabled>
-                        💾 Save to Gallery
-                    </button>
-
-                    <p class="small">
-                        Be descriptive. For example: “A cute orange cat wearing
-                        a space helmet, colorful digital art.”
-                    </p>
-
-                    <div id="aiStatus" class="status"></div>
-                </div>
-
-                <div>
-                    <div id="aiPlaceholder" class="preview-placeholder">
-                        Your generated picture will appear here.
-                    </div>
-
-                    <img
-                        id="aiPreview"
-                        class="ai-preview"
-                        alt="AI-generated preview"
-                    >
-                </div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <h3>AI generation troubleshooting</h3>
-            <p class="small">
-                This version loads the image directly into the preview instead
-                of relying on a browser fetch to display it. The image service
-                is external, so generation can still fail if that service is
-                unavailable. Saving may also fail if the service blocks
-                cross-origin downloads.
-            </p>
-        </div>
-    </section>
-
-    <!-- SECRET VAULT -->
-    <section id="secretTab" class="tab">
-        <div class="panel">
-            <h2>🔒 Secret Vault</h2>
-            <p class="subtitle">
-                Hide pictures from your normal gallery and keep them in this
-                separate view.
-            </p>
-
-            <div id="secretSetup">
-                <h3>Create a vault passcode</h3>
-                <input
-                    id="newPasscode"
-                    type="password"
-                    inputmode="numeric"
-                    placeholder="Create a passcode"
-                >
-                <div style="height:10px"></div>
-                <input
-                    id="confirmPasscode"
-                    type="password"
-                    inputmode="numeric"
-                    placeholder="Confirm your passcode"
-                >
-                <div style="height:10px"></div>
-                <button id="createVaultBtn">Create Secret Vault</button>
-            </div>
-
-            <div id="secretUnlock" style="display:none;">
-                <h3>Unlock your vault</h3>
-                <input
-                    id="vaultPasscode"
-                    type="password"
-                    inputmode="numeric"
-                    placeholder="Enter your passcode"
-                >
-                <div style="height:10px"></div>
-                <button id="unlockVaultBtn">Unlock Vault</button>
-            </div>
-
-            <div id="secretContent" style="display:none;">
-                <div class="row">
-                    <h3 style="margin:0;">Hidden Pictures</h3>
-                    <button id="lockVaultBtn" class="secondary">Lock Vault</button>
-                </div>
-                <p class="small">
-                    Select “Unhide” on a picture to return it to the main gallery.
-                </p>
-                <div id="secretGallery" class="gallery"></div>
-                <div id="secretEmpty" class="empty" style="display:none;">
-                    There are no hidden pictures.
-                </div>
-            </div>
-
-            <div id="secretStatus" class="status"></div>
-        </div>
-    </section>
+  <section id="secretTab" class="tab">
+    <div class="panel">
+      <h2>🔒 Secret Vault</h2>
+      <p class="muted">Hidden pictures are excluded from the main gallery. This hides them from the gallery but does not separately encrypt them.</p>
+      <p id="secretStatus" class="status"></p>
+      <div id="secretGallery" class="gallery"></div>
+      <div id="secretEmpty" class="empty" style="display:none">No hidden pictures.</div>
+    </div>
+  </section>
+</section>
 </main>
 
-<!-- IMAGE VIEWER -->
-<div id="viewer" class="modal">
-    <div class="modal-content">
-        <div class="modal-top">
-            <strong id="viewerTitle">Picture</strong>
-            <button id="closeViewer" class="secondary">✕ Close</button>
-        </div>
-        <img id="viewerImage" class="modal-image" alt="Picture preview">
-        <div class="row">
-            <button id="viewerDownload">Download</button>
-            <button id="viewerHide" class="secondary">Hide Picture</button>
-        </div>
+<div id="viewer" class="viewer">
+  <div class="viewer-inner">
+    <div class="row" style="justify-content:space-between">
+      <strong id="viewerTitle">Picture</strong>
+      <button id="closeViewer" class="secondary">Close</button>
     </div>
+    <img id="viewerImage" alt="Picture">
+    <div class="row">
+      <button id="viewerDownload">Download</button>
+      <button id="viewerHide" class="secondary">Hide Picture</button>
+      <button id="viewerDelete" class="red">Delete Picture</button>
+    </div>
+    <p id="viewerStatus" class="status"></p>
+  </div>
 </div>
+<footer>Picture Vault · Account-based cloud storage</footer>
 
-<div id="toast"></div>
-
-<footer>
-    Picture Vault · Images are stored in this browser on this device.
-</footer>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
 
-/* =========================================================
-   DATABASE
-   ========================================================= */
+/* Add these from Supabase -> Project Settings -> API.
+   Use the project URL and publishable/anon key only.
+   NEVER put a service_role or secret key in browser code. */
+const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE";
+const SUPABASE_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY_HERE";
+const BUCKET = "pictures";
 
-const DB_NAME = "PictureVaultDatabase";
-const DB_VERSION = 1;
-const STORE_NAME = "pictures";
-
-let db;
+let db = null;
+let currentUser = null;
 let pictures = [];
-let currentFilter = "all";
-let vaultUnlocked = false;
-let currentViewerId = null;
-let currentAIUrl = null;
-let currentAIBlob = null;
-
-function openDatabase() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-        request.onupgradeneeded = () => {
-            const database = request.result;
-
-            if (!database.objectStoreNames.contains(STORE_NAME)) {
-                const store = database.createObjectStore(STORE_NAME, {
-                    keyPath: "id",
-                    autoIncrement: true
-                });
-
-                store.createIndex("hidden", "hidden", { unique: false });
-            }
-        };
-
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-}
-
-function storeTransaction(mode = "readonly") {
-    return db.transaction(STORE_NAME, mode).objectStore(STORE_NAME);
-}
-
-function getAllPictures() {
-    return new Promise((resolve, reject) => {
-        const request = storeTransaction().getAll();
-        request.onsuccess = () => resolve(request.result || []);
-        request.onerror = () => reject(request.error);
-    });
-}
-
-function addPicture(picture) {
-    return new Promise((resolve, reject) => {
-        const request = storeTransaction("readwrite").add(picture);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-}
-
-function updatePicture(id, changes) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const transaction = db.transaction(STORE_NAME, "readwrite");
-            const store = transaction.objectStore(STORE_NAME);
-            const request = store.get(id);
-
-            request.onsuccess = () => {
-                const item = request.result;
-
-                if (!item) {
-                    reject(new Error("Picture not found."));
-                    return;
-                }
-
-                Object.assign(item, changes);
-                store.put(item);
-            };
-
-            request.onerror = () => reject(request.error);
-            transaction.oncomplete = () => resolve();
-            transaction.onerror = () => reject(transaction.error);
-        } catch (error) {
-            reject(error);
-        }
-    });
-}
-
-function deletePicture(id) {
-    return new Promise((resolve, reject) => {
-        const request = storeTransaction("readwrite").delete(id);
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-    });
-}
-
-/* =========================================================
-   GENERAL HELPERS
-   ========================================================= */
+let authMode = "login";
+let viewerId = null;
+let aiUrl = null;
+let aiRequest = 0;
 
 const $ = id => document.getElementById(id);
+const status = (id, text) => { $(id).textContent = text || ""; };
 
-function toast(message) {
-    const element = $("toast");
-    element.textContent = message;
-    element.style.display = "block";
-
-    clearTimeout(toast.timeout);
-    toast.timeout = setTimeout(() => {
-        element.style.display = "none";
-    }, 3000);
+function safeFilename(name) {
+  return String(name || "picture")
+    .replace(/[^\w.\-() ]/g, "_").slice(-120) || "picture";
 }
 
-function escapeHTML(value) {
-    return String(value).replace(/[&<>"']/g, character => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-    })[character]);
+function showAuthMode(mode) {
+  authMode = mode;
+  $("loginTabBtn").classList.toggle("active", mode === "login");
+  $("signupTabBtn").classList.toggle("active", mode === "signup");
+  $("authSubmit").textContent = mode === "login" ? "Log In" : "Create Account";
+  $("password").autocomplete = mode === "login" ? "current-password" : "new-password";
+  status("authStatus", "");
 }
 
-function formatDate(timestamp) {
-    return new Date(timestamp).toLocaleString();
+function showApp(signedIn) {
+  $("authScreen").style.display = signedIn ? "none" : "block";
+  $("appScreen").style.display = signedIn ? "block" : "none";
+  $("accountArea").style.display = signedIn ? "flex" : "none";
+  $("accountEmail").textContent = currentUser?.email || "";
 }
 
-function makeObjectURL(blob) {
-    return URL.createObjectURL(blob);
+function activateTab(id) {
+  document.querySelectorAll(".tab-btn[data-tab]").forEach(b =>
+    b.classList.toggle("active", b.dataset.tab === id));
+  document.querySelectorAll(".tab").forEach(t =>
+    t.classList.toggle("active", t.id === id));
+  if (id === "secretTab") renderGallery(true);
 }
 
-function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+/* AUTH */
+$("loginTabBtn").onclick = () => showAuthMode("login");
+$("signupTabBtn").onclick = () => showAuthMode("signup");
 
-    link.href = url;
-    link.download = filename || "picture";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+$("authForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!db) {
+    status("authStatus", "Set up your Supabase URL and key in the code first.");
+    return;
+  }
 
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
-}
+  const email = $("email").value.trim();
+  const password = $("password").value;
+  $("authSubmit").disabled = true;
+  status("authStatus", authMode === "login" ? "Signing in..." : "Creating account...");
 
-function downloadPicture(picture) {
-    downloadBlob(picture.blob, picture.name);
-}
-
-async function refreshPictures() {
-    pictures = await getAllPictures();
-    $("imageCount").textContent =
-        pictures.length + (pictures.length === 1 ? " picture" : " pictures");
-
-    renderGallery();
-    renderSecretGallery();
-}
-
-/* =========================================================
-   TABS
-   ========================================================= */
-
-document.querySelectorAll(".tab-button").forEach(button => {
-    button.addEventListener("click", () => {
-        document.querySelectorAll(".tab-button").forEach(item =>
-            item.classList.remove("active")
-        );
-
-        document.querySelectorAll(".tab").forEach(item =>
-            item.classList.remove("active")
-        );
-
-        button.classList.add("active");
-        $(button.dataset.tab).classList.add("active");
-
-        if (button.dataset.tab === "secretTab") {
-            updateSecretPanel();
-        }
-    });
-});
-
-/* =========================================================
-   UPLOAD AND DRAG-AND-DROP
-   ========================================================= */
-
-$("chooseFilesBtn").addEventListener("click", () => {
-    $("fileInput").click();
-});
-
-$("dropArea").addEventListener("click", event => {
-    if (event.target.id !== "chooseFilesBtn") {
-        $("fileInput").click();
+  try {
+    if (authMode === "signup") {
+      const { data, error } = await db.auth.signUp({ email, password });
+      if (error) throw error;
+      if (!data.session) {
+        status("authStatus", "Account created. Confirm your email, then log in.");
+      } else {
+        status("authStatus", "Account created.");
+      }
+    } else {
+      const { error } = await db.auth.signInWithPassword({ email, password });
+      if (error) throw error;
     }
+  } catch (e) {
+    status("authStatus", e.message || "Authentication failed.");
+  } finally {
+    $("authSubmit").disabled = false;
+  }
 });
 
-$("fileInput").addEventListener("change", async event => {
-    await handleFiles(event.target.files);
-    event.target.value = "";
-});
+$("logoutBtn").onclick = async () => {
+  const { error } = await db.auth.signOut();
+  if (error) return alert(error.message);
+  currentUser = null;
+  pictures = [];
+  showApp(false);
+  $("gallery").replaceChildren();
+  $("secretGallery").replaceChildren();
+};
 
-["dragenter", "dragover"].forEach(eventName => {
-    $("dropArea").addEventListener(eventName, event => {
-        event.preventDefault();
-        $("dropArea").classList.add("dragging");
-    });
-});
-
-["dragleave", "drop"].forEach(eventName => {
-    $("dropArea").addEventListener(eventName, event => {
-        event.preventDefault();
-        $("dropArea").classList.remove("dragging");
-    });
-});
-
-$("dropArea").addEventListener("drop", async event => {
-    await handleFiles(event.dataTransfer.files);
-});
-
-async function handleFiles(fileList) {
-    const files = Array.from(fileList).filter(file =>
-        file.type.startsWith("image/")
-    );
-
-    if (!files.length) {
-        $("uploadStatus").textContent = "Please select image files.";
-        return;
-    }
-
-    let saved = 0;
-    $("uploadStatus").textContent = "Uploading pictures...";
-
-    for (const file of files) {
-        try {
-            await addPicture({
-                name: file.name,
-                blob: file,
-                type: file.type,
-                createdAt: Date.now(),
-                hidden: false,
-                source: "upload"
-            });
-
-            saved++;
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    $("uploadStatus").textContent =
-        "Uploaded " + saved + " of " + files.length + " picture(s).";
-
-    await refreshPictures();
-    toast(saved + " picture(s) added.");
+async function handleSession(session) {
+  currentUser = session?.user || null;
+  showApp(!!currentUser);
+  if (currentUser) await loadPictures();
+  else {
+    pictures = [];
+    $("gallery").replaceChildren();
+    $("secretGallery").replaceChildren();
+  }
 }
 
-/* =========================================================
-   GALLERY RENDERING
-   ========================================================= */
-
-$("searchInput").addEventListener("input", renderGallery);
-
-$("showAllBtn").addEventListener("click", () => {
-    currentFilter = "all";
-    renderGallery();
-});
-
-$("showHiddenBtn").addEventListener("click", () => {
-    currentFilter = "hidden";
-    renderGallery();
-});
-
-function renderGallery() {
-    const gallery = $("gallery");
-    const search = $("searchInput").value.trim().toLowerCase();
-
-    let visible = pictures.filter(picture => {
-        const matchesSearch = (picture.name || "").toLowerCase().includes(search);
-
-        if (currentFilter === "hidden") {
-            return picture.hidden && matchesSearch;
-        }
-
-        return !picture.hidden && matchesSearch;
-    });
-
-    gallery.innerHTML = "";
-
-    $("galleryEmpty").style.display = visible.length ? "none" : "block";
-
-    visible.sort((a, b) => b.createdAt - a.createdAt);
-
-    visible.forEach(picture => {
-        gallery.appendChild(createPictureCard(picture, false));
-    });
+/* PRIVATE CLOUD STORAGE */
+async function loadPictures() {
+  if (!currentUser || !db) return;
+  status("galleryStatus", "Loading pictures...");
+  const { data, error } = await db.from("pictures")
+    .select("*").order("created_at", { ascending: false });
+  if (error) {
+    status("galleryStatus", "Could not load pictures: " + error.message);
+    return;
+  }
+  pictures = data || [];
+  await renderGallery(false);
+  status("galleryStatus", pictures.length + " picture(s) in your account.");
 }
 
-function renderSecretGallery() {
-    const gallery = $("secretGallery");
+async function uploadToCloud(file, options = {}) {
+  if (!currentUser) throw new Error("Please log in first.");
+  if (!file?.type?.startsWith("image/")) throw new Error("Choose a valid image.");
 
-    if (!vaultUnlocked) {
-        gallery.innerHTML = "";
-        $("secretEmpty").style.display = "none";
-        return;
-    }
+  const path = currentUser.id + "/" + crypto.randomUUID() + "-" +
+    safeFilename(file.name || "picture.png");
 
-    const hiddenPictures = pictures
-        .filter(picture => picture.hidden)
-        .sort((a, b) => b.createdAt - a.createdAt);
+  const { error: storageError } = await db.storage.from(BUCKET)
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (storageError) throw storageError;
 
-    gallery.innerHTML = "";
-    $("secretEmpty").style.display = hiddenPictures.length ? "none" : "block";
+  const { error: rowError } = await db.from("pictures").insert({
+    user_id: currentUser.id,
+    name: options.name || file.name || "Picture",
+    storage_path: path,
+    hidden: !!options.hidden,
+    prompt: options.prompt || null
+  });
 
-    hiddenPictures.forEach(picture => {
-        gallery.appendChild(createPictureCard(picture, true));
-    });
+  if (rowError) {
+    await db.storage.from(BUCKET).remove([path]);
+    throw rowError;
+  }
 }
 
-function createPictureCard(picture, isSecret) {
+async function signedUrl(path) {
+  const { data, error } = await db.storage.from(BUCKET).createSignedUrl(path, 300);
+  if (error) throw error;
+  return data.signedUrl;
+}
+
+async function changeHidden(picture, hidden) {
+  const { error } = await db.from("pictures")
+    .update({ hidden })
+    .eq("id", picture.id)
+    .eq("user_id", currentUser.id);
+  if (error) throw error;
+  await loadPictures();
+}
+
+async function deletePicture(picture) {
+  const { error: storageError } = await db.storage.from(BUCKET)
+    .remove([picture.storage_path]);
+  if (storageError) throw storageError;
+
+  const { error } = await db.from("pictures").delete()
+    .eq("id", picture.id).eq("user_id", currentUser.id);
+  if (error) throw error;
+  await loadPictures();
+}
+
+/* GALLERY */
+async function renderGallery(hiddenMode = false) {
+  const gallery = hiddenMode ? $("secretGallery") : $("gallery");
+  const empty = hiddenMode ? $("secretEmpty") : $("galleryEmpty");
+  gallery.replaceChildren();
+
+  if (!currentUser) return;
+
+  const query = hiddenMode ? "" : $("searchInput").value.trim().toLowerCase();
+  const list = pictures.filter(p => !!p.hidden === hiddenMode &&
+    (!query || (p.name || "").toLowerCase().includes(query)));
+
+  empty.style.display = list.length ? "none" : "block";
+
+  for (const p of list) {
     const card = document.createElement("article");
-    card.className = "image-card";
+    card.className = "card";
+    const img = document.createElement("img");
+    img.alt = p.name;
+    img.loading = "lazy";
+    img.onclick = () => openViewer(p.id);
 
-    const image = document.createElement("img");
-    image.alt = picture.name || "Picture";
-    image.loading = "lazy";
-
-    const imageURL = makeObjectURL(picture.blob);
-    image.src = imageURL;
-    image.addEventListener("load", () => URL.revokeObjectURL(imageURL), {
-        once: true
-    });
-
-    image.addEventListener("error", () => URL.revokeObjectURL(imageURL), {
-        once: true
-    });
-
-    image.addEventListener("click", () => openViewer(picture.id));
-
-    const info = document.createElement("div");
-    info.className = "image-info";
-
+    const body = document.createElement("div");
+    body.className = "card-body";
     const name = document.createElement("div");
-    name.className = "image-name";
-    name.textContent = picture.name || "Untitled picture";
-
+    name.className = "card-name";
+    name.textContent = p.name;
     const date = document.createElement("div");
-    date.className = "image-date";
-    date.textContent = formatDate(picture.createdAt);
-
+    date.className = "card-date";
+    date.textContent = new Date(p.created_at).toLocaleString();
     const actions = document.createElement("div");
     actions.className = "card-actions";
 
-    const viewButton = document.createElement("button");
-    viewButton.textContent = "View";
-    viewButton.addEventListener("click", () => openViewer(picture.id));
+    function action(label, cls, fn) {
+      const b = document.createElement("button");
+      b.textContent = label;
+      if (cls) b.className = cls;
+      b.onclick = fn;
+      actions.append(b);
+    }
 
-    const downloadButton = document.createElement("button");
-    downloadButton.className = "secondary";
-    downloadButton.textContent = "Download";
-    downloadButton.addEventListener("click", () => downloadPicture(picture));
-
-    const hideButton = document.createElement("button");
-    hideButton.className = "secondary";
-    hideButton.textContent = isSecret ? "Unhide" : "Hide";
-    hideButton.addEventListener("click", async () => {
-        if (isSecret) {
-            await updatePicture(picture.id, { hidden: false });
-            await refreshPictures();
-            toast("Picture returned to the main gallery.");
-        } else {
-            await updatePicture(picture.id, { hidden: true });
-            await refreshPictures();
-            toast("Picture moved to the Secret Vault.");
-        }
+    action("View", "", () => openViewer(p.id));
+    action("Download", "secondary", () => downloadPicture(p));
+    action(hiddenMode ? "Unhide" : "Hide", "secondary", async () => {
+      try { await changeHidden(p, !hiddenMode); }
+      catch (e) { alert(e.message); }
+    });
+    action("Delete", "red", async () => {
+      if (!confirm("Permanently delete " + p.name + "?")) return;
+      try { await deletePicture(p); }
+      catch (e) { alert(e.message); }
     });
 
-    const deleteButton = document.createElement("button");
-    deleteButton.className = "danger";
-    deleteButton.textContent = "Delete";
-    deleteButton.addEventListener("click", async () => {
-        const confirmed = confirm(
-            "Permanently delete '" + (picture.name || "this picture") + "'?"
-        );
+    body.append(name, date, actions);
+    card.append(img, body);
+    gallery.append(card);
 
-        if (!confirmed) return;
-
-        await deletePicture(picture.id);
-        await refreshPictures();
-        toast("Picture deleted.");
-    });
-
-    actions.append(viewButton, downloadButton, hideButton, deleteButton);
-    info.append(name, date, actions);
-    card.append(image, info);
-
-    return card;
+    try { img.src = await signedUrl(p.storage_path); }
+    catch (e) { img.alt = "Could not load image"; console.error(e); }
+  }
 }
 
-/* =========================================================
-   IMAGE VIEWER
-   ========================================================= */
+async function downloadPicture(p) {
+  try {
+    const url = await signedUrl(p.storage_path);
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Download failed.");
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = safeFilename(p.name);
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+  } catch (e) {
+    alert("Download failed: " + e.message);
+  }
+}
 
-function openViewer(id) {
-    const picture = pictures.find(item => item.id === id);
-    if (!picture) return;
+$("searchInput").addEventListener("input", () => renderGallery(false));
+$("refreshBtn").onclick = loadPictures;
 
-    currentViewerId = id;
-
-    $("viewerTitle").textContent = picture.name || "Picture";
-
-    const oldURL = $("viewerImage").dataset.objectURL;
-    if (oldURL) URL.revokeObjectURL(oldURL);
-
-    const url = makeObjectURL(picture.blob);
-    $("viewerImage").src = url;
-    $("viewerImage").dataset.objectURL = url;
-
-    $("viewer").classList.add("open");
-    $("viewerHide").textContent = picture.hidden ? "Unhide Picture" : "Hide Picture";
+/* IMAGE VIEWER */
+async function openViewer(id) {
+  const p = pictures.find(x => x.id === id);
+  if (!p) return;
+  viewerId = id;
+  $("viewerTitle").textContent = p.name;
+  $("viewerImage").removeAttribute("src");
+  $("viewerHide").textContent = p.hidden ? "Unhide Picture" : "Hide Picture";
+  status("viewerStatus", "Loading image...");
+  $("viewer").classList.add("open");
+  try {
+    $("viewerImage").src = await signedUrl(p.storage_path);
+    status("viewerStatus", "");
+  } catch (e) {
+    status("viewerStatus", e.message);
+  }
 }
 
 function closeViewer() {
-    $("viewer").classList.remove("open");
-    $("viewerImage").removeAttribute("src");
-
-    const url = $("viewerImage").dataset.objectURL;
-    if (url) URL.revokeObjectURL(url);
-
-    delete $("viewerImage").dataset.objectURL;
-    currentViewerId = null;
+  $("viewer").classList.remove("open");
+  $("viewerImage").removeAttribute("src");
+  viewerId = null;
 }
+$("closeViewer").onclick = closeViewer;
+$("viewer").onclick = e => { if (e.target === $("viewer")) closeViewer(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeViewer(); });
 
-$("closeViewer").addEventListener("click", closeViewer);
+$("viewerDownload").onclick = async () => {
+  const p = pictures.find(x => x.id === viewerId);
+  if (p) await downloadPicture(p);
+};
+$("viewerHide").onclick = async () => {
+  const p = pictures.find(x => x.id === viewerId);
+  if (!p) return;
+  try { await changeHidden(p, !p.hidden); closeViewer(); }
+  catch (e) { status("viewerStatus", e.message); }
+};
+$("viewerDelete").onclick = async () => {
+  const p = pictures.find(x => x.id === viewerId);
+  if (!p || !confirm("Permanently delete this picture?")) return;
+  try { await deletePicture(p); closeViewer(); }
+  catch (e) { status("viewerStatus", e.message); }
+};
 
-$("viewer").addEventListener("click", event => {
-    if (event.target === $("viewer")) closeViewer();
-});
+/* UPLOADS */
+$("chooseBtn").onclick = () => $("fileInput").click();
+$("dropArea").onclick = e => {
+  if (e.target.id !== "chooseBtn") $("fileInput").click();
+};
+["dragenter", "dragover"].forEach(type => $("dropArea").addEventListener(type, e => {
+  e.preventDefault();
+  $("dropArea").classList.add("dragging");
+}));
+["dragleave", "drop"].forEach(type => $("dropArea").addEventListener(type, e => {
+  e.preventDefault();
+  $("dropArea").classList.remove("dragging");
+}));
+$("fileInput").onchange = async e => {
+  await handleFiles(e.target.files);
+  e.target.value = "";
+};
+$("dropArea").ondrop = e => handleFiles(e.dataTransfer.files);
 
-document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeViewer();
-});
+async function handleFiles(fileList) {
+  if (!currentUser) return;
+  const files = Array.from(fileList).filter(f => f.type.startsWith("image/"));
+  if (!files.length) return status("uploadStatus", "Select image files first.");
 
-$("viewerDownload").addEventListener("click", () => {
-    const picture = pictures.find(item => item.id === currentViewerId);
-    if (picture) downloadPicture(picture);
-});
-
-$("viewerHide").addEventListener("click", async () => {
-    const picture = pictures.find(item => item.id === currentViewerId);
-    if (!picture) return;
-
-    if (picture.hidden && !vaultUnlocked) {
-        toast("Unlock the Secret Vault before unhiding this picture.");
-        return;
+  let count = 0;
+  for (const file of files) {
+    status("uploadStatus", "Uploading " + (count + 1) + " of " + files.length + "...");
+    try {
+      await uploadToCloud(file);
+      count++;
+    } catch (e) {
+      status("uploadStatus", "Upload failed: " + e.message);
+      await loadPictures();
+      return;
     }
-
-    await updatePicture(picture.id, { hidden: !picture.hidden });
-    await refreshPictures();
-    closeViewer();
-    toast(picture.hidden ? "Picture unhidden." : "Picture hidden.");
-});
-
-/* =========================================================
-   AI IMAGE GENERATOR
-   ========================================================= */
-
-/*
-    This version sets the generated image URL directly on the preview.
-    That avoids requiring fetch() just to DISPLAY the image.
-
-    The remote service can change or be unavailable. If that happens,
-    the page cannot force the service to generate an image.
-*/
-
-$("generateAI").addEventListener("click", generateAI);
-
-$("aiPrompt").addEventListener("keydown", event => {
-    if (event.key === "Enter") generateAI();
-});
-
-$("saveAI").addEventListener("click", saveAIImage);
-
-function setAIStatus(message) {
-    $("aiStatus").textContent = message;
+  }
+  await loadPictures();
+  status("uploadStatus", "Uploaded " + count + " picture(s).");
 }
+
+/* AI CREATOR
+   This uses a third-party image endpoint. It is not guaranteed to be
+   available, and browser downloads can be blocked by CORS. */
+$("generateBtn").onclick = generateAI;
+$("aiPrompt").addEventListener("keydown", e => {
+  if (e.key === "Enter") generateAI();
+});
+$("saveAIBtn").onclick = saveAIToCloud;
 
 function generateAI() {
+  const prompt = $("aiPrompt").value.trim();
+  if (!prompt) return status("aiStatus", "Describe the picture first.");
+
+  const requestId = ++aiRequest;
+  const seed = Math.floor(Math.random() * 1000000000);
+  const url = "https://image.pollinations.ai/prompt/" +
+    encodeURIComponent(prompt) +
+    "?width=1024&height=1024&seed=" + seed + "&nologo=true";
+
+  aiUrl = url;
+  $("generateBtn").disabled = true;
+  $("saveAIBtn").disabled = true;
+  $("aiPreview").style.display = "none";
+  $("aiPlaceholder").style.display = "block";
+  $("aiPlaceholder").textContent = "Generating image...";
+  status("aiStatus", "Requesting your image...");
+
+  const image = new Image();
+  image.onload = () => {
+    if (requestId !== aiRequest) return;
+    $("aiPreview").src = url;
+    $("aiPreview").style.display = "block";
+    $("aiPlaceholder").style.display = "none";
+    $("generateBtn").disabled = false;
+    $("saveAIBtn").disabled = false;
+    status("aiStatus", "Image ready. Save it to your cloud gallery.");
+  };
+  image.onerror = () => {
+    if (requestId !== aiRequest) return;
+    $("generateBtn").disabled = false;
+    $("saveAIBtn").disabled = true;
+    $("aiPlaceholder").textContent = "Image generation failed.";
+    status("aiStatus", "The image service may be unavailable. Try again later.");
+  };
+  image.src = url;
+}
+
+async function saveAIToCloud() {
+  if (!aiUrl || !currentUser) return;
+  $("saveAIBtn").disabled = true;
+  status("aiStatus", "Downloading generated image...");
+  try {
+    const response = await fetch(aiUrl);
+    if (!response.ok) throw new Error("Image download failed.");
+    const blob = await response.blob();
+    if (!blob.type.startsWith("image/")) throw new Error("The service did not return an image.");
+
+    const file = new File([blob], "AI-" + Date.now() + ".png", {
+      type: blob.type || "image/png"
+    });
     const prompt = $("aiPrompt").value.trim();
-
-    if (!prompt) {
-        setAIStatus("Enter a description for your picture first.");
-        $("aiPrompt").focus();
-        return;
-    }
-
-    const button = $("generateAI");
-    const preview = $("aiPreview");
-
-    button.disabled = true;
-    button.textContent = "Generating...";
-    $("saveAI").disabled = true;
-    $("aiPlaceholder").style.display = "grid";
-    $("aiPlaceholder").textContent = "Generating your picture...";
-
-    preview.style.display = "none";
-    preview.removeAttribute("src");
-
-    currentAIUrl = null;
-    currentAIBlob = null;
-
-    /*
-       A new seed requests a different result on each generation.
-       The prompt is encoded so spaces and punctuation work in the URL.
-    */
-    const seed = Math.floor(Math.random() * 2147483647);
-
-    const imageURL =
-        "https://image.pollinations.ai/prompt/" +
-        encodeURIComponent(prompt) +
-        "?width=1024&height=1024&seed=" + seed +
-        "&nologo=true";
-
-    currentAIUrl = imageURL;
-
-    preview.onload = () => {
-        button.disabled = false;
-        button.textContent = "✨ Generate Image";
-
-        preview.style.display = "block";
-        $("aiPlaceholder").style.display = "none";
-        $("saveAI").disabled = false;
-
-        setAIStatus(
-            "Image generated. Click “Save to Gallery” to try saving it."
-        );
-    };
-
-    preview.onerror = () => {
-        button.disabled = false;
-        button.textContent = "✨ Generate Image";
-
-        preview.style.display = "none";
-        $("aiPlaceholder").style.display = "grid";
-        $("aiPlaceholder").textContent =
-            "The image service did not return a picture.";
-
-        $("saveAI").disabled = true;
-
-        setAIStatus(
-            "Generation failed. Try again later or use a different image service."
-        );
-    };
-
-    setAIStatus("Requesting an image for: " + prompt);
-
-    /*
-       The image is loaded directly, not fetched first.
-       This is the key fix for browser CORS display issues.
-    */
-    preview.src = imageURL;
+    await uploadToCloud(file, {
+      name: "AI - " + prompt.slice(0, 70),
+      prompt
+    });
+    await loadPictures();
+    status("aiStatus", "Image saved to your cloud gallery!");
+  } catch (e) {
+    console.error(e);
+    status("aiStatus", "Could not save image. The AI service may block browser downloads; a backend proxy may be needed.");
+  } finally {
+    $("saveAIBtn").disabled = false;
+  }
 }
 
-async function saveAIImage() {
-    if (!currentAIUrl) {
-        setAIStatus("Generate an image first.");
-        return;
-    }
+/* STARTUP */
+document.querySelectorAll(".tab-btn[data-tab]").forEach(b =>
+  b.addEventListener("click", () => activateTab(b.dataset.tab)));
 
-    const button = $("saveAI");
-    button.disabled = true;
-    button.textContent = "Saving...";
+async function start() {
+  if (SUPABASE_URL.includes("PASTE_YOUR_") || SUPABASE_KEY.includes("PASTE_YOUR_")) {
+    showApp(false);
+    showAuthMode("login");
+    status("authStatus", "Setup required: add your Supabase project URL and publishable/anon key in the code.");
+    return;
+  }
 
-    try {
-        let blob = currentAIBlob;
+  if (!window.supabase?.createClient) {
+    status("authStatus", "Could not load Supabase. Check your internet connection.");
+    return;
+  }
 
-        if (!blob) {
-            /*
-               Some image services allow direct display but block fetch().
-               If that happens, the browser cannot save the remote image
-               into IndexedDB from this page without a suitable backend.
-            */
-            const response = await fetch(currentAIUrl);
+  try {
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
 
-            if (!response.ok) {
-                throw new Error("Image download failed.");
-            }
+    const { data, error } = await db.auth.getSession();
+    if (error) throw error;
+    await handleSession(data.session);
 
-            blob = await response.blob();
-
-            if (!blob.type.startsWith("image/")) {
-                throw new Error("The service did not return an image.");
-            }
-
-            currentAIBlob = blob;
-        }
-
-        const prompt = $("aiPrompt").value.trim();
-
-        await addPicture({
-            name: "AI - " + prompt.slice(0, 65) + ".png",
-            blob,
-            type: blob.type || "image/png",
-            createdAt: Date.now(),
-            hidden: false,
-            source: "ai",
-            prompt
-        });
-
-        await refreshPictures();
-
-        setAIStatus("Saved successfully to your gallery.");
-        toast("AI picture saved to gallery.");
-    } catch (error) {
-        console.error("AI save error:", error);
-
-        setAIStatus(
-            "The image is displayed, but automatic saving was blocked by " +
-            "the image service or browser. A small backend server is needed " +
-            "to download and save it reliably."
-        );
-    } finally {
-        button.disabled = false;
-        button.textContent = "💾 Save to Gallery";
-    }
+    db.auth.onAuthStateChange((_event, session) => {
+      // Run session/database work after the auth callback returns.
+      setTimeout(() => handleSession(session), 0);
+    });
+  } catch (e) {
+    status("authStatus", "Startup failed: " + e.message);
+  }
 }
-
-/* =========================================================
-   SECRET VAULT
-   ========================================================= */
-
-/*
-    IMPORTANT:
-    This is a basic passcode gate, not strong encryption.
-    Hidden images are still stored in this browser's IndexedDB.
-    Do not use this for highly sensitive images.
-*/
-
-const VAULT_HASH_KEY = "pictureVaultPasscodeHash";
-
-async function hashPasscode(passcode) {
-    if (crypto.subtle) {
-        const bytes = new TextEncoder().encode(passcode);
-        const hash = await crypto.subtle.digest("SHA-256", bytes);
-
-        return Array.from(new Uint8Array(hash))
-            .map(byte => byte.toString(16).padStart(2, "0"))
-            .join("");
-    }
-
-    // Compatibility fallback; not a cryptographic hash.
-    let hash = 0;
-    for (let i = 0; i < passcode.length; i++) {
-        hash = ((hash << 5) - hash) + passcode.charCodeAt(i);
-        hash |= 0;
-    }
-    return "fallback-" + hash;
-}
-
-function updateSecretPanel() {
-    const savedHash = localStorage.getItem(VAULT_HASH_KEY);
-
-    $("secretSetup").style.display = savedHash ? "none" : "block";
-    $("secretUnlock").style.display =
-        savedHash && !vaultUnlocked ? "block" : "none";
-    $("secretContent").style.display = vaultUnlocked ? "block" : "none";
-
-    renderSecretGallery();
-}
-
-$("createVaultBtn").addEventListener("click", async () => {
-    const passcode = $("newPasscode").value;
-    const confirmation = $("confirmPasscode").value;
-
-    if (passcode.length < 4) {
-        $("secretStatus").textContent =
-            "Use a passcode with at least 4 characters.";
-        return;
-    }
-
-    if (passcode !== confirmation) {
-        $("secretStatus").textContent = "The passcodes do not match.";
-        return;
-    }
-
-    const hash = await hashPasscode(passcode);
-    localStorage.setItem(VAULT_HASH_KEY, hash);
-
-    $("newPasscode").value = "";
-    $("confirmPasscode").value = "";
-    $("secretStatus").textContent = "Secret Vault created.";
-
-    toast("Secret Vault created.");
-    updateSecretPanel();
-});
-
-$("unlockVaultBtn").addEventListener("click", async () => {
-    const passcode = $("vaultPasscode").value;
-    const savedHash = localStorage.getItem(VAULT_HASH_KEY);
-
-    const enteredHash = await hashPasscode(passcode);
-
-    if (!savedHash || enteredHash !== savedHash) {
-        $("secretStatus").textContent = "Incorrect passcode.";
-        return;
-    }
-
-    vaultUnlocked = true;
-    $("vaultPasscode").value = "";
-    $("secretStatus").textContent = "Vault unlocked.";
-
-    updateSecretPanel();
-    toast("Secret Vault unlocked.");
-});
-
-$("lockVaultBtn").addEventListener("click", () => {
-    vaultUnlocked = false;
-    updateSecretPanel();
-    $("secretStatus").textContent = "Vault locked.";
-    toast("Secret Vault locked.");
-});
-
-/* =========================================================
-   STARTUP
-   ========================================================= */
-
-async function initializeApp() {
-    try {
-        db = await openDatabase();
-
-        await refreshPictures();
-        updateSecretPanel();
-
-        console.log("Picture Vault is ready.");
-    } catch (error) {
-        console.error("Startup error:", error);
-
-        alert(
-            "Picture Vault could not open its database. " +
-            "Try opening this file in a modern browser."
-        );
-    }
-}
-
-initializeApp();
+start();
 </script>
-
 </body>
 </html>
