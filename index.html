@@ -19,9 +19,7 @@
     --border: #2b3855;
 }
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -30,9 +28,7 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-button, input {
-    font: inherit;
-}
+button, input { font: inherit; }
 
 button {
     border: 0;
@@ -44,27 +40,16 @@ button {
     transition: 0.15s;
 }
 
-button:hover {
-    filter: brightness(1.15);
-}
-
-button:disabled {
-    opacity: 0.55;
-    cursor: wait;
-}
+button:hover { filter: brightness(1.15); }
+button:disabled { opacity: 0.55; cursor: wait; }
 
 button.secondary {
     background: var(--panel2);
     border: 1px solid var(--border);
 }
 
-button.danger {
-    background: #8e2943;
-}
-
-button.green {
-    background: #087e70;
-}
+button.danger { background: #8e2943; }
+button.green { background: #087e70; }
 
 input {
     width: 100%;
@@ -76,9 +61,7 @@ input {
     outline: none;
 }
 
-input:focus {
-    border-color: var(--accent);
-}
+input:focus { border-color: var(--accent); }
 
 header {
     padding: 20px;
@@ -99,14 +82,8 @@ header {
     flex-wrap: wrap;
 }
 
-.logo {
-    font-size: 23px;
-    font-weight: 800;
-}
-
-.logo span {
-    color: var(--accent2);
-}
+.logo { font-size: 23px; font-weight: 800; }
+.logo span { color: var(--accent2); }
 
 main {
     max-width: 1250px;
@@ -114,9 +91,7 @@ main {
     padding: 22px;
 }
 
-h1, h2, h3 {
-    margin-top: 0;
-}
+h1, h2, h3 { margin-top: 0; }
 
 .subtitle {
     color: var(--muted);
@@ -136,13 +111,8 @@ h1, h2, h3 {
     font-weight: bold;
 }
 
-.tab {
-    display: none;
-}
-
-.tab.active {
-    display: block;
-}
+.tab { display: none; }
+.tab.active { display: block; }
 
 .panel {
     background: var(--panel);
@@ -166,9 +136,7 @@ h1, h2, h3 {
     background: #132d34;
 }
 
-.upload-area p {
-    color: var(--muted);
-}
+.upload-area p { color: var(--muted); }
 
 .row {
     display: flex;
@@ -177,14 +145,8 @@ h1, h2, h3 {
     align-items: center;
 }
 
-.row > input {
-    flex: 1;
-    min-width: 180px;
-}
-
-.searchbar {
-    margin-bottom: 18px;
-}
+.row > input { flex: 1; min-width: 180px; }
+.searchbar { margin-bottom: 18px; }
 
 .gallery {
     display: grid;
@@ -209,9 +171,7 @@ h1, h2, h3 {
     cursor: pointer;
 }
 
-.image-info {
-    padding: 12px;
-}
+.image-info { padding: 12px; }
 
 .image-name {
     font-weight: bold;
@@ -242,13 +202,6 @@ h1, h2, h3 {
     color: var(--muted);
     border: 1px dashed var(--border);
     border-radius: 14px;
-}
-
-.status {
-    margin-top: 12px;
-    color: var(--muted);
-    min-height: 20px;
-    overflow-wrap: anywhere;
 }
 
 .ai-layout {
@@ -296,9 +249,7 @@ h1, h2, h3 {
     justify-content: center;
 }
 
-.modal.open {
-    display: flex;
-}
+.modal.open { display: flex; }
 
 .modal-content {
     width: min(1000px, 100%);
@@ -349,21 +300,10 @@ footer {
 }
 
 @media (max-width: 720px) {
-    main {
-        padding: 14px;
-    }
-
-    .ai-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .gallery {
-        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-    }
-
-    .image-card img {
-        height: 145px;
-    }
+    main { padding: 14px; }
+    .ai-layout { grid-template-columns: 1fr; }
+    .gallery { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); }
+    .image-card img { height: 145px; }
 }
 </style>
 </head>
@@ -380,7 +320,7 @@ footer {
 <main>
     <h1>Your personal picture vault</h1>
     <p class="subtitle">
-        Upload pictures, create AI images, and organize your private collection.
+        Upload pictures, create AI images, and organize your collection.
     </p>
 
     <div class="tabs">
@@ -400,14 +340,10 @@ footer {
                 type="search"
                 placeholder="Search your pictures..."
             >
-
-            <div class="row">
-                <button class="secondary" id="showAllBtn">Show All</button>
-                <button class="secondary" id="showHiddenBtn">Show Hidden</button>
-            </div>
         </div>
 
         <div id="gallery" class="gallery"></div>
+
         <div id="galleryEmpty" class="empty" style="display:none;">
             No pictures found. Upload a picture or create one with the AI Creator.
         </div>
@@ -423,13 +359,7 @@ footer {
                 <h3>📁 Drop pictures here</h3>
                 <p>Or click here to select files from your computer.</p>
                 <button type="button" id="chooseFilesBtn">Choose Pictures</button>
-                <input
-                    id="fileInput"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    hidden
-                >
+                <input id="fileInput" type="file" accept="image/*" multiple hidden>
             </div>
 
             <div id="uploadStatus" class="status"></div>
@@ -447,25 +377,19 @@ footer {
             <div class="ai-layout">
                 <div>
                     <label for="aiPrompt">What picture do you want?</label>
-                    <input
-                        id="aiPrompt"
-                        type="text"
-                        placeholder="A futuristic city at sunset..."
-                    >
+                    <input id="aiPrompt" type="text"
+                           placeholder="A futuristic city at sunset...">
 
                     <div style="height:12px"></div>
 
-                    <button id="generateAI" type="button">
-                        ✨ Generate Image
-                    </button>
-
+                    <button id="generateAI" type="button">✨ Generate Image</button>
                     <button id="saveAI" type="button" class="green" disabled>
                         💾 Save to Gallery
                     </button>
 
                     <p class="small">
-                        Be descriptive. For example: “A cute orange cat wearing
-                        a space helmet, colorful digital art.”
+                        Example: “A cute orange cat wearing a space helmet,
+                        colorful digital art.”
                     </p>
 
                     <div id="aiStatus" class="status"></div>
@@ -475,12 +399,7 @@ footer {
                     <div id="aiPlaceholder" class="preview-placeholder">
                         Your generated picture will appear here.
                     </div>
-
-                    <img
-                        id="aiPreview"
-                        class="ai-preview"
-                        alt="AI-generated preview"
-                    >
+                    <img id="aiPreview" class="ai-preview" alt="AI-generated preview">
                 </div>
             </div>
         </div>
@@ -488,11 +407,8 @@ footer {
         <div class="panel">
             <h3>AI generation troubleshooting</h3>
             <p class="small">
-                This version loads the image directly into the preview instead
-                of relying on a browser fetch to display it. The image service
-                is external, so generation can still fail if that service is
-                unavailable. Saving may also fail if the service blocks
-                cross-origin downloads.
+                The external image service may occasionally be unavailable.
+                Browser restrictions may also prevent saving generated images.
             </p>
         </div>
     </section>
@@ -502,37 +418,25 @@ footer {
         <div class="panel">
             <h2>🔒 Secret Vault</h2>
             <p class="subtitle">
-                Hide pictures from your normal gallery and keep them in this
-                separate view.
+                Hidden pictures are excluded from the main Gallery and its search.
+                Unlock this vault to view or unhide them.
             </p>
 
             <div id="secretSetup">
                 <h3>Create a vault passcode</h3>
-                <input
-                    id="newPasscode"
-                    type="password"
-                    inputmode="numeric"
-                    placeholder="Create a passcode"
-                >
+                <input id="newPasscode" type="password"
+                       placeholder="Create a passcode">
                 <div style="height:10px"></div>
-                <input
-                    id="confirmPasscode"
-                    type="password"
-                    inputmode="numeric"
-                    placeholder="Confirm your passcode"
-                >
+                <input id="confirmPasscode" type="password"
+                       placeholder="Confirm your passcode">
                 <div style="height:10px"></div>
                 <button id="createVaultBtn">Create Secret Vault</button>
             </div>
 
             <div id="secretUnlock" style="display:none;">
                 <h3>Unlock your vault</h3>
-                <input
-                    id="vaultPasscode"
-                    type="password"
-                    inputmode="numeric"
-                    placeholder="Enter your passcode"
-                >
+                <input id="vaultPasscode" type="password"
+                       placeholder="Enter your passcode">
                 <div style="height:10px"></div>
                 <button id="unlockVaultBtn">Unlock Vault</button>
             </div>
@@ -542,9 +446,11 @@ footer {
                     <h3 style="margin:0;">Hidden Pictures</h3>
                     <button id="lockVaultBtn" class="secondary">Lock Vault</button>
                 </div>
+
                 <p class="small">
-                    Select “Unhide” on a picture to return it to the main gallery.
+                    Use “Unhide” to return a picture to the main Gallery.
                 </p>
+
                 <div id="secretGallery" class="gallery"></div>
                 <div id="secretEmpty" class="empty" style="display:none;">
                     There are no hidden pictures.
@@ -563,7 +469,9 @@ footer {
             <strong id="viewerTitle">Picture</strong>
             <button id="closeViewer" class="secondary">✕ Close</button>
         </div>
+
         <img id="viewerImage" class="modal-image" alt="Picture preview">
+
         <div class="row">
             <button id="viewerDownload">Download</button>
             <button id="viewerHide" class="secondary">Hide Picture</button>
@@ -574,15 +482,13 @@ footer {
 <div id="toast"></div>
 
 <footer>
-    Picture Vault · Images are stored in this browser on this device.
+    Picture Vault · Pictures are stored in this browser on this device.
 </footer>
 
 <script>
 "use strict";
 
-/* =========================================================
-   DATABASE
-   ========================================================= */
+/* DATABASE */
 
 const DB_NAME = "PictureVaultDatabase";
 const DB_VERSION = 1;
@@ -590,7 +496,6 @@ const STORE_NAME = "pictures";
 
 let db;
 let pictures = [];
-let currentFilter = "all";
 let vaultUnlocked = false;
 let currentViewerId = null;
 let currentAIUrl = null;
@@ -639,30 +544,23 @@ function addPicture(picture) {
 }
 
 function updatePicture(id, changes) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const transaction = db.transaction(STORE_NAME, "readwrite");
-            const store = transaction.objectStore(STORE_NAME);
-            const request = store.get(id);
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(STORE_NAME, "readwrite");
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(id);
 
-            request.onsuccess = () => {
-                const item = request.result;
+        request.onsuccess = () => {
+            const item = request.result;
 
-                if (!item) {
-                    reject(new Error("Picture not found."));
-                    return;
-                }
+            if (!item) return;
 
-                Object.assign(item, changes);
-                store.put(item);
-            };
+            Object.assign(item, changes);
+            store.put(item);
+        };
 
-            request.onerror = () => reject(request.error);
-            transaction.oncomplete = () => resolve();
-            transaction.onerror = () => reject(transaction.error);
-        } catch (error) {
-            reject(error);
-        }
+        request.onerror = () => reject(request.error);
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
     });
 }
 
@@ -674,9 +572,7 @@ function deletePicture(id) {
     });
 }
 
-/* =========================================================
-   GENERAL HELPERS
-   ========================================================= */
+/* HELPERS */
 
 const $ = id => document.getElementById(id);
 
@@ -691,22 +587,8 @@ function toast(message) {
     }, 3000);
 }
 
-function escapeHTML(value) {
-    return String(value).replace(/[&<>"']/g, character => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-    })[character]);
-}
-
 function formatDate(timestamp) {
     return new Date(timestamp).toLocaleString();
-}
-
-function makeObjectURL(blob) {
-    return URL.createObjectURL(blob);
 }
 
 function downloadBlob(blob, filename) {
@@ -728,6 +610,7 @@ function downloadPicture(picture) {
 
 async function refreshPictures() {
     pictures = await getAllPictures();
+
     $("imageCount").textContent =
         pictures.length + (pictures.length === 1 ? " picture" : " pictures");
 
@@ -735,9 +618,7 @@ async function refreshPictures() {
     renderSecretGallery();
 }
 
-/* =========================================================
-   TABS
-   ========================================================= */
+/* TABS */
 
 document.querySelectorAll(".tab-button").forEach(button => {
     button.addEventListener("click", () => {
@@ -758,11 +639,10 @@ document.querySelectorAll(".tab-button").forEach(button => {
     });
 });
 
-/* =========================================================
-   UPLOAD AND DRAG-AND-DROP
-   ========================================================= */
+/* UPLOAD */
 
-$("chooseFilesBtn").addEventListener("click", () => {
+$("chooseFilesBtn").addEventListener("click", event => {
+    event.stopPropagation();
     $("fileInput").click();
 });
 
@@ -832,46 +712,33 @@ async function handleFiles(fileList) {
     toast(saved + " picture(s) added.");
 }
 
-/* =========================================================
-   GALLERY RENDERING
-   ========================================================= */
+/* MAIN GALLERY
+   IMPORTANT: Hidden pictures are always excluded.
+   There are no Show All or Show Hidden buttons.
+*/
 
 $("searchInput").addEventListener("input", renderGallery);
-
-$("showAllBtn").addEventListener("click", () => {
-    currentFilter = "all";
-    renderGallery();
-});
-
-$("showHiddenBtn").addEventListener("click", () => {
-    currentFilter = "hidden";
-    renderGallery();
-});
 
 function renderGallery() {
     const gallery = $("gallery");
     const search = $("searchInput").value.trim().toLowerCase();
 
-    let visible = pictures.filter(picture => {
-        const matchesSearch = (picture.name || "").toLowerCase().includes(search);
-
-        if (currentFilter === "hidden") {
-            return picture.hidden && matchesSearch;
-        }
-
-        return !picture.hidden && matchesSearch;
-    });
+    const visible = pictures
+        .filter(picture =>
+            !picture.hidden &&
+            (picture.name || "").toLowerCase().includes(search)
+        )
+        .sort((a, b) => b.createdAt - a.createdAt);
 
     gallery.innerHTML = "";
-
     $("galleryEmpty").style.display = visible.length ? "none" : "block";
-
-    visible.sort((a, b) => b.createdAt - a.createdAt);
 
     visible.forEach(picture => {
         gallery.appendChild(createPictureCard(picture, false));
     });
 }
+
+/* SECRET GALLERY */
 
 function renderSecretGallery() {
     const gallery = $("secretGallery");
@@ -887,12 +754,15 @@ function renderSecretGallery() {
         .sort((a, b) => b.createdAt - a.createdAt);
 
     gallery.innerHTML = "";
-    $("secretEmpty").style.display = hiddenPictures.length ? "none" : "block";
+    $("secretEmpty").style.display =
+        hiddenPictures.length ? "none" : "block";
 
     hiddenPictures.forEach(picture => {
         gallery.appendChild(createPictureCard(picture, true));
     });
 }
+
+/* PICTURE CARDS */
 
 function createPictureCard(picture, isSecret) {
     const card = document.createElement("article");
@@ -902,16 +772,10 @@ function createPictureCard(picture, isSecret) {
     image.alt = picture.name || "Picture";
     image.loading = "lazy";
 
-    const imageURL = makeObjectURL(picture.blob);
-    image.src = imageURL;
-    image.addEventListener("load", () => URL.revokeObjectURL(imageURL), {
-        once: true
-    });
-
-    image.addEventListener("error", () => URL.revokeObjectURL(imageURL), {
-        once: true
-    });
-
+    const url = URL.createObjectURL(picture.blob);
+    image.src = url;
+    image.addEventListener("load", () => URL.revokeObjectURL(url), { once: true });
+    image.addEventListener("error", () => URL.revokeObjectURL(url), { once: true });
     image.addEventListener("click", () => openViewer(picture.id));
 
     const info = document.createElement("div");
@@ -940,27 +804,27 @@ function createPictureCard(picture, isSecret) {
     const hideButton = document.createElement("button");
     hideButton.className = "secondary";
     hideButton.textContent = isSecret ? "Unhide" : "Hide";
+
     hideButton.addEventListener("click", async () => {
-        if (isSecret) {
-            await updatePicture(picture.id, { hidden: false });
-            await refreshPictures();
-            toast("Picture returned to the main gallery.");
-        } else {
-            await updatePicture(picture.id, { hidden: true });
-            await refreshPictures();
-            toast("Picture moved to the Secret Vault.");
+        if (isSecret && !vaultUnlocked) {
+            toast("Unlock the Secret Vault first.");
+            return;
         }
+
+        await updatePicture(picture.id, { hidden: !picture.hidden });
+        await refreshPictures();
+
+        toast(isSecret
+            ? "Picture returned to the main Gallery."
+            : "Picture moved to the Secret Vault.");
     });
 
     const deleteButton = document.createElement("button");
     deleteButton.className = "danger";
     deleteButton.textContent = "Delete";
-    deleteButton.addEventListener("click", async () => {
-        const confirmed = confirm(
-            "Permanently delete '" + (picture.name || "this picture") + "'?"
-        );
 
-        if (!confirmed) return;
+    deleteButton.addEventListener("click", async () => {
+        if (!confirm("Permanently delete this picture?")) return;
 
         await deletePicture(picture.id);
         await refreshPictures();
@@ -974,27 +838,33 @@ function createPictureCard(picture, isSecret) {
     return card;
 }
 
-/* =========================================================
-   IMAGE VIEWER
-   ========================================================= */
+/* VIEWER */
 
 function openViewer(id) {
     const picture = pictures.find(item => item.id === id);
     if (!picture) return;
 
-    currentViewerId = id;
+    // Do not allow a hidden picture to be opened unless the vault is unlocked.
+    if (picture.hidden && !vaultUnlocked) {
+        toast("Unlock the Secret Vault to view this picture.");
+        return;
+    }
 
+    currentViewerId = id;
     $("viewerTitle").textContent = picture.name || "Picture";
 
     const oldURL = $("viewerImage").dataset.objectURL;
     if (oldURL) URL.revokeObjectURL(oldURL);
 
-    const url = makeObjectURL(picture.blob);
+    const url = URL.createObjectURL(picture.blob);
     $("viewerImage").src = url;
     $("viewerImage").dataset.objectURL = url;
 
+    $("viewerHide").textContent = picture.hidden
+        ? "Unhide Picture"
+        : "Hide Picture";
+
     $("viewer").classList.add("open");
-    $("viewerHide").textContent = picture.hidden ? "Unhide Picture" : "Hide Picture";
 }
 
 function closeViewer() {
@@ -1020,7 +890,10 @@ document.addEventListener("keydown", event => {
 
 $("viewerDownload").addEventListener("click", () => {
     const picture = pictures.find(item => item.id === currentViewerId);
-    if (picture) downloadPicture(picture);
+
+    if (picture && (!picture.hidden || vaultUnlocked)) {
+        downloadPicture(picture);
+    }
 });
 
 $("viewerHide").addEventListener("click", async () => {
@@ -1028,27 +901,20 @@ $("viewerHide").addEventListener("click", async () => {
     if (!picture) return;
 
     if (picture.hidden && !vaultUnlocked) {
-        toast("Unlock the Secret Vault before unhiding this picture.");
+        toast("Unlock the Secret Vault first.");
         return;
     }
 
-    await updatePicture(picture.id, { hidden: !picture.hidden });
+    const wasHidden = picture.hidden;
+
+    await updatePicture(picture.id, { hidden: !wasHidden });
     await refreshPictures();
     closeViewer();
-    toast(picture.hidden ? "Picture unhidden." : "Picture hidden.");
+
+    toast(wasHidden ? "Picture unhidden." : "Picture hidden.");
 });
 
-/* =========================================================
-   AI IMAGE GENERATOR
-   ========================================================= */
-
-/*
-    This version sets the generated image URL directly on the preview.
-    That avoids requiring fetch() just to DISPLAY the image.
-
-    The remote service can change or be unavailable. If that happens,
-    the page cannot force the service to generate an image.
-*/
+/* AI IMAGE GENERATOR */
 
 $("generateAI").addEventListener("click", generateAI);
 
@@ -1058,15 +924,11 @@ $("aiPrompt").addEventListener("keydown", event => {
 
 $("saveAI").addEventListener("click", saveAIImage);
 
-function setAIStatus(message) {
-    $("aiStatus").textContent = message;
-}
-
 function generateAI() {
     const prompt = $("aiPrompt").value.trim();
 
     if (!prompt) {
-        setAIStatus("Enter a description for your picture first.");
+        $("aiStatus").textContent = "Enter a picture description first.";
         $("aiPrompt").focus();
         return;
     }
@@ -1077,19 +939,15 @@ function generateAI() {
     button.disabled = true;
     button.textContent = "Generating...";
     $("saveAI").disabled = true;
+
     $("aiPlaceholder").style.display = "grid";
     $("aiPlaceholder").textContent = "Generating your picture...";
-
     preview.style.display = "none";
     preview.removeAttribute("src");
 
     currentAIUrl = null;
     currentAIBlob = null;
 
-    /*
-       A new seed requests a different result on each generation.
-       The prompt is encoded so spaces and punctuation work in the URL.
-    */
     const seed = Math.floor(Math.random() * 2147483647);
 
     const imageURL =
@@ -1108,9 +966,8 @@ function generateAI() {
         $("aiPlaceholder").style.display = "none";
         $("saveAI").disabled = false;
 
-        setAIStatus(
-            "Image generated. Click “Save to Gallery” to try saving it."
-        );
+        $("aiStatus").textContent =
+            "Image generated. Click Save to Gallery to save it.";
     };
 
     preview.onerror = () => {
@@ -1123,24 +980,17 @@ function generateAI() {
             "The image service did not return a picture.";
 
         $("saveAI").disabled = true;
-
-        setAIStatus(
-            "Generation failed. Try again later or use a different image service."
-        );
+        $("aiStatus").textContent =
+            "Generation failed. Try again later.";
     };
 
-    setAIStatus("Requesting an image for: " + prompt);
-
-    /*
-       The image is loaded directly, not fetched first.
-       This is the key fix for browser CORS display issues.
-    */
+    $("aiStatus").textContent = "Generating: " + prompt;
     preview.src = imageURL;
 }
 
 async function saveAIImage() {
     if (!currentAIUrl) {
-        setAIStatus("Generate an image first.");
+        $("aiStatus").textContent = "Generate an image first.";
         return;
     }
 
@@ -1152,11 +1002,6 @@ async function saveAIImage() {
         let blob = currentAIBlob;
 
         if (!blob) {
-            /*
-               Some image services allow direct display but block fetch().
-               If that happens, the browser cannot save the remote image
-               into IndexedDB from this page without a suitable backend.
-            */
             const response = await fetch(currentAIUrl);
 
             if (!response.ok) {
@@ -1185,33 +1030,21 @@ async function saveAIImage() {
         });
 
         await refreshPictures();
-
-        setAIStatus("Saved successfully to your gallery.");
-        toast("AI picture saved to gallery.");
+        $("aiStatus").textContent = "Saved to your Gallery.";
+        toast("AI picture saved.");
     } catch (error) {
-        console.error("AI save error:", error);
+        console.error(error);
 
-        setAIStatus(
-            "The image is displayed, but automatic saving was blocked by " +
-            "the image service or browser. A small backend server is needed " +
-            "to download and save it reliably."
-        );
+        $("aiStatus").textContent =
+            "The image displayed, but saving was blocked by the image service. " +
+            "A backend server may be needed to save it reliably.";
     } finally {
         button.disabled = false;
         button.textContent = "💾 Save to Gallery";
     }
 }
 
-/* =========================================================
-   SECRET VAULT
-   ========================================================= */
-
-/*
-    IMPORTANT:
-    This is a basic passcode gate, not strong encryption.
-    Hidden images are still stored in this browser's IndexedDB.
-    Do not use this for highly sensitive images.
-*/
+/* SECRET VAULT PASSCODE */
 
 const VAULT_HASH_KEY = "pictureVaultPasscodeHash";
 
@@ -1231,6 +1064,7 @@ async function hashPasscode(passcode) {
         hash = ((hash << 5) - hash) + passcode.charCodeAt(i);
         hash |= 0;
     }
+
     return "fallback-" + hash;
 }
 
@@ -1260,21 +1094,19 @@ $("createVaultBtn").addEventListener("click", async () => {
         return;
     }
 
-    const hash = await hashPasscode(passcode);
-    localStorage.setItem(VAULT_HASH_KEY, hash);
+    localStorage.setItem(VAULT_HASH_KEY, await hashPasscode(passcode));
 
     $("newPasscode").value = "";
     $("confirmPasscode").value = "";
     $("secretStatus").textContent = "Secret Vault created.";
 
-    toast("Secret Vault created.");
     updateSecretPanel();
+    toast("Secret Vault created.");
 });
 
 $("unlockVaultBtn").addEventListener("click", async () => {
     const passcode = $("vaultPasscode").value;
     const savedHash = localStorage.getItem(VAULT_HASH_KEY);
-
     const enteredHash = await hashPasscode(passcode);
 
     if (!savedHash || enteredHash !== savedHash) {
@@ -1293,18 +1125,25 @@ $("unlockVaultBtn").addEventListener("click", async () => {
 $("lockVaultBtn").addEventListener("click", () => {
     vaultUnlocked = false;
     updateSecretPanel();
+
+    // If a hidden image is open in the viewer, close it when locking.
+    if (currentViewerId !== null) {
+        const picture = pictures.find(item => item.id === currentViewerId);
+
+        if (picture && picture.hidden) {
+            closeViewer();
+        }
+    }
+
     $("secretStatus").textContent = "Vault locked.";
     toast("Secret Vault locked.");
 });
 
-/* =========================================================
-   STARTUP
-   ========================================================= */
+/* STARTUP */
 
 async function initializeApp() {
     try {
         db = await openDatabase();
-
         await refreshPictures();
         updateSecretPanel();
 
